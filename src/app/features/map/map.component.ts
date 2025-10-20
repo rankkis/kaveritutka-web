@@ -93,6 +93,7 @@ export class MapComponent implements OnInit, OnDestroy {
   private createPopupContent(playground: Playground): string {
     return `
       <div class="popup-content">
+        ${playground.imageUrl ? `<img src="${playground.imageUrl}" alt="${playground.name}" style="width: 100%; height: auto; border-radius: 4px; margin-bottom: 8px;" />` : ''}
         <h3>${playground.name}</h3>
         ${playground.address ? `<p>${playground.address}</p>` : ''}
         ${playground.description ? `<p><small>${playground.description}</small></p>` : ''}
@@ -115,9 +116,13 @@ export class MapComponent implements OnInit, OnDestroy {
     if (!this.selectedPlayground) return;
 
     const dialogRef = this.dialog.open(CheckInDialogComponent, {
+      width: '100%',
       maxWidth: '640px',
+      maxHeight: '95vh',
       panelClass: 'check-in-dialog-panel',
-      data: { playground: this.selectedPlayground }
+      data: { playground: this.selectedPlayground },
+      autoFocus: false,
+      restoreFocus: false
     });
 
     dialogRef.afterClosed().subscribe(result => {

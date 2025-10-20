@@ -9,6 +9,10 @@
       </div>
 
       <div class="playground-info">
+        <img *ngIf="selectedPlayground.imageUrl"
+             [src]="selectedPlayground.imageUrl"
+             [alt]="selectedPlayground.name"
+             class="playground-image" />
         <p *ngIf="selectedPlayground.address" class="address">
           📍 {{ selectedPlayground.address }}
         </p>

@@ -5,4 +5,5 @@ export interface Playground {
   longitude: number;
   address?: string;
   description?: string;
+  imageUrl?: string;
 }

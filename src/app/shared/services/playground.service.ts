@@ -7,6 +7,7 @@ import { Playground } from '../models/playground.model';
 })
 export class PlaygroundService {
   // Mock data for Lahti playgrounds
+  // Note: Using placehold.co for placeholder images
   private playgrounds: Playground[] = [
     {
       id: '1',
@@ -14,7 +15,8 @@ export class PlaygroundService {
       latitude: 60.9823,
       longitude: 25.6551,
       address: 'Kariniementie, Lahti',
-      description: 'Large playground near the lake with swings, slides, and climbing structures.'
+      description: 'Large playground near the lake with swings, slides, and climbing structures.',
+      imageUrl: 'https://placehold.co/400x300/4CAF50/white?text=Kariniemen+leikkipuisto'
     },
     {
       id: '2',
@@ -22,7 +24,8 @@ export class PlaygroundService {
       latitude: 60.9872,
       longitude: 25.6447,
       address: 'Kiveriönkatu, Lahti',
-      description: 'Popular neighborhood playground with sandbox and equipment for different age groups.'
+      description: 'Popular neighborhood playground with sandbox and equipment for different age groups.',
+      imageUrl: 'https://placehold.co/400x300/66BB6A/white?text=Kiverio+leikkipaikka'
     },
     {
       id: '3',
@@ -30,7 +33,8 @@ export class PlaygroundService {
       latitude: 60.9950,
       longitude: 25.6583,
       address: 'Launeenkatu, Lahti',
-      description: 'Well-maintained playground with modern equipment.'
+      description: 'Well-maintained playground with modern equipment.',
+      imageUrl: 'https://placehold.co/400x300/81C784/white?text=Laune+leikkipuisto'
     },
     {
       id: '4',
@@ -38,7 +42,8 @@ export class PlaygroundService {
       latitude: 60.9765,
       longitude: 25.6612,
       address: 'Myllypohja, Lahti',
-      description: 'Family-friendly playground with various activities.'
+      description: 'Family-friendly playground with various activities.',
+      imageUrl: 'https://placehold.co/400x300/4CAF50/white?text=Myllypohjan+leikkipaikka'
     },
     {
       id: '5',
@@ -46,7 +51,8 @@ export class PlaygroundService {
       latitude: 60.9701,
       longitude: 25.6709,
       address: 'Möysäntie, Lahti',
-      description: 'Spacious playground in a quiet neighborhood.'
+      description: 'Spacious playground in a quiet neighborhood.',
+      imageUrl: 'https://placehold.co/400x300/66BB6A/white?text=Moysan+leikkipuisto'
     },
     {
       id: '6',
@@ -54,7 +60,8 @@ export class PlaygroundService {
       latitude: 60.9834,
       longitude: 25.6398,
       address: 'Jalkarannan tie, Lahti',
-      description: 'Playground near the harbor area with beautiful lake views.'
+      description: 'Playground near the harbor area with beautiful lake views.',
+      imageUrl: 'https://placehold.co/400x300/81C784/white?text=Jalkarannantien+leikkipaikka'
     }
   ];
 
