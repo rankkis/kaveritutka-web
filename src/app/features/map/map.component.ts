@@ -115,7 +115,8 @@ export class MapComponent implements OnInit, OnDestroy {
     if (!this.selectedPlayground) return;
 
     const dialogRef = this.dialog.open(CheckInDialogComponent, {
-      width: '500px',
+      maxWidth: '640px',
+      panelClass: 'check-in-dialog-panel',
       data: { playground: this.selectedPlayground }
     });
 

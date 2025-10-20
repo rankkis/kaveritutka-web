@@ -1,4 +1,30 @@
 /* You can add global styles to this file, and also import other style files */
+
+// Angular Material theme - using Material 3 theming
+@use '@angular/material' as mat;
+
+// Include the common styles for Angular Material
+@include mat.core();
+
+// Define a Material 3 theme
+$kaveritutka-theme: mat.define-theme((
+  color: (
+    theme-type: light,
+    primary: mat.$green-palette,
+    tertiary: mat.$blue-palette,
+  ),
+  typography: (
+    brand-family: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif',
+    plain-family: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif',
+  ),
+));
+
+// Include theme styles for core and each component used in your app
+// Material 3 themes must be wrapped in a selector
+html {
+  @include mat.all-component-themes($kaveritutka-theme);
+}
+
 * {
   box-sizing: border-box;
 }
@@ -11,4 +37,43 @@ body {
 
 html, body {
   height: 100%;
+}
+
+// Material component overrides using proper CSS custom properties
+html {
+  // Select dropdown panel styling
+  --mat-select-panel-background-color: white;
+  --mdc-list-list-item-container-color: white;
+  --mdc-list-list-item-hover-state-layer-color: rgba(0, 0, 0, 0.04);
+  --mdc-list-list-item-selected-container-color: #e8f5e9;
+
+  // Button colors - using CSS custom properties
+  --mdc-protected-button-container-color: #4CAF50;
+  --mdc-protected-button-label-text-color: white;
+  --mdc-text-button-label-text-color: #4CAF50;
+
+  // Dialog styling
+  --mdc-dialog-container-color: white;
+}
+
+// Remove scrollbar from Material dialog
+.mat-mdc-dialog-container {
+  overflow: hidden;
+}
+
+.mat-mdc-dialog-content {
+  overflow: hidden;
+  max-height: none;
+}
+
+// Specific styling for check-in dialog to remove scrollbar
+.check-in-dialog-panel {
+  .mat-mdc-dialog-container {
+    overflow: hidden !important;
+  }
+
+  .mat-mdc-dialog-content {
+    overflow: hidden !important;
+    max-height: none !important;
+  }
 }

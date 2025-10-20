@@ -125,12 +125,20 @@ mat-form-field {
   width: 100%;
 
   ::ng-deep {
+    // White background for the form field
+    .mat-mdc-text-field-wrapper {
+      background-color: white;
+    }
+
     // Add proper padding and ensure text is visible
     .mat-mdc-select-value {
       color: #333;
-      padding-left: 16px;
       z-index: 1;
       position: relative;
+    }
+
+    .mat-mdc-select-trigger {
+      background-color: white;
     }
 
     // Disable textarea resize
@@ -138,10 +146,22 @@ mat-form-field {
       resize: none;
       z-index: 1;
       position: relative;
+      background-color: white;
+    }
+
+    // Input element background
+    .mat-mdc-input-element {
+      background-color: white;
     }
 
     // White background behind the notched outline
     .mdc-notched-outline {
+      background-color: white;
+    }
+
+    .mdc-notched-outline__leading,
+    .mdc-notched-outline__notch,
+    .mdc-notched-outline__trailing {
       background-color: white;
     }
   }
@@ -155,15 +175,25 @@ mat-dialog-actions {
   padding: 1rem 0 0;
 }
 
-// Fix dialog content styling
-::ng-deep {
-  mat-dialog-content {
-    overflow: visible !important;
-    max-height: none !important;
+// Fix dialog content styling - remove scrollbar completely
+:host ::ng-deep {
+  .mat-mdc-dialog-container {
+    overflow: hidden;
   }
 
   .mat-mdc-dialog-content {
-    overflow: visible !important;
-    max-height: none !important;
+    overflow: hidden;
+    max-height: none;
+    padding: 0 24px;
+    margin: 0;
+  }
+
+  .mat-mdc-dialog-surface {
+    overflow: hidden;
+  }
+
+  // Remove Material's default padding from dialog content wrapper
+  .mat-mdc-dialog-content .mdc-dialog__content {
+    padding: 0;
   }
 }

@@ -76,7 +76,7 @@
           {{ interest.label }}
         </button>
       </div>
-      <div class="error-message" *ngIf="selectedInterests.length === 0">
+      <div class="error-message" *ngIf="submitted && selectedInterests.length === 0">
         Valitse vähintään yksi kiinnostuksen kohde
       </div>
     </div>
@@ -96,6 +96,6 @@
   <button mat-raised-button color="primary"
           (click)="onSubmit()"
           [disabled]="!checkInForm.valid || selectedInterests.length === 0">
-    Luo käynti
+    Leikkimään!
   </button>
 </mat-dialog-actions>

@@ -67,6 +67,7 @@ export class CheckInDialogComponent {
     { value: 'pallopelit', label: 'Pallopelit' }
   ];
   selectedInterests: string[] = [];
+  submitted = false;
 
   constructor(
     private fb: FormBuilder,
@@ -127,6 +128,8 @@ export class CheckInDialogComponent {
   }
 
   onSubmit(): void {
+    this.submitted = true;
+
     if (this.checkInForm.valid && this.selectedInterests.length > 0) {
       const formValue = this.checkInForm.value;
       const scheduledTime = this.calculateScheduledTime();
