@@ -10,6 +10,69 @@
   }
 }
 
+.form-fieldset {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  position: relative;
+
+  .fieldset-legend {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #4CAF50;
+    padding: 0 0.5rem;
+    margin-bottom: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .remove-participant-btn {
+    background: #f44336;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+    padding: 0;
+    line-height: 1;
+
+    &:hover {
+      background: #d32f2f;
+      transform: scale(1.1);
+    }
+  }
+
+  .add-participant-btn {
+    padding: 0.75rem 1.5rem;
+    border: 2px dashed #4CAF50;
+    background: white;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #4CAF50;
+    transition: all 0.2s ease;
+    width: 100%;
+
+    &:hover {
+      background: #f1f8f4;
+      border-style: solid;
+      transform: translateY(-1px);
+    }
+  }
+}
+
 .form-section {
   .section-label {
     display: block;
@@ -123,8 +186,14 @@
 
 mat-form-field {
   width: 100%;
+  margin: 0;
 
   ::ng-deep {
+    // Remove default margins
+    .mat-mdc-form-field-subscript-wrapper {
+      display: none;
+    }
+
     // White background for the form field
     .mat-mdc-text-field-wrapper {
       background-color: white;
@@ -152,6 +221,21 @@ mat-form-field {
     // Input element background
     .mat-mdc-input-element {
       background-color: white;
+      color: #333;
+      z-index: 2;
+      position: relative;
+
+      // Make placeholder always visible
+      &::placeholder {
+        opacity: 1;
+        color: rgba(0, 0, 0, 0.6);
+      }
+    }
+
+    // Ensure input fields are clickable and editable
+    input.mat-mdc-input-element {
+      pointer-events: auto;
+      cursor: text;
     }
 
     // White background behind the notched outline

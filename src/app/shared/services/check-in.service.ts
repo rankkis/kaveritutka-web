@@ -6,44 +6,155 @@ import { CheckIn, CreateCheckInDto } from '../models/check-in.model';
   providedIn: 'root'
 })
 export class CheckInService {
-  private checkIns: CheckIn[] = [
-    {
-      id: '1',
-      playgroundId: '1',
-      parentName: 'Anna',
-      scheduledTime: new Date(Date.now() + 2 * 60 * 60 * 1000), // 2 tuntia tästä
-      childAge: 4,
-      childGender: 'girl',
-      interests: ['keinut', 'liukumäet'],
-      additionalInfo: 'Olemme yleensä noin tunnin',
-      createdAt: new Date()
-    },
-    {
-      id: '2',
-      playgroundId: '1',
-      parentName: 'Mikko',
-      scheduledTime: new Date(Date.now() + 3 * 60 * 60 * 1000), // 3 tuntia tästä
-      childAge: 5,
-      childGender: 'boy',
-      interests: ['jalkapallo', 'juokseminen'],
-      additionalInfo: 'Etsitään jalkapallokavereita!',
-      createdAt: new Date()
-    },
-    {
-      id: '3',
-      playgroundId: '2',
-      parentName: 'Laura',
-      scheduledTime: new Date(Date.now() + 24 * 60 * 60 * 1000), // huomenna
-      childAge: 3,
-      childGender: null,
-      interests: ['hiekkalaatikko', 'kiipeily'],
-      createdAt: new Date()
-    }
-  ];
+  private checkIns: CheckIn[] = this.generateMockCheckIns();
 
   private checkInsSubject = new BehaviorSubject<CheckIn[]>(this.checkIns);
 
   constructor() { }
+
+  private generateMockCheckIns(): CheckIn[] {
+    const now = new Date();
+
+    // Helper function to round to 15-minute intervals
+    const roundTo15Min = (date: Date): Date => {
+      const rounded = new Date(date);
+      const minutes = rounded.getMinutes();
+      const roundedMinutes = Math.floor(minutes / 15) * 15;
+      rounded.setMinutes(roundedMinutes);
+      rounded.setSeconds(0);
+      rounded.setMilliseconds(0);
+      return rounded;
+    };
+
+    return [
+      // Past event (2 hours ago, rounded)
+      {
+        id: '1',
+        playgroundId: '1',
+        parentName: 'Anonyymi',
+        scheduledTime: roundTo15Min(new Date(now.getTime() - 2 * 60 * 60 * 1000)),
+        duration: 1,
+        participants: [
+          {
+            childAge: 4,
+            childGender: 'girl',
+            interests: ['keinut', 'liukumäet']
+          }
+        ],
+        additionalInfo: 'Oltiin käymässä aamulla',
+        createdAt: new Date(now.getTime() - 3 * 60 * 60 * 1000)
+      },
+      // Past event (1 hour ago, rounded)
+      {
+        id: '2',
+        playgroundId: '2',
+        parentName: 'Anonyymi',
+        scheduledTime: roundTo15Min(new Date(now.getTime() - 1 * 60 * 60 * 1000)),
+        duration: 1.5,
+        participants: [
+          {
+            childAge: 3,
+            childGender: null,
+            interests: ['hiekkalaatikko', 'kiipeily']
+          }
+        ],
+        createdAt: new Date(now.getTime() - 2 * 60 * 60 * 1000)
+      },
+      // Ongoing event (started 45 minutes ago, duration 1.5h, on 15-min interval)
+      {
+        id: '3',
+        playgroundId: '1',
+        parentName: 'Anonyymi',
+        scheduledTime: roundTo15Min(new Date(now.getTime() - 45 * 60 * 1000)),
+        duration: 1.5,
+        participants: [
+          {
+            childAge: 5,
+            childGender: 'boy',
+            interests: ['jalkapallo', 'juokseminen']
+          }
+        ],
+        additionalInfo: 'Olemme paikalla nyt! Etsitään jalkapallokavereita',
+        createdAt: new Date(now.getTime() - 1 * 60 * 60 * 1000)
+      },
+      // Future event (in 1 hour, rounded)
+      {
+        id: '4',
+        playgroundId: '1',
+        parentName: 'Anonyymi',
+        scheduledTime: roundTo15Min(new Date(now.getTime() + 1 * 60 * 60 * 1000)),
+        duration: 1,
+        participants: [
+          {
+            childAge: 2,
+            childGender: 'girl',
+            interests: ['keinut', 'hiekkalaatikko']
+          },
+          {
+            childAge: 4,
+            childGender: 'boy',
+            interests: ['liukumäet', 'kiipeily']
+          }
+        ],
+        additionalInfo: 'Tullaan kahden lapsen kanssa',
+        createdAt: new Date(now.getTime() - 30 * 60 * 1000)
+      },
+      // Future event (in 2 hours, rounded)
+      {
+        id: '5',
+        playgroundId: '3',
+        parentName: 'Anonyymi',
+        scheduledTime: roundTo15Min(new Date(now.getTime() + 2 * 60 * 60 * 1000)),
+        duration: 2,
+        participants: [
+          {
+            childAge: 6,
+            childGender: 'boy',
+            interests: ['pyöräily', 'pallopelit', 'juokseminen']
+          }
+        ],
+        createdAt: new Date(now.getTime() - 20 * 60 * 1000)
+      },
+      // Future event (in 3 hours, rounded)
+      {
+        id: '6',
+        playgroundId: '2',
+        parentName: 'Anonyymi',
+        scheduledTime: roundTo15Min(new Date(now.getTime() + 3 * 60 * 60 * 1000)),
+        duration: 1.5,
+        participants: [
+          {
+            childAge: 3,
+            childGender: null,
+            interests: ['keinut', 'liukumäet']
+          }
+        ],
+        createdAt: new Date(now.getTime() - 15 * 60 * 1000)
+      },
+      // Future event (tomorrow at 10:00)
+      {
+        id: '7',
+        playgroundId: '1',
+        parentName: 'Anonyymi',
+        scheduledTime: (() => {
+          const tomorrow = new Date(now);
+          tomorrow.setDate(tomorrow.getDate() + 1);
+          tomorrow.setHours(10, 0, 0, 0);
+          return tomorrow;
+        })(),
+        duration: 1,
+        participants: [
+          {
+            childAge: 4,
+            childGender: 'girl',
+            interests: ['jalkapallo', 'juokseminen']
+          }
+        ],
+        additionalInfo: 'Huomenna aamulla!',
+        createdAt: new Date(now.getTime() - 10 * 60 * 1000)
+      }
+    ];
+  }
 
   getCheckInsByPlayground(playgroundId: string): Observable<CheckIn[]> {
     const filtered = this.checkIns

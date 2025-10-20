@@ -44,16 +44,23 @@ export class CheckInDialogComponent {
   // Time options (15 min intervals from 8:00 to 21:00, plus "now")
   timeOptions: string[] = [];
 
+  // Duration options
+  durationOptions = [
+    { value: 0.5, label: '0,5h' },
+    { value: 1, label: '1h' },
+    { value: 1.5, label: '1,5h' },
+    { value: 2, label: '2h' }
+  ];
+  selectedDuration = 1;
+
   // Age options (0-7)
   ageOptions = [0, 1, 2, 3, 4, 5, 6];
-  selectedAge = 3;
 
   // Gender options with icons
   genderOptions = [
     { value: 'boy' as const, icon: '👦', label: 'Poika' },
     { value: 'girl' as const, icon: '👧', label: 'Tyttö' }
   ];
-  selectedGender: 'boy' | 'girl' | null = null;
 
   // Interest options
   availableInterests: Array<{ value: string; label: string }> = [
@@ -66,7 +73,20 @@ export class CheckInDialogComponent {
     { value: 'pyöräily', label: 'Pyöräily' },
     { value: 'pallopelit', label: 'Pallopelit' }
   ];
-  selectedInterests: string[] = [];
+
+  // Participants array
+  participants: Array<{
+    childAge: number;
+    childGender: 'boy' | 'girl' | null;
+    interests: string[];
+  }> = [
+    {
+      childAge: 3,
+      childGender: null,
+      interests: []
+    }
+  ];
+
   submitted = false;
 
   constructor(
@@ -75,19 +95,44 @@ export class CheckInDialogComponent {
     private checkInService: CheckInService,
     @Inject(MAT_DIALOG_DATA) public data: { playground: Playground }
   ) {
-    this.generateTimeOptions();
+    this.updateTimeOptions();
 
     this.checkInForm = this.fb.group({
+      parentName: [''],
       scheduledTime: ['now', Validators.required],
       additionalInfo: ['']
     });
   }
 
-  private generateTimeOptions(): void {
+  private roundToNearest15Minutes(date: Date): Date {
+    const rounded = new Date(date);
+    const minutes = rounded.getMinutes();
+    const roundedMinutes = Math.ceil(minutes / 15) * 15;
+    rounded.setMinutes(roundedMinutes);
+    rounded.setSeconds(0);
+    rounded.setMilliseconds(0);
+    return rounded;
+  }
+
+  private updateTimeOptions(): void {
+    this.timeOptions = [];
+
+    const now = new Date();
+    const roundedNow = this.roundToNearest15Minutes(now);
+
+    // If "Today" is selected, start from current time (rounded)
+    // If "Tomorrow" is selected, start from 8:00
+    const isToday = this.selectedDate === 'today';
+    const startHour = isToday ? roundedNow.getHours() : 8;
+    const startMinute = isToday ? roundedNow.getMinutes() : 0;
+
+    // Add "now" option
     this.timeOptions.push('now');
 
-    for (let hour = 8; hour <= 21; hour++) {
-      for (let minute = 0; minute < 60; minute += 15) {
+    // Generate time slots from start time to 21:00
+    for (let hour = startHour; hour <= 21; hour++) {
+      const minuteStart = (hour === startHour) ? startMinute : 0;
+      for (let minute = minuteStart; minute < 60; minute += 15) {
         const timeStr = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
         this.timeOptions.push(timeStr);
       }
@@ -96,51 +141,102 @@ export class CheckInDialogComponent {
 
   selectDate(date: string): void {
     this.selectedDate = date;
+    this.updateTimeOptions();
+    // Reset time selection to 'now' when date changes
+    this.checkInForm.patchValue({ scheduledTime: 'now' });
   }
 
-  selectAge(age: number): void {
-    this.selectedAge = age;
+  selectDuration(duration: number): void {
+    this.selectedDuration = duration;
   }
 
-  selectGender(gender: 'boy' | 'girl'): void {
-    this.selectedGender = gender;
+  selectAge(participantIndex: number, age: number): void {
+    this.participants[participantIndex].childAge = age;
   }
 
-  removeGenderSelection(): void {
-    this.selectedGender = null;
+  selectGender(participantIndex: number, gender: 'boy' | 'girl'): void {
+    this.participants[participantIndex].childGender = gender;
   }
 
-  toggleInterest(interest: string): void {
-    const index = this.selectedInterests.indexOf(interest);
+  removeGenderSelection(participantIndex: number): void {
+    this.participants[participantIndex].childGender = null;
+  }
+
+  toggleInterest(participantIndex: number, interest: string): void {
+    const interests = this.participants[participantIndex].interests;
+    const index = interests.indexOf(interest);
     if (index > -1) {
-      this.selectedInterests.splice(index, 1);
+      interests.splice(index, 1);
     } else {
-      this.selectedInterests.push(interest);
+      interests.push(interest);
     }
   }
 
-  isInterestSelected(interest: string): boolean {
-    return this.selectedInterests.includes(interest);
+  isInterestSelected(participantIndex: number, interest: string): boolean {
+    return this.participants[participantIndex].interests.includes(interest);
   }
 
   getTimeLabel(time: string): string {
     return time === 'now' ? 'Nyt' : time;
   }
 
+  getParticipantTitle(participantIndex: number): string {
+    const participant = this.participants[participantIndex];
+    const age = `${participant.childAge}v`;
+    let genderLabel = 'lapsi';
+
+    if (participant.childGender === 'boy') {
+      genderLabel = 'poika';
+    } else if (participant.childGender === 'girl') {
+      genderLabel = 'tyttö';
+    }
+
+    return `${age}-${genderLabel}`;
+  }
+
+  isParticipantValid(participantIndex: number): boolean {
+    const participant = this.participants[participantIndex];
+    return participant.interests.length > 0;
+  }
+
+  addParticipant(): void {
+    this.participants.push({
+      childAge: 3,
+      childGender: null,
+      interests: []
+    });
+  }
+
+  removeParticipant(participantIndex: number): void {
+    if (this.participants.length > 1) {
+      this.participants.splice(participantIndex, 1);
+    }
+  }
+
+  areAllParticipantsValid(): boolean {
+    return this.participants.every(p => p.interests.length > 0);
+  }
+
   onSubmit(): void {
     this.submitted = true;
 
-    if (this.checkInForm.valid && this.selectedInterests.length > 0) {
+    // Validate that all participants have at least one interest selected
+    const allParticipantsValid = this.participants.every(p => p.interests.length > 0);
+
+    if (this.checkInForm.valid && allParticipantsValid) {
       const formValue = this.checkInForm.value;
       const scheduledTime = this.calculateScheduledTime();
 
       const checkInDto: CreateCheckInDto = {
         playgroundId: this.data.playground.id,
-        parentName: 'Anonyymi', // Anonymous user
+        parentName: formValue.parentName?.trim() || 'Anonyymi', // Use provided name or default to anonymous
         scheduledTime: scheduledTime,
-        childAge: this.selectedAge,
-        childGender: this.selectedGender,
-        interests: this.selectedInterests,
+        duration: this.selectedDuration,
+        participants: this.participants.map(p => ({
+          childAge: p.childAge,
+          childGender: p.childGender,
+          interests: p.interests
+        })),
         additionalInfo: formValue.additionalInfo || undefined
       };
 
@@ -151,7 +247,6 @@ export class CheckInDialogComponent {
   }
 
   private calculateScheduledTime(): Date {
-    const now = new Date();
     const selectedTime = this.checkInForm.value.scheduledTime;
 
     // Start with today or tomorrow
@@ -160,9 +255,9 @@ export class CheckInDialogComponent {
       targetDate.setDate(targetDate.getDate() + 1);
     }
 
-    // If "now" is selected
+    // If "now" is selected, use rounded time
     if (selectedTime === 'now') {
-      return now;
+      return this.roundToNearest15Minutes(new Date());
     }
 
     // Parse the time and set it

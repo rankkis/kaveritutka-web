@@ -158,4 +158,25 @@ export class MapComponent implements OnInit, OnDestroy {
         return 'lapsi';
     }
   }
+
+  getParticipantLabel(participant: { childAge: number; childGender: 'boy' | 'girl' | null }): string {
+    const gender = this.getGenderInFinnish(participant.childGender);
+    return `${participant.childAge}v-${gender}`;
+  }
+
+  isEventOngoing(checkIn: CheckIn): boolean {
+    const now = new Date();
+    const startTime = new Date(checkIn.scheduledTime);
+    const endTime = new Date(startTime.getTime() + checkIn.duration * 60 * 60 * 1000);
+    return now >= startTime && now <= endTime;
+  }
+
+  getTimeStatus(checkIn: CheckIn): string {
+    if (this.isEventOngoing(checkIn)) {
+      const endTime = new Date(new Date(checkIn.scheduledTime).getTime() + checkIn.duration * 60 * 60 * 1000);
+      const minutesLeft = Math.round((endTime.getTime() - new Date().getTime()) / (60 * 1000));
+      return `Paikalla nyt (vielä ${minutesLeft} min)`;
+    }
+    return '';
+  }
 }
