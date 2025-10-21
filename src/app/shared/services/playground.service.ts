@@ -7,7 +7,7 @@ import { Playground } from '../models';
 })
 export class PlaygroundService {
   // Mock data for Lahti playgrounds
-  // Note: Using placehold.co for placeholder images
+  // Note: Using local SVG placeholder image for all playgrounds
   private playgrounds: Playground[] = [
     {
       id: '1',
@@ -16,7 +16,7 @@ export class PlaygroundService {
       longitude: 25.6551,
       address: 'Kariniementie, Lahti',
       description: 'Iso leikkipuisto järven läheisyydessä, keinuineen, liukumäkineen ja kiipeilytelineineen.',
-      imageUrl: 'https://placehold.co/400x300/4CAF50/white?text=Kariniemen+leikkipuisto'
+      imageUrl: '/images/playground-placeholder.svg'
     },
     {
       id: '2',
@@ -25,7 +25,7 @@ export class PlaygroundService {
       longitude: 25.6447,
       address: 'Kiveriönkatu, Lahti',
       description: 'Suosittu alueen leikkipaikka hiekkalaatikolla ja välineillä eri ikäryhmille.',
-      imageUrl: 'https://placehold.co/400x300/66BB6A/white?text=Kiverio+leikkipaikka'
+      imageUrl: '/images/playground-placeholder.svg'
     },
     {
       id: '3',
@@ -34,7 +34,7 @@ export class PlaygroundService {
       longitude: 25.6583,
       address: 'Launeenkatu, Lahti',
       description: 'Hyvin hoidettu leikkipuisto modernilla välineistöllä.',
-      imageUrl: 'https://placehold.co/400x300/81C784/white?text=Laune+leikkipuisto'
+      imageUrl: '/images/playground-placeholder.svg'
     },
     {
       id: '4',
@@ -43,7 +43,7 @@ export class PlaygroundService {
       longitude: 25.6612,
       address: 'Myllypohja, Lahti',
       description: 'Perheystävällinen leikkipaikka monipuolisine toimintoineen.',
-      imageUrl: 'https://placehold.co/400x300/4CAF50/white?text=Myllypohjan+leikkipaikka'
+      imageUrl: '/images/playground-placeholder.svg'
     },
     {
       id: '5',
@@ -52,7 +52,7 @@ export class PlaygroundService {
       longitude: 25.6709,
       address: 'Möysäntie, Lahti',
       description: 'Tilava leikkipuisto rauhallisella asuinalueella.',
-      imageUrl: 'https://placehold.co/400x300/66BB6A/white?text=Moysan+leikkipuisto'
+      imageUrl: '/images/playground-placeholder.svg'
     },
     {
       id: '6',
@@ -61,7 +61,7 @@ export class PlaygroundService {
       longitude: 25.6398,
       address: 'Jalkarannan tie, Lahti',
       description: 'Leikkipaikka satama-alueella kauniine järvinäkymineen.',
-      imageUrl: 'https://placehold.co/400x300/81C784/white?text=Jalkarannantien+leikkipaikka'
+      imageUrl: '/images/playground-placeholder.svg'
     }
   ];
 
