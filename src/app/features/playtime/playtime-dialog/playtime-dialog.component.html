@@ -1,0 +1,9 @@
+<h2 mat-dialog-title>🎈 Leikkimään! 🎈</h2>
+
+<mat-dialog-content>
+  <app-playtime-form
+    [playground]="data.playground"
+    (formSubmit)="onFormSubmit($event)"
+    (formCancel)="onFormCancel()">
+  </app-playtime-form>
+</mat-dialog-content>

@@ -3,23 +3,19 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterOutlet, NavigationEnd } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { filter } from 'rxjs/operators';
-import { Subscription } from 'rxjs';
-import { MapStateService } from './shared/services/map-state.service';
+import { HeaderComponent } from './core/layout/header/header.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, RouterOutlet],
+  imports: [CommonModule, RouterOutlet, HeaderComponent],
   template: `
     <div class="app-container">
       <div class="construction-stamp" *ngIf="showConstructionStamp">
-        <div class="stamp-title">Rakenteilla</div>
+        <div class="stamp-title">Sivusto rakenteilla</div>
         <div class="stamp-subtitle">Sivustolla olevat tapahtumat ovat esimerkkejä • Lomakkeita ei tallenneta</div>
       </div>
-      <header>
-        <h1>{{ headerTitle }}</h1>
-        <p class="tagline">Löydä leikkikavereita lapsellesi</p>
-      </header>
+      <app-header></app-header>
       <main>
         <router-outlet></router-outlet>
       </main>
@@ -43,6 +39,7 @@ import { MapStateService } from './shared/services/map-state.service';
       border: 3px solid rgba(255, 255, 255, 0.3);
       text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
       text-align: center;
+      pointer-events: none;
     }
 
     @media (min-width: 768px) {
@@ -116,30 +113,6 @@ import { MapStateService } from './shared/services/map-state.service';
       }
     }
 
-    header {
-      background-color: #4CAF50;
-      color: white;
-      padding: 1rem;
-      text-align: center;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-
-    header h1 {
-      margin: 0;
-      font-size: 1.8rem;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      max-width: 100%;
-      padding: 0 1rem;
-    }
-
-    header .tagline {
-      margin: 0.5rem 0 0;
-      font-size: 0.9rem;
-      opacity: 0.9;
-    }
-
     main {
       flex: 1;
       overflow: hidden;
@@ -148,15 +121,12 @@ import { MapStateService } from './shared/services/map-state.service';
 })
 export class AppComponent implements OnInit, OnDestroy {
   title = 'kaveritutka-web-app';
-  headerTitle = 'Kaveritutka';
   showConstructionStamp = true;
   private isDialogOpen = false;
-  private mapStateSubscription: Subscription | undefined;
 
   constructor(
     private router: Router,
-    private dialog: MatDialog,
-    private mapStateService: MapStateService
+    private dialog: MatDialog
   ) {
     // Listen to route changes and hide construction stamp on detail pages
     this.router.events
@@ -180,22 +150,10 @@ export class AppComponent implements OnInit, OnDestroy {
       const currentUrl = this.router.url;
       this.updateStampVisibility(!currentUrl.includes('/playground/'));
     });
-
-    // Subscribe to map state changes to update header with locations
-    this.mapStateSubscription = this.mapStateService.mapState$.subscribe(state => {
-      if (state.locations.length > 0) {
-        const locationsText = state.locations.join('/');
-        this.headerTitle = `Kaveritutka - ${locationsText}`;
-      } else {
-        this.headerTitle = 'Kaveritutka';
-      }
-    });
   }
 
   ngOnDestroy(): void {
-    if (this.mapStateSubscription) {
-      this.mapStateSubscription.unsubscribe();
-    }
+    // Cleanup handled by child components
   }
 
   private updateStampVisibility(shouldShow: boolean): void {

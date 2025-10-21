@@ -4,7 +4,7 @@ export interface Participant {
   interests: string[];
 }
 
-export interface CheckIn {
+export interface Playtime {
   id: string;
   playgroundId: string;
   parentName: string;
@@ -15,7 +15,7 @@ export interface CheckIn {
   createdAt: Date;
 }
 
-export interface CreateCheckInDto {
+export interface CreatePlaytimeDto {
   playgroundId: string;
   parentName: string;
   scheduledTime: Date;

@@ -1,0 +1,9 @@
+<div class="page-container">
+  <app-playground-detail
+    [playground]="playground"
+    [playtimes]="playtimes"
+    [showBackButton]="true"
+    (createPlaytime)="onCreatePlaytime()"
+    (backClick)="goBack()">
+  </app-playground-detail>
+</div>

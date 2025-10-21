@@ -3,19 +3,22 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import * as L from 'leaflet';
-import { PlaygroundService } from '../../shared/services/playground.service';
-import { CheckInService } from '../../shared/services/check-in.service';
-import { MapStateService } from '../../shared/services/map-state.service';
-import { Playground } from '../../shared/models/playground.model';
-import { CheckIn } from '../../shared/models/check-in.model';
-import { CheckInDialogComponent } from '../check-in-dialog/check-in-dialog.component';
+import { MapStateService } from '../../core/services/map-state.service';
+import {
+  PlaygroundService,
+  PlaytimeService,
+  Playground,
+  Playtime,
+  PlaygroundDetailComponent
+} from '../../shared';
+import { PlaytimeDialogComponent } from '../playtime/playtime-dialog/playtime-dialog.component';
 import { Subscription, interval } from 'rxjs';
 
 // Map component for displaying playgrounds
 @Component({
   selector: 'app-map',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, PlaygroundDetailComponent],
   templateUrl: './map.component.html',
   styleUrls: ['./map.component.scss']
 })
@@ -26,11 +29,11 @@ export class MapComponent implements OnInit, OnDestroy {
 
   playgrounds: Playground[] = [];
   selectedPlayground: Playground | null = null;
-  checkIns: CheckIn[] = [];
+  playtimes: Playtime[] = [];
 
   constructor(
     private playgroundService: PlaygroundService,
-    private checkInService: CheckInService,
+    private playtimeService: PlaytimeService,
     private dialog: MatDialog,
     private router: Router,
     private mapStateService: MapStateService
@@ -146,17 +149,17 @@ export class MapComponent implements OnInit, OnDestroy {
     } else {
       // Show sidebar on desktop
       this.selectedPlayground = playground;
-      this.loadCheckInsForPlayground(playground.id);
+      this.loadPlaytimesForPlayground(playground.id);
     }
   }
 
-  private loadCheckInsForPlayground(playgroundId: string): void {
-    this.checkInService.getCheckInsByPlayground(playgroundId).subscribe(checkIns => {
-      this.checkIns = checkIns;
+  private loadPlaytimesForPlayground(playgroundId: string): void {
+    this.playtimeService.getPlaytimesByPlayground(playgroundId).subscribe(playtimes => {
+      this.playtimes = playtimes;
     });
   }
 
-  onCreateCheckIn(): void {
+  onCreatePlaytime(): void {
     if (!this.selectedPlayground) return;
 
     // Check if mobile device (screen width <= 768px)
@@ -164,14 +167,14 @@ export class MapComponent implements OnInit, OnDestroy {
 
     if (isMobile) {
       // Navigate to form page on mobile
-      this.router.navigate(['/playground', this.selectedPlayground.id, 'new-checkin']);
+      this.router.navigate(['/playground', this.selectedPlayground.id, 'new-playtime']);
     } else {
       // Show dialog on desktop
-      const dialogRef = this.dialog.open(CheckInDialogComponent, {
+      const dialogRef = this.dialog.open(PlaytimeDialogComponent, {
         width: '100%',
         maxWidth: '640px',
         maxHeight: '95vh',
-        panelClass: 'check-in-dialog-panel',
+        panelClass: 'playtime-dialog-panel',
         data: { playground: this.selectedPlayground },
         autoFocus: false,
         restoreFocus: false
@@ -179,8 +182,8 @@ export class MapComponent implements OnInit, OnDestroy {
 
       dialogRef.afterClosed().subscribe(result => {
         if (result && this.selectedPlayground) {
-          // Reload check-ins after creating a new one
-          this.loadCheckInsForPlayground(this.selectedPlayground.id);
+          // Reload playtimes after creating a new one
+          this.loadPlaytimesForPlayground(this.selectedPlayground.id);
         }
       });
     }
@@ -188,66 +191,19 @@ export class MapComponent implements OnInit, OnDestroy {
 
   closeSidebar(): void {
     this.selectedPlayground = null;
-    this.checkIns = [];
-  }
-
-  formatTime(date: Date): string {
-    return new Date(date).toLocaleTimeString('fi-FI', {
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  }
-
-  formatDate(date: Date): string {
-    return new Date(date).toLocaleDateString('fi-FI', {
-      weekday: 'short',
-      month: 'short',
-      day: 'numeric'
-    });
-  }
-
-  getGenderInFinnish(gender: string | null): string {
-    switch (gender) {
-      case 'boy':
-        return 'poika';
-      case 'girl':
-        return 'tyttö';
-      default:
-        return 'lapsi';
-    }
-  }
-
-  getParticipantLabel(participant: { childAge: number; childGender: 'boy' | 'girl' | null }): string {
-    const gender = this.getGenderInFinnish(participant.childGender);
-    return `${participant.childAge}v-${gender}`;
-  }
-
-  isEventOngoing(checkIn: CheckIn): boolean {
-    const now = new Date();
-    const startTime = new Date(checkIn.scheduledTime);
-    const endTime = new Date(startTime.getTime() + checkIn.duration * 60 * 60 * 1000);
-    return now >= startTime && now <= endTime;
-  }
-
-  getTimeStatus(checkIn: CheckIn): string {
-    if (this.isEventOngoing(checkIn)) {
-      const endTime = new Date(new Date(checkIn.scheduledTime).getTime() + checkIn.duration * 60 * 60 * 1000);
-      const minutesLeft = Math.round((endTime.getTime() - new Date().getTime()) / (60 * 1000));
-      return `Paikalla nyt (vielä ${minutesLeft} min)`;
-    }
-    return '';
+    this.playtimes = [];
   }
 
   private getMarkerClass(playgroundId: string): string {
-    // Get all check-ins for this playground (synchronously from cached data)
-    const allCheckIns: CheckIn[] = [];
-    this.checkInService.getAllCheckIns().subscribe(items => {
-      allCheckIns.push(...items);
+    // Get all playtimes for this playground (synchronously from cached data)
+    const allPlaytimes: Playtime[] = [];
+    this.playtimeService.getAllPlaytimes().subscribe(items => {
+      allPlaytimes.push(...items);
     }).unsubscribe();
 
-    const checkIns = allCheckIns.filter(c => c.playgroundId === playgroundId);
+    const playtimes = allPlaytimes.filter(c => c.playgroundId === playgroundId);
 
-    if (checkIns.length === 0) {
+    if (playtimes.length === 0) {
       return 'standard';
     }
 
@@ -255,9 +211,9 @@ export class MapComponent implements OnInit, OnDestroy {
     const twoHoursFromNow = new Date(now.getTime() + 2 * 60 * 60 * 1000);
 
     // Check for ongoing events
-    for (const checkIn of checkIns) {
-      const startTime = new Date(checkIn.scheduledTime);
-      const endTime = new Date(startTime.getTime() + checkIn.duration * 60 * 60 * 1000);
+    for (const playtime of playtimes) {
+      const startTime = new Date(playtime.scheduledTime);
+      const endTime = new Date(startTime.getTime() + playtime.duration * 60 * 60 * 1000);
 
       if (now >= startTime && now <= endTime) {
         return 'ongoing';
@@ -265,8 +221,8 @@ export class MapComponent implements OnInit, OnDestroy {
     }
 
     // Check for upcoming events (within 2 hours)
-    for (const checkIn of checkIns) {
-      const startTime = new Date(checkIn.scheduledTime);
+    for (const playtime of playtimes) {
+      const startTime = new Date(playtime.scheduledTime);
 
       if (startTime > now && startTime <= twoHoursFromNow) {
         return 'upcoming';

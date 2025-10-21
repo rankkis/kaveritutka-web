@@ -12,10 +12,10 @@ export const routes: Routes = [
   },
   {
     path: 'playground/:id',
-    loadComponent: () => import('./features/playground-detail/playground-detail.component').then(m => m.PlaygroundDetailComponent)
+    loadComponent: () => import('./features/playground/playground-detail-page/playground-detail-page.component').then(m => m.PlaygroundDetailPageComponent)
   },
   {
-    path: 'playground/:id/new-checkin',
-    loadComponent: () => import('./features/check-in-form-page/check-in-form-page.component').then(m => m.CheckInFormPageComponent)
+    path: 'playground/:id/new-playtime',
+    loadComponent: () => import('./features/playtime/playtime-form-page/playtime-form-page.component').then(m => m.PlaytimeFormPageComponent)
   }
 ];

@@ -1,18 +1,18 @@
 import { Injectable } from '@angular/core';
 import { Observable, of, BehaviorSubject } from 'rxjs';
-import { CheckIn, CreateCheckInDto } from '../models/check-in.model';
+import { Playtime, CreatePlaytimeDto } from '../models';
 
 @Injectable({
   providedIn: 'root'
 })
-export class CheckInService {
-  private checkIns: CheckIn[] = this.generateMockCheckIns();
+export class PlaytimeService {
+  private playtimes: Playtime[] = this.generateMockPlaytimes();
 
-  private checkInsSubject = new BehaviorSubject<CheckIn[]>(this.checkIns);
+  private playtimesSubject = new BehaviorSubject<Playtime[]>(this.playtimes);
 
   constructor() { }
 
-  private generateMockCheckIns(): CheckIn[] {
+  private generateMockPlaytimes(): Playtime[] {
     const now = new Date();
 
     // Helper function to round to 15-minute intervals
@@ -157,14 +157,14 @@ export class CheckInService {
     ];
   }
 
-  getCheckInsByPlayground(playgroundId: string): Observable<CheckIn[]> {
+  getPlaytimesByPlayground(playgroundId: string): Observable<Playtime[]> {
     const now = new Date();
 
-    const filtered = this.checkIns
-      .filter(checkIn => checkIn.playgroundId === playgroundId)
-      .filter(checkIn => {
-        const startTime = new Date(checkIn.scheduledTime);
-        const endTime = new Date(startTime.getTime() + checkIn.duration * 60 * 60 * 1000);
+    const filtered = this.playtimes
+      .filter(playtime => playtime.playgroundId === playgroundId)
+      .filter(playtime => {
+        const startTime = new Date(playtime.scheduledTime);
+        const endTime = new Date(startTime.getTime() + playtime.duration * 60 * 60 * 1000);
 
         // Include ongoing events (started in the past but not yet ended)
         // AND future events (starting in the future)
@@ -175,28 +175,28 @@ export class CheckInService {
     return of(filtered);
   }
 
-  getAllCheckIns(): Observable<CheckIn[]> {
-    return this.checkInsSubject.asObservable();
+  getAllPlaytimes(): Observable<Playtime[]> {
+    return this.playtimesSubject.asObservable();
   }
 
-  createCheckIn(dto: CreateCheckInDto): Observable<CheckIn> {
-    const newCheckIn: CheckIn = {
+  createPlaytime(dto: CreatePlaytimeDto): Observable<Playtime> {
+    const newPlaytime: Playtime = {
       id: Date.now().toString(),
       ...dto,
       createdAt: new Date()
     };
 
-    this.checkIns.push(newCheckIn);
-    this.checkInsSubject.next(this.checkIns);
+    this.playtimes.push(newPlaytime);
+    this.playtimesSubject.next(this.playtimes);
 
-    return of(newCheckIn);
+    return of(newPlaytime);
   }
 
-  deleteCheckIn(id: string): Observable<boolean> {
-    const index = this.checkIns.findIndex(c => c.id === id);
+  deletePlaytime(id: string): Observable<boolean> {
+    const index = this.playtimes.findIndex(c => c.id === id);
     if (index > -1) {
-      this.checkIns.splice(index, 1);
-      this.checkInsSubject.next(this.checkIns);
+      this.playtimes.splice(index, 1);
+      this.playtimesSubject.next(this.playtimes);
       return of(true);
     }
     return of(false);

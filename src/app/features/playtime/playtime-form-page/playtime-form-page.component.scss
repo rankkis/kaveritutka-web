@@ -1,14 +1,87 @@
-.check-in-form {
+.form-page-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: white;
+}
+
+.form-page-header {
+  position: sticky;
+  top: 0;
+  background: white;
+  border-bottom: 1px solid #e0e0e0;
+  padding: 1rem;
+  z-index: 100;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+
+  .back-btn {
+    background: none;
+    border: none;
+    font-size: 1rem;
+    color: #4CAF50;
+    cursor: pointer;
+    padding: 0.5rem 0;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+
+    .back-icon {
+      font-size: 1.5rem;
+      line-height: 1;
+    }
+
+    &:hover {
+      color: #45a049;
+    }
+  }
+
+  h1 {
+    margin: 0;
+    font-size: 1.75rem;
+    color: #333;
+    text-align: center;
+  }
+}
+
+.form-page-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.5rem;
+}
+
+.form-page-actions {
+  position: sticky;
+  bottom: 0;
+  background: white;
+  border-top: 1px solid #e0e0e0;
+  padding: 1rem 1.5rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.05);
+
+  @media (max-width: 768px) {
+    padding: 0.75rem 1rem;
+
+    button {
+      flex: 1;
+    }
+  }
+}
+
+// Form styles (copied from check-in-dialog)
+.playtime-form {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  padding: 1rem 0;
+  padding: 0;
   width: 100%;
   box-sizing: border-box;
 
   @media (max-width: 768px) {
     gap: 1rem;
-    padding: 0.5rem 0;
   }
 }
 
@@ -191,17 +264,14 @@ mat-form-field {
   margin: 0;
 
   ::ng-deep {
-    // Remove default margins
     .mat-mdc-form-field-subscript-wrapper {
       display: none;
     }
 
-    // White background for the form field
     .mat-mdc-text-field-wrapper {
       background-color: white;
     }
 
-    // Add proper padding and ensure text is visible
     .mat-mdc-select-value {
       color: #333;
       z-index: 1;
@@ -212,7 +282,6 @@ mat-form-field {
       background-color: white;
     }
 
-    // Disable textarea resize
     textarea.mat-mdc-input-element {
       resize: none;
       z-index: 1;
@@ -220,27 +289,23 @@ mat-form-field {
       background-color: white;
     }
 
-    // Input element background
     .mat-mdc-input-element {
       background-color: white;
       color: #333;
       z-index: 2;
       position: relative;
 
-      // Make placeholder always visible
       &::placeholder {
         opacity: 1;
         color: rgba(0, 0, 0, 0.6);
       }
     }
 
-    // Ensure input fields are clickable and editable
     input.mat-mdc-input-element {
       pointer-events: auto;
       cursor: text;
     }
 
-    // White background behind the notched outline
     .mdc-notched-outline {
       background-color: white;
     }
@@ -257,73 +322,17 @@ mat-form-field {
   width: 100%;
 }
 
-mat-dialog-actions {
-  padding: 1rem 0 0;
-}
+// Mobile optimizations
+@media (max-width: 768px) {
+  .form-page-header {
+    padding: 0.75rem 1rem;
 
-// Fix dialog content styling - proper scrolling and responsive layout
-:host ::ng-deep {
-  .mat-mdc-dialog-container {
-    --mdc-dialog-container-shape: 16px;
-    box-sizing: border-box;
-  }
-
-  .mat-mdc-dialog-surface {
-    overflow-y: auto !important;
-    overflow-x: hidden !important;
-    display: flex !important;
-    flex-direction: column !important;
-    box-sizing: border-box;
-    max-height: 95vh;
-
-    @media (max-width: 768px) {
-      max-height: 100vh;
-      border-radius: 0;
+    h1 {
+      font-size: 1.5rem;
     }
   }
 
-  .mat-mdc-dialog-title {
-    padding: 20px 24px 16px;
-    margin: 0;
-    flex-shrink: 0;
-
-    @media (max-width: 768px) {
-      padding: 16px 16px 12px;
-      font-size: 1.25rem;
-    }
-  }
-
-  .mat-mdc-dialog-content {
-    flex: 1 1 auto;
-    overflow-y: auto !important;
-    overflow-x: hidden !important;
-    padding: 0 24px !important;
-    margin: 0;
-    max-height: none !important;
-    -webkit-overflow-scrolling: touch;
-
-    @media (max-width: 768px) {
-      padding: 0 16px !important;
-    }
-  }
-
-  .mat-mdc-dialog-actions {
-    padding: 16px 24px 20px;
-    margin: 0;
-    flex-shrink: 0;
-    border-top: 1px solid #e0e0e0;
-
-    @media (max-width: 768px) {
-      padding: 12px 16px 16px;
-
-      button {
-        flex: 1;
-      }
-    }
-  }
-
-  // Remove Material's default padding from dialog content wrapper
-  .mat-mdc-dialog-content .mdc-dialog__content {
-    padding: 0;
+  .form-page-content {
+    padding: 1rem;
   }
 }

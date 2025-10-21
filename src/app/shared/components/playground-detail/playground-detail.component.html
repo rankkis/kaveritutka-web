@@ -1,13 +1,14 @@
 <div class="detail-container" *ngIf="playground">
-  <div class="detail-header">
-    <button class="back-btn" (click)="goBack()">
+  <div class="detail-header" *ngIf="showBackButton">
+    <button class="back-btn" (click)="onBackClick()">
       <span class="back-icon">←</span>
       Takaisin
     </button>
-    <h1>{{ playground.name }}</h1>
   </div>
 
   <div class="detail-content">
+    <h1 class="playground-title">{{ playground.name }}</h1>
+
     <div class="playground-info">
       <img *ngIf="playground.imageUrl"
            [src]="playground.imageUrl"
@@ -21,36 +22,36 @@
       </p>
     </div>
 
-    <div class="check-ins-section">
+    <div class="playtimes-section">
       <div class="section-header">
-        <h2>Tulevat käynnit</h2>
-        <button class="btn-primary" (click)="onCreateCheckIn()">
-          + Uusi käynti
+        <h2>Tulevat leikkiajat</h2>
+        <button class="btn-primary" (click)="onCreatePlaytime()">
+          + Uusi leikkiaika
         </button>
       </div>
 
-      <div class="check-ins-list">
-        <div *ngIf="checkIns.length === 0" class="empty-state">
-          <p>Ei vielä suunniteltuja käyntejä.</p>
-          <p>Ole ensimmäinen suunnittelemassa käyntiä!</p>
+      <div class="playtimes-list">
+        <div *ngIf="playtimes.length === 0" class="empty-state">
+          <p>Ei vielä suunniteltuja leikkiaikoja.</p>
+          <p>Ole ensimmäinen suunnittelemassa leikkiaikaa!</p>
         </div>
 
-        <div *ngFor="let checkIn of checkIns" class="check-in-card" [class.ongoing]="isEventOngoing(checkIn)">
-          <div class="check-in-header">
+        <div *ngFor="let playtime of playtimes" class="playtime-card" [class.ongoing]="isEventOngoing(playtime)">
+          <div class="playtime-header">
             <div class="time-info">
-              <span class="date">{{ formatDate(checkIn.scheduledTime) }}</span>
-              <span class="time">{{ formatTime(checkIn.scheduledTime) }}</span>
+              <span class="date">{{ formatDate(playtime.scheduledTime) }}</span>
+              <span class="time">{{ formatTime(playtime.scheduledTime) }}</span>
             </div>
-            <span class="ongoing-badge" *ngIf="isEventOngoing(checkIn)">
-              🟢 {{ getTimeStatus(checkIn) }}
+            <span class="ongoing-badge" *ngIf="isEventOngoing(playtime)">
+              🟢 {{ getTimeStatus(playtime) }}
             </span>
           </div>
-          <div class="check-in-body">
-            <p class="parent-name">👤 {{ checkIn.parentName }}</p>
+          <div class="playtime-body">
+            <p class="parent-name">👤 {{ playtime.parentName }}</p>
 
             <!-- Display all participants -->
             <div class="participants-section">
-              <div class="participant" *ngFor="let participant of checkIn.participants; let i = index">
+              <div class="participant" *ngFor="let participant of playtime.participants; let i = index">
                 <p class="child-info">
                   🧒 {{ getParticipantLabel(participant) }}
                 </p>
@@ -62,8 +63,8 @@
               </div>
             </div>
 
-            <p class="additional-info" *ngIf="checkIn.additionalInfo">
-              💬 {{ checkIn.additionalInfo }}
+            <p class="additional-info" *ngIf="playtime.additionalInfo">
+              💬 {{ playtime.additionalInfo }}
             </p>
           </div>
         </div>

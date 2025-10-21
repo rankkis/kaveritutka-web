@@ -4,71 +4,15 @@
   <div class="sidebar" [class.open]="selectedPlayground">
     <div class="sidebar-content" *ngIf="selectedPlayground">
       <div class="sidebar-header">
-        <h2>{{ selectedPlayground.name }}</h2>
         <button class="close-btn" (click)="closeSidebar()">×</button>
       </div>
 
-      <div class="playground-info">
-        <img *ngIf="selectedPlayground.imageUrl"
-             [src]="selectedPlayground.imageUrl"
-             [alt]="selectedPlayground.name"
-             class="playground-image" />
-        <p *ngIf="selectedPlayground.address" class="address">
-          📍 {{ selectedPlayground.address }}
-        </p>
-        <p *ngIf="selectedPlayground.description" class="description">
-          {{ selectedPlayground.description }}
-        </p>
-      </div>
-
-      <div class="check-ins-section">
-        <div class="section-header">
-          <h3>Tulevat käynnit</h3>
-          <button class="btn-primary" (click)="onCreateCheckIn()">
-            + Uusi käynti
-          </button>
-        </div>
-
-        <div class="check-ins-list">
-          <div *ngIf="checkIns.length === 0" class="empty-state">
-            <p>Ei vielä suunniteltuja käyntejä.</p>
-            <p>Ole ensimmäinen suunnittelemassa käyntiä!</p>
-          </div>
-
-          <div *ngFor="let checkIn of checkIns" class="check-in-card" [class.ongoing]="isEventOngoing(checkIn)">
-            <div class="check-in-header">
-              <div class="time-info">
-                <span class="date">{{ formatDate(checkIn.scheduledTime) }}</span>
-                <span class="time">{{ formatTime(checkIn.scheduledTime) }}</span>
-              </div>
-              <span class="ongoing-badge" *ngIf="isEventOngoing(checkIn)">
-                🟢 {{ getTimeStatus(checkIn) }}
-              </span>
-            </div>
-            <div class="check-in-body">
-              <p class="parent-name">👤 {{ checkIn.parentName }}</p>
-
-              <!-- Display all participants -->
-              <div class="participants-section">
-                <div class="participant" *ngFor="let participant of checkIn.participants; let i = index">
-                  <p class="child-info">
-                    🧒 {{ getParticipantLabel(participant) }}
-                  </p>
-                  <div class="interests" *ngIf="participant.interests.length > 0">
-                    <span class="interest-tag" *ngFor="let interest of participant.interests">
-                      {{ interest }}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              <p class="additional-info" *ngIf="checkIn.additionalInfo">
-                💬 {{ checkIn.additionalInfo }}
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
+      <app-playground-detail
+        [playground]="selectedPlayground"
+        [playtimes]="playtimes"
+        [showBackButton]="false"
+        (createPlaytime)="onCreatePlaytime()">
+      </app-playground-detail>
     </div>
   </div>
 </div>

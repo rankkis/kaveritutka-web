@@ -1,4 +1,4 @@
-import { PLAYTIME_PERIOD } from '../constants/playtime.constants';
+import { PLAYTIME_PERIOD } from '../constants';
 
 /**
  * Generate time slots for playground visits
