@@ -27,46 +27,13 @@ export class CheckInService {
     };
 
     return [
-      // Past event (2 hours ago, rounded)
+      // Ongoing event #1 (started 20 minutes ago, duration 2h) - ALWAYS ONGOING
       {
         id: '1',
         playgroundId: '1',
-        parentName: 'Anonyymi',
-        scheduledTime: roundTo15Min(new Date(now.getTime() - 2 * 60 * 60 * 1000)),
-        duration: 1,
-        participants: [
-          {
-            childAge: 4,
-            childGender: 'girl',
-            interests: ['keinut', 'liukumäet']
-          }
-        ],
-        additionalInfo: 'Oltiin käymässä aamulla',
-        createdAt: new Date(now.getTime() - 3 * 60 * 60 * 1000)
-      },
-      // Past event (1 hour ago, rounded)
-      {
-        id: '2',
-        playgroundId: '2',
-        parentName: 'Anonyymi',
-        scheduledTime: roundTo15Min(new Date(now.getTime() - 1 * 60 * 60 * 1000)),
-        duration: 1.5,
-        participants: [
-          {
-            childAge: 3,
-            childGender: null,
-            interests: ['hiekkalaatikko', 'kiipeily']
-          }
-        ],
-        createdAt: new Date(now.getTime() - 2 * 60 * 60 * 1000)
-      },
-      // Ongoing event (started 45 minutes ago, duration 1.5h, on 15-min interval)
-      {
-        id: '3',
-        playgroundId: '1',
-        parentName: 'Anonyymi',
-        scheduledTime: roundTo15Min(new Date(now.getTime() - 45 * 60 * 1000)),
-        duration: 1.5,
+        parentName: 'Annika',
+        scheduledTime: roundTo15Min(new Date(now.getTime() - 20 * 60 * 1000)),
+        duration: 2,
         participants: [
           {
             childAge: 5,
@@ -77,11 +44,45 @@ export class CheckInService {
         additionalInfo: 'Olemme paikalla nyt! Etsitään jalkapallokavereita',
         createdAt: new Date(now.getTime() - 1 * 60 * 60 * 1000)
       },
+      // Ongoing event #2 (started 30 minutes ago, duration 1.5h) - ALWAYS ONGOING
+      {
+        id: '2',
+        playgroundId: '2',
+        parentName: 'Aleksi',
+        scheduledTime: roundTo15Min(new Date(now.getTime() - 30 * 60 * 1000)),
+        duration: 1.5,
+        participants: [
+          {
+            childAge: 3,
+            childGender: null,
+            interests: ['hiekkalaatikko', 'keinut']
+          }
+        ],
+        additionalInfo: 'Paikalla nyt, keinutellaan!',
+        createdAt: new Date(now.getTime() - 1 * 60 * 60 * 1000)
+      },
+      // Upcoming event (in 45 minutes) - ALWAYS UPCOMING
+      {
+        id: '3',
+        playgroundId: '3',
+        parentName: 'Keni',
+        scheduledTime: roundTo15Min(new Date(now.getTime() + 45 * 60 * 1000)),
+        duration: 1.5,
+        participants: [
+          {
+            childAge: 4,
+            childGender: 'girl',
+            interests: ['liukumäet', 'kiipeily']
+          }
+        ],
+        additionalInfo: 'Tullaan kohta!',
+        createdAt: new Date(now.getTime() - 30 * 60 * 1000)
+      },
       // Future event (in 1 hour, rounded)
       {
         id: '4',
         playgroundId: '1',
-        parentName: 'Anonyymi',
+        parentName: 'Heli',
         scheduledTime: roundTo15Min(new Date(now.getTime() + 1 * 60 * 60 * 1000)),
         duration: 1,
         participants: [
@@ -103,7 +104,7 @@ export class CheckInService {
       {
         id: '5',
         playgroundId: '3',
-        parentName: 'Anonyymi',
+        parentName: 'Pasi',
         scheduledTime: roundTo15Min(new Date(now.getTime() + 2 * 60 * 60 * 1000)),
         duration: 2,
         participants: [
@@ -119,7 +120,7 @@ export class CheckInService {
       {
         id: '6',
         playgroundId: '2',
-        parentName: 'Anonyymi',
+        parentName: 'Panu',
         scheduledTime: roundTo15Min(new Date(now.getTime() + 3 * 60 * 60 * 1000)),
         duration: 1.5,
         participants: [
@@ -135,7 +136,7 @@ export class CheckInService {
       {
         id: '7',
         playgroundId: '1',
-        parentName: 'Anonyymi',
+        parentName: 'Heli',
         scheduledTime: (() => {
           const tomorrow = new Date(now);
           tomorrow.setDate(tomorrow.getDate() + 1);
@@ -157,9 +158,18 @@ export class CheckInService {
   }
 
   getCheckInsByPlayground(playgroundId: string): Observable<CheckIn[]> {
+    const now = new Date();
+
     const filtered = this.checkIns
       .filter(checkIn => checkIn.playgroundId === playgroundId)
-      .filter(checkIn => new Date(checkIn.scheduledTime) > new Date()) // Only future check-ins
+      .filter(checkIn => {
+        const startTime = new Date(checkIn.scheduledTime);
+        const endTime = new Date(startTime.getTime() + checkIn.duration * 60 * 60 * 1000);
+
+        // Include ongoing events (started in the past but not yet ended)
+        // AND future events (starting in the future)
+        return endTime > now;
+      })
       .sort((a, b) => new Date(a.scheduledTime).getTime() - new Date(b.scheduledTime).getTime());
 
     return of(filtered);

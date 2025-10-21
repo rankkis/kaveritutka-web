@@ -262,4 +262,129 @@
       }
     }
   }
+
+  // Custom marker wrapper (removes default leaflet styles)
+  .custom-marker-wrapper {
+    background: transparent !important;
+    border: none !important;
+  }
+
+  // Animated marker styles
+  .playground-marker {
+    position: relative;
+    background: #4CAF50;
+    border-radius: 50% 50% 50% 0;
+    width: 32px;
+    height: 32px;
+    transform: rotate(-45deg);
+    border: 3px solid #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+
+    &::after {
+      content: '';
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      background: white;
+      border-radius: 50%;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+  }
+
+  // Pulsing animation for ongoing events
+  .playground-marker.ongoing {
+    background: #2e7d32;
+    animation: pulse-ongoing 1.5s ease-in-out infinite;
+
+    &::before {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: #4CAF50;
+      border-radius: 50% 50% 50% 0;
+      opacity: 0;
+      animation: pulse-ring 1.5s ease-out infinite;
+    }
+  }
+
+  // Stronger animation for upcoming events (within 2 hours)
+  .playground-marker.upcoming {
+    background: #43A047;
+    animation: pulse-upcoming 2s ease-in-out infinite;
+
+    &::before {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: #66BB6A;
+      border-radius: 50% 50% 50% 0;
+      opacity: 0;
+      animation: pulse-ring-upcoming 2s ease-out infinite;
+    }
+  }
+
+  // Standard marker for future/no events
+  .playground-marker.standard {
+    background: #4CAF50;
+  }
+}
+
+// Keyframes for pulsing ring effect
+@keyframes pulse-ring {
+  0% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.5);
+    opacity: 0.4;
+  }
+  100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
+// Keyframes for ongoing event pulse
+@keyframes pulse-ongoing {
+  0%, 100% {
+    transform: rotate(-45deg) scale(1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+  50% {
+    transform: rotate(-45deg) scale(1.1);
+    box-shadow: 0 4px 16px rgba(46, 125, 50, 0.6);
+  }
+}
+
+// Keyframes for upcoming event pulse (more visible)
+@keyframes pulse-upcoming {
+  0%, 100% {
+    transform: rotate(-45deg) scale(1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+  50% {
+    transform: rotate(-45deg) scale(1.08);
+    box-shadow: 0 4px 20px rgba(67, 160, 71, 0.7);
+  }
+}
+
+// Keyframes for upcoming event pulse ring
+@keyframes pulse-ring-upcoming {
+  0% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scale(1.3);
+    opacity: 0.3;
+  }
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
 }

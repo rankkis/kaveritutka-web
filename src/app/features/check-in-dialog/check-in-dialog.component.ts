@@ -12,6 +12,7 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { CheckInService } from '../../shared/services/check-in.service';
 import { CreateCheckInDto } from '../../shared/models/check-in.model';
 import { Playground } from '../../shared/models/playground.model';
+import { PLAYTIME_PERIOD } from '../../shared/constants/playtime.constants';
 
 @Component({
   selector: 'app-check-in-dialog',
@@ -34,14 +35,11 @@ import { Playground } from '../../shared/models/playground.model';
 export class CheckInDialogComponent {
   checkInForm: FormGroup;
 
-  // Date options
-  dateOptions = [
-    { value: 'today', label: 'Tänään' },
-    { value: 'tomorrow', label: 'Huomenna' }
-  ];
+  // Date options (filtered based on current time)
+  dateOptions: Array<{ value: string; label: string }> = [];
   selectedDate = 'today';
 
-  // Time options (15 min intervals from 8:00 to 21:00, plus "now")
+  // Time options (generated from PLAYTIME_PERIOD constants, plus "now")
   timeOptions: string[] = [];
 
   // Duration options
@@ -95,6 +93,7 @@ export class CheckInDialogComponent {
     private checkInService: CheckInService,
     @Inject(MAT_DIALOG_DATA) public data: { playground: Playground }
   ) {
+    this.updateDateOptions();
     this.updateTimeOptions();
 
     this.checkInForm = this.fb.group({
@@ -114,6 +113,27 @@ export class CheckInDialogComponent {
     return rounded;
   }
 
+  private updateDateOptions(): void {
+    this.dateOptions = [];
+    const now = new Date();
+    const roundedNow = this.roundToNearest15Minutes(now);
+
+    // Check if there are any available time slots for today
+    // Time slots are available until END_HOUR (21:00)
+    // If rounded time is after 21:00, no slots are available for today
+    const hasTimeSlotsToday = roundedNow.getHours() <= PLAYTIME_PERIOD.END_HOUR;
+
+    if (hasTimeSlotsToday) {
+      this.dateOptions.push({ value: 'today', label: 'Tänään' });
+    } else {
+      // If "today" is not available, select "tomorrow" by default
+      this.selectedDate = 'tomorrow';
+    }
+
+    // Always show "Tomorrow"
+    this.dateOptions.push({ value: 'tomorrow', label: 'Huomenna' });
+  }
+
   private updateTimeOptions(): void {
     this.timeOptions = [];
 
@@ -121,18 +141,18 @@ export class CheckInDialogComponent {
     const roundedNow = this.roundToNearest15Minutes(now);
 
     // If "Today" is selected, start from current time (rounded)
-    // If "Tomorrow" is selected, start from 8:00
+    // If "Tomorrow" is selected, start from PLAYTIME_PERIOD.START_HOUR
     const isToday = this.selectedDate === 'today';
-    const startHour = isToday ? roundedNow.getHours() : 8;
+    const startHour = isToday ? roundedNow.getHours() : PLAYTIME_PERIOD.START_HOUR;
     const startMinute = isToday ? roundedNow.getMinutes() : 0;
 
     // Add "now" option
     this.timeOptions.push('now');
 
-    // Generate time slots from start time to 21:00
-    for (let hour = startHour; hour <= 21; hour++) {
+    // Generate time slots from start time to PLAYTIME_PERIOD.END_HOUR
+    for (let hour = startHour; hour <= PLAYTIME_PERIOD.END_HOUR; hour++) {
       const minuteStart = (hour === startHour) ? startMinute : 0;
-      for (let minute = minuteStart; minute < 60; minute += 15) {
+      for (let minute = minuteStart; minute < 60; minute += PLAYTIME_PERIOD.INTERVAL_MINUTES) {
         const timeStr = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
         this.timeOptions.push(timeStr);
       }

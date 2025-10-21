@@ -7,6 +7,7 @@ import { CheckInService } from '../../shared/services/check-in.service';
 import { Playground } from '../../shared/models/playground.model';
 import { CheckIn } from '../../shared/models/check-in.model';
 import { CheckInDialogComponent } from '../check-in-dialog/check-in-dialog.component';
+import { Subscription, interval } from 'rxjs';
 
 // Map component for displaying playgrounds
 @Component({
@@ -19,6 +20,7 @@ import { CheckInDialogComponent } from '../check-in-dialog/check-in-dialog.compo
 export class MapComponent implements OnInit, OnDestroy {
   private map: L.Map | undefined;
   private markers: Map<string, L.Marker> = new Map();
+  private markerUpdateSubscription: Subscription | undefined;
 
   playgrounds: Playground[] = [];
   selectedPlayground: Playground | null = null;
@@ -33,11 +35,19 @@ export class MapComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.initMap();
     this.loadPlaygrounds();
+
+    // Update markers every minute to reflect changing event statuses
+    this.markerUpdateSubscription = interval(60000).subscribe(() => {
+      this.updateMarkerAnimations();
+    });
   }
 
   ngOnDestroy(): void {
     if (this.map) {
       this.map.remove();
+    }
+    if (this.markerUpdateSubscription) {
+      this.markerUpdateSubscription.unsubscribe();
     }
   }
 
@@ -55,19 +65,6 @@ export class MapComponent implements OnInit, OnDestroy {
       attribution: '© OpenStreetMap contributors © CARTO',
       subdomains: 'abcd'
     }).addTo(this.map);
-
-    // Custom icon for playgrounds
-    const playgroundIcon = L.icon({
-      iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
-      shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
-      iconSize: [25, 41],
-      iconAnchor: [12, 41],
-      popupAnchor: [1, -34],
-      shadowSize: [41, 41]
-    });
-
-    // Set default icon
-    L.Marker.prototype.options.icon = playgroundIcon;
   }
 
   private loadPlaygrounds(): void {
@@ -81,7 +78,16 @@ export class MapComponent implements OnInit, OnDestroy {
     if (!this.map) return;
 
     this.playgrounds.forEach(playground => {
-      const marker = L.marker([playground.latitude, playground.longitude])
+      const markerClass = this.getMarkerClass(playground.id);
+      const customIcon = L.divIcon({
+        className: 'custom-marker-wrapper',
+        html: `<div class="playground-marker ${markerClass}"></div>`,
+        iconSize: [32, 32],
+        iconAnchor: [16, 32],
+        popupAnchor: [0, -32]
+      });
+
+      const marker = L.marker([playground.latitude, playground.longitude], { icon: customIcon })
         .addTo(this.map!)
         .bindPopup(this.createPopupContent(playground))
         .on('click', () => this.onMarkerClick(playground));
@@ -183,5 +189,62 @@ export class MapComponent implements OnInit, OnDestroy {
       return `Paikalla nyt (vielä ${minutesLeft} min)`;
     }
     return '';
+  }
+
+  private getMarkerClass(playgroundId: string): string {
+    // Get all check-ins for this playground (synchronously from cached data)
+    const allCheckIns: CheckIn[] = [];
+    this.checkInService.getAllCheckIns().subscribe(items => {
+      allCheckIns.push(...items);
+    }).unsubscribe();
+
+    const checkIns = allCheckIns.filter(c => c.playgroundId === playgroundId);
+
+    if (checkIns.length === 0) {
+      return 'standard';
+    }
+
+    const now = new Date();
+    const twoHoursFromNow = new Date(now.getTime() + 2 * 60 * 60 * 1000);
+
+    // Check for ongoing events
+    for (const checkIn of checkIns) {
+      const startTime = new Date(checkIn.scheduledTime);
+      const endTime = new Date(startTime.getTime() + checkIn.duration * 60 * 60 * 1000);
+
+      if (now >= startTime && now <= endTime) {
+        return 'ongoing';
+      }
+    }
+
+    // Check for upcoming events (within 2 hours)
+    for (const checkIn of checkIns) {
+      const startTime = new Date(checkIn.scheduledTime);
+
+      if (startTime > now && startTime <= twoHoursFromNow) {
+        return 'upcoming';
+      }
+    }
+
+    return 'standard';
+  }
+
+  private updateMarkerAnimations(): void {
+    if (!this.map) return;
+
+    this.playgrounds.forEach(playground => {
+      const marker = this.markers.get(playground.id);
+      if (marker) {
+        const markerClass = this.getMarkerClass(playground.id);
+        const customIcon = L.divIcon({
+          className: 'custom-marker-wrapper',
+          html: `<div class="playground-marker ${markerClass}"></div>`,
+          iconSize: [32, 32],
+          iconAnchor: [16, 32],
+          popupAnchor: [0, -32]
+        });
+        marker.setIcon(customIcon);
+      }
+    });
   }
 }
