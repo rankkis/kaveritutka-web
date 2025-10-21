@@ -7,7 +7,7 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "gh-build": "ng build --configuration production --base-href https://kaveritutka.app/",
+    "gh-build": "ng build --configuration production --base-href /",
     "gh-deploy": "npx angular-cli-ghpages --dir=dist/kaveritutka-web-app/browser --cname=kaveritutka.app"
   },
   "private": true,
