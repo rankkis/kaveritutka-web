@@ -1,15 +1,18 @@
-import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Router, RouterOutlet, NavigationEnd } from '@angular/router';
+import { MatDialog } from '@angular/material/dialog';
+import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet],
+  imports: [CommonModule, RouterOutlet],
   template: `
     <div class="app-container">
-      <div class="construction-stamp">
+      <div class="construction-stamp" *ngIf="showConstructionStamp">
         <div class="stamp-title">Rakenteilla</div>
-        <div class="stamp-subtitle">Tapahtumat ovat esimerkkejä • Lomakkeita ei tallenneta</div>
+        <div class="stamp-subtitle">Sivustolla olevat tapahtumat ovat esimerkkejä • Lomakkeita ei tallenneta</div>
       </div>
       <header>
         <h1>Kaveritutka</h1>
@@ -73,23 +76,11 @@ import { RouterOutlet } from '@angular/router';
         bottom: 0;
         left: 0;
         right: 0;
-        padding: 12px 20px;
+        padding: 25px 20px;
         transform: none;
         border-left: none;
         border-right: none;
         border-bottom: none;
-      }
-
-      .construction-stamp::before {
-        content: '🚧 ';
-        position: static;
-        font-size: 16px;
-      }
-
-      .construction-stamp::after {
-        content: ' 🚧';
-        position: static;
-        font-size: 16px;
       }
     }
 
@@ -148,6 +139,41 @@ import { RouterOutlet } from '@angular/router';
     }
   `]
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   title = 'kaveritutka-web-app';
+  showConstructionStamp = true;
+  private isDialogOpen = false;
+
+  constructor(
+    private router: Router,
+    private dialog: MatDialog
+  ) {
+    // Listen to route changes and hide construction stamp on detail pages
+    this.router.events
+      .pipe(filter(event => event instanceof NavigationEnd))
+      .subscribe((event: any) => {
+        // Show stamp only on map view, hide on playground detail pages and when dialog is open
+        this.updateStampVisibility(!event.url.includes('/playground/'));
+      });
+  }
+
+  ngOnInit(): void {
+    // Listen to dialog open/close events
+    this.dialog.afterOpened.subscribe(() => {
+      this.isDialogOpen = true;
+      this.updateStampVisibility(false);
+    });
+
+    this.dialog.afterAllClosed.subscribe(() => {
+      this.isDialogOpen = false;
+      // Restore stamp visibility based on current route
+      const currentUrl = this.router.url;
+      this.updateStampVisibility(!currentUrl.includes('/playground/'));
+    });
+  }
+
+  private updateStampVisibility(shouldShow: boolean): void {
+    // Hide stamp if dialog is open OR if on detail page
+    this.showConstructionStamp = shouldShow && !this.isDialogOpen;
+  }
 }

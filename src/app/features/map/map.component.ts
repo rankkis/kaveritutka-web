@@ -1,9 +1,11 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import * as L from 'leaflet';
 import { PlaygroundService } from '../../shared/services/playground.service';
 import { CheckInService } from '../../shared/services/check-in.service';
+import { MapStateService } from '../../shared/services/map-state.service';
 import { Playground } from '../../shared/models/playground.model';
 import { CheckIn } from '../../shared/models/check-in.model';
 import { CheckInDialogComponent } from '../check-in-dialog/check-in-dialog.component';
@@ -29,7 +31,9 @@ export class MapComponent implements OnInit, OnDestroy {
   constructor(
     private playgroundService: PlaygroundService,
     private checkInService: CheckInService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private router: Router,
+    private mapStateService: MapStateService
   ) {}
 
   ngOnInit(): void {
@@ -54,9 +58,12 @@ export class MapComponent implements OnInit, OnDestroy {
   private initMap(): void {
     // Initialize map centered on Kiveriönkatu 8, Lahti
     // Zoom level 15 shows approximately 1km range
+    // Restore saved state if available
+    const savedState = this.mapStateService.getMapState();
+
     this.map = L.map('map', {
-      center: [60.9872, 25.6447],
-      zoom: 15
+      center: savedState.center,
+      zoom: savedState.zoom
     });
 
     // Add CartoDB Voyager tiles (clean, colorful style)
@@ -108,8 +115,22 @@ export class MapComponent implements OnInit, OnDestroy {
   }
 
   onMarkerClick(playground: Playground): void {
-    this.selectedPlayground = playground;
-    this.loadCheckInsForPlayground(playground.id);
+    // Check if mobile device (screen width <= 768px)
+    const isMobile = window.innerWidth <= 768;
+
+    if (isMobile && this.map) {
+      // Save current map state before navigation
+      const center = this.map.getCenter();
+      const zoom = this.map.getZoom();
+      this.mapStateService.saveMapState([center.lat, center.lng], zoom);
+
+      // Navigate to detail page on mobile
+      this.router.navigate(['/playground', playground.id]);
+    } else {
+      // Show sidebar on desktop
+      this.selectedPlayground = playground;
+      this.loadCheckInsForPlayground(playground.id);
+    }
   }
 
   private loadCheckInsForPlayground(playgroundId: string): void {
@@ -121,22 +142,31 @@ export class MapComponent implements OnInit, OnDestroy {
   onCreateCheckIn(): void {
     if (!this.selectedPlayground) return;
 
-    const dialogRef = this.dialog.open(CheckInDialogComponent, {
-      width: '100%',
-      maxWidth: '640px',
-      maxHeight: '95vh',
-      panelClass: 'check-in-dialog-panel',
-      data: { playground: this.selectedPlayground },
-      autoFocus: false,
-      restoreFocus: false
-    });
+    // Check if mobile device (screen width <= 768px)
+    const isMobile = window.innerWidth <= 768;
 
-    dialogRef.afterClosed().subscribe(result => {
-      if (result && this.selectedPlayground) {
-        // Reload check-ins after creating a new one
-        this.loadCheckInsForPlayground(this.selectedPlayground.id);
-      }
-    });
+    if (isMobile) {
+      // Navigate to form page on mobile
+      this.router.navigate(['/playground', this.selectedPlayground.id, 'new-checkin']);
+    } else {
+      // Show dialog on desktop
+      const dialogRef = this.dialog.open(CheckInDialogComponent, {
+        width: '100%',
+        maxWidth: '640px',
+        maxHeight: '95vh',
+        panelClass: 'check-in-dialog-panel',
+        data: { playground: this.selectedPlayground },
+        autoFocus: false,
+        restoreFocus: false
+      });
+
+      dialogRef.afterClosed().subscribe(result => {
+        if (result && this.selectedPlayground) {
+          // Reload check-ins after creating a new one
+          this.loadCheckInsForPlayground(this.selectedPlayground.id);
+        }
+      });
+    }
   }
 
   closeSidebar(): void {
