@@ -72,6 +72,23 @@ export class MapComponent implements OnInit, OnDestroy {
       attribution: '© OpenStreetMap contributors © CARTO',
       subdomains: 'abcd'
     }).addTo(this.map);
+
+    // Update city detection whenever the map moves or zooms
+    this.map.on('moveend', () => {
+      if (this.map) {
+        const center = this.map.getCenter();
+        const zoom = this.map.getZoom();
+        this.mapStateService.saveMapState([center.lat, center.lng], zoom);
+      }
+    });
+
+    this.map.on('zoomend', () => {
+      if (this.map) {
+        const center = this.map.getCenter();
+        const zoom = this.map.getZoom();
+        this.mapStateService.saveMapState([center.lat, center.lng], zoom);
+      }
+    });
   }
 
   private loadPlaygrounds(): void {

@@ -1,8 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterOutlet, NavigationEnd } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { filter } from 'rxjs/operators';
+import { Subscription } from 'rxjs';
+import { MapStateService } from './shared/services/map-state.service';
 
 @Component({
   selector: 'app-root',
@@ -15,7 +17,7 @@ import { filter } from 'rxjs/operators';
         <div class="stamp-subtitle">Sivustolla olevat tapahtumat ovat esimerkkejä • Lomakkeita ei tallenneta</div>
       </div>
       <header>
-        <h1>Kaveritutka</h1>
+        <h1>{{ headerTitle }}</h1>
         <p class="tagline">Löydä leikkikavereita lapsellesi</p>
       </header>
       <main>
@@ -125,6 +127,11 @@ import { filter } from 'rxjs/operators';
     header h1 {
       margin: 0;
       font-size: 1.8rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
+      padding: 0 1rem;
     }
 
     header .tagline {
@@ -139,14 +146,17 @@ import { filter } from 'rxjs/operators';
     }
   `]
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, OnDestroy {
   title = 'kaveritutka-web-app';
+  headerTitle = 'Kaveritutka';
   showConstructionStamp = true;
   private isDialogOpen = false;
+  private mapStateSubscription: Subscription | undefined;
 
   constructor(
     private router: Router,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private mapStateService: MapStateService
   ) {
     // Listen to route changes and hide construction stamp on detail pages
     this.router.events
@@ -170,6 +180,22 @@ export class AppComponent implements OnInit {
       const currentUrl = this.router.url;
       this.updateStampVisibility(!currentUrl.includes('/playground/'));
     });
+
+    // Subscribe to map state changes to update header with locations
+    this.mapStateSubscription = this.mapStateService.mapState$.subscribe(state => {
+      if (state.locations.length > 0) {
+        const locationsText = state.locations.join('/');
+        this.headerTitle = `Kaveritutka - ${locationsText}`;
+      } else {
+        this.headerTitle = 'Kaveritutka';
+      }
+    });
+  }
+
+  ngOnDestroy(): void {
+    if (this.mapStateSubscription) {
+      this.mapStateSubscription.unsubscribe();
+    }
   }
 
   private updateStampVisibility(shouldShow: boolean): void {
