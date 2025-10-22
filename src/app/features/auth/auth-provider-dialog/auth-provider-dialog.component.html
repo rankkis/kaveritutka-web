@@ -21,13 +21,9 @@
         (click)="onGoogleLogin()"
         [disabled]="loading"
       >
-        @if (loading) {
-          <mat-spinner diameter="24" class="button-spinner"></mat-spinner>
-          <span>Kirjaudutaan...</span>
-        } @else {
-          <mat-icon class="provider-icon">account_circle</mat-icon>
-          <span>Jatka Google-tilillä</span>
-        }
+        <mat-spinner *ngIf="showSpinner" diameter="24" class="button-spinner"></mat-spinner>
+        <mat-icon *ngIf="!showSpinner" class="provider-icon">{{ buttonIcon }}</mat-icon>
+        <span>{{ buttonText }}</span>
       </button>
 
       <!-- Placeholder for future providers -->

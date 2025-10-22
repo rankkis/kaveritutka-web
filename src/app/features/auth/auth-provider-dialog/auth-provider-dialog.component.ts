@@ -23,6 +23,9 @@ import { AuthService } from '../../../shared/services/auth.service';
 export class AuthProviderDialogComponent {
   loading = false;
   errorMessage = '';
+  buttonText = 'Jatka Google-tilillä';
+  buttonIcon = 'account_circle';
+  showSpinner = false;
 
   constructor(
     private authService: AuthService,
@@ -32,6 +35,8 @@ export class AuthProviderDialogComponent {
 
   onGoogleLogin(): void {
     this.loading = true;
+    this.showSpinner = true;
+    this.buttonText = 'Kirjaudutaan...';
     this.errorMessage = '';
 
     this.authService.loginWithGoogle().subscribe({
@@ -48,6 +53,8 @@ export class AuthProviderDialogComponent {
       },
       error: (error: Error) => {
         this.loading = false;
+        this.showSpinner = false;
+        this.buttonText = 'Jatka Google-tilillä';
         this.errorMessage = error.message || 'Kirjautuminen epäonnistui';
       }
     });
