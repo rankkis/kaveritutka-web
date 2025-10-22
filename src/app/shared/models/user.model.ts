@@ -10,6 +10,12 @@ export interface LoginCredentials {
   password: string;
 }
 
+export interface RegisterCredentials {
+  email: string;
+  password: string;
+  name: string;
+}
+
 export interface AuthResponse {
   user: User;
   token: string;

@@ -11,6 +11,14 @@ export const routes: Routes = [
     loadComponent: () => import('./features/map/map.component').then(m => m.MapComponent)
   },
   {
+    path: 'login',
+    loadComponent: () => import('./features/auth/login/login.component').then(m => m.LoginComponent)
+  },
+  {
+    path: 'register',
+    loadComponent: () => import('./features/auth/register/register.component').then(m => m.RegisterComponent)
+  },
+  {
     path: 'playground/:id',
     loadComponent: () => import('./features/playground/playground-detail-page/playground-detail-page.component').then(m => m.PlaygroundDetailPageComponent)
   },
