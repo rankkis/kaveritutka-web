@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { BehaviorSubject, Observable, throwError, timer } from 'rxjs';
 import { catchError, map, tap, switchMap } from 'rxjs/operators';
-import { User, LoginCredentials, AuthResponse, TokenRefreshResponse } from '../models/user.model';
+import { User, LoginCredentials, RegisterCredentials, AuthResponse, TokenRefreshResponse } from '../models/user.model';
 import { environment } from '../../../environments/environment';
 
 @Injectable({
@@ -42,6 +42,22 @@ export class AuthService {
    */
   login(credentials: LoginCredentials): Observable<User> {
     return this.http.post<AuthResponse>(`${environment.apiUrl}/auth/login`, credentials)
+      .pipe(
+        tap(response => {
+          this.storeAuthData(response);
+          this.currentUserSubject.next(response.user);
+          this.startTokenRefreshTimer();
+        }),
+        map(response => response.user),
+        catchError(this.handleError)
+      );
+  }
+
+  /**
+   * Register new user with email, password, and name
+   */
+  register(credentials: RegisterCredentials): Observable<User> {
+    return this.http.post<AuthResponse>(`${environment.apiUrl}/auth/register`, credentials)
       .pipe(
         tap(response => {
           this.storeAuthData(response);
