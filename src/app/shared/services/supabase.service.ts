@@ -17,16 +17,19 @@ export class SupabaseService {
       environment.supabase.anonKey,
       {
         auth: {
-          // Use localStorage instead of default (prevents lock manager issues)
+          // Use localStorage instead of default
           storage: window.localStorage,
-          // Reduce lock conflicts
-          storageKey: 'supabase-auth-token',
+          // Use a simpler storage key
+          storageKey: 'sb-auth',
           // Automatically refresh session
           autoRefreshToken: true,
           // Persist session across tabs
           persistSession: true,
-          // Detect session in URL hash
-          detectSessionInUrl: true
+          // Disable automatic URL detection to avoid lock conflicts
+          // We'll handle this manually in AuthCallbackComponent
+          detectSessionInUrl: false,
+          // Use a shorter lock timeout
+          flowType: 'pkce'
         }
       }
     );
@@ -107,5 +110,16 @@ export class SupabaseService {
    */
   getClient(): SupabaseClient {
     return this.supabase;
+  }
+
+  /**
+   * Manually exchange auth code from URL
+   * This is called in AuthCallbackComponent to avoid auto-detection lock conflicts
+   */
+  async exchangeCodeForSession(): Promise<void> {
+    // Check if we're on a callback URL
+    if (window.location.hash) {
+      await this.supabase.auth.getSession();
+    }
   }
 }

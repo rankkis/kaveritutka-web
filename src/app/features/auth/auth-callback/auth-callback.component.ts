@@ -20,50 +20,50 @@ export class AuthCallbackComponent implements OnInit {
     private supabaseService: SupabaseService
   ) {}
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     // Check for error in URL params
-    this.route.queryParams.subscribe(params => {
-      const error = params['error'];
-      const errorDescription = params['error_description'];
+    const params = await this.route.queryParams.toPromise();
+    const error = params?.['error'];
+    const errorDescription = params?.['error_description'];
 
-      if (error) {
-        this.errorMessage = errorDescription || 'Kirjautuminen epäonnistui. Yritä uudelleen.';
-        console.error('OAuth error:', error, errorDescription);
-        setTimeout(() => this.router.navigate(['/']), 3000);
-        return;
+    if (error) {
+      this.errorMessage = errorDescription || 'Kirjautuminen epäonnistui. Yritä uudelleen.';
+      console.error('OAuth error:', error, errorDescription);
+      setTimeout(() => this.router.navigate(['/']), 3000);
+      return;
+    }
+
+    // Manually trigger session exchange to avoid auto-detection lock conflicts
+    try {
+      await this.supabaseService.exchangeCodeForSession();
+
+      // Wait a bit for the session to be established
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      const session = this.supabaseService.getSession();
+
+      if (session) {
+        console.log('Authentication successful:', session.user.email);
+
+        // Check if this is a first-time user
+        const isNewUser = this.checkIfNewUser();
+
+        if (isNewUser) {
+          // First-time user - show welcome page
+          this.router.navigate(['/welcome']);
+        } else {
+          // Returning user - go to home page
+          this.router.navigate(['/']);
+        }
+      } else {
+        this.errorMessage = 'Kirjautuminen epäonnistui. Yritä uudelleen.';
+        setTimeout(() => this.router.navigate(['/']), 2000);
       }
-
-      // Subscribe to auth state changes instead of polling
-      // This avoids Navigator LockManager conflicts
-      const subscription = this.supabaseService.session$.subscribe(session => {
-        if (session) {
-          console.log('Authentication successful:', session.user.email);
-
-          // Unsubscribe to prevent multiple navigations
-          subscription.unsubscribe();
-
-          // Check if this is a first-time user
-          const isNewUser = this.checkIfNewUser();
-
-          if (isNewUser) {
-            // First-time user - show welcome page
-            this.router.navigate(['/welcome']);
-          } else {
-            // Returning user - go to home page
-            this.router.navigate(['/']);
-          }
-        }
-      });
-
-      // Fallback timeout in case session never arrives
-      setTimeout(() => {
-        if (!this.supabaseService.getSession()) {
-          subscription.unsubscribe();
-          this.errorMessage = 'Kirjautuminen epäonnistui. Yritä uudelleen.';
-          setTimeout(() => this.router.navigate(['/']), 2000);
-        }
-      }, 5000);
-    });
+    } catch (error: any) {
+      console.error('Auth callback error:', error);
+      this.errorMessage = 'Kirjautuminen epäonnistui. Yritä uudelleen.';
+      setTimeout(() => this.router.navigate(['/']), 2000);
+    }
   }
 
   /**
