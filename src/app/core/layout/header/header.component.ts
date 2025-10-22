@@ -2,13 +2,13 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { Session } from '@supabase/supabase-js';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MapStateService } from '../../../core/services/map-state.service';
-import { AuthService } from '../../../shared/services/auth.service';
-import { User } from '../../../shared/models/user.model';
+import { SupabaseService } from '../../../shared/services/supabase.service';
 import { AuthProviderDialogComponent } from '../../../features/auth/auth-provider-dialog/auth-provider-dialog.component';
 
 @Component({
@@ -20,13 +20,13 @@ import { AuthProviderDialogComponent } from '../../../features/auth/auth-provide
 })
 export class HeaderComponent implements OnInit, OnDestroy {
   headerTitle = 'Kaveritutka';
-  currentUser: User | null = null;
+  currentSession: Session | null = null;
   private mapStateSubscription: Subscription | undefined;
-  private authSubscription: Subscription | undefined;
+  private sessionSubscription: Subscription | undefined;
 
   constructor(
     private mapStateService: MapStateService,
-    private authService: AuthService,
+    private supabaseService: SupabaseService,
     private router: Router,
     private dialog: MatDialog
   ) {}
@@ -43,8 +43,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
     });
 
     // Subscribe to authentication state changes
-    this.authSubscription = this.authService.currentUser$.subscribe(user => {
-      this.currentUser = user;
+    this.sessionSubscription = this.supabaseService.session$.subscribe(session => {
+      this.currentSession = session;
     });
   }
 
@@ -52,8 +52,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
     if (this.mapStateSubscription) {
       this.mapStateSubscription.unsubscribe();
     }
-    if (this.authSubscription) {
-      this.authSubscription.unsubscribe();
+    if (this.sessionSubscription) {
+      this.sessionSubscription.unsubscribe();
     }
   }
 
@@ -65,12 +65,23 @@ export class HeaderComponent implements OnInit, OnDestroy {
     });
   }
 
-  onLogout(): void {
-    this.authService.logout();
+  async onLogout(): Promise<void> {
+    await this.supabaseService.signOut();
     this.router.navigate(['/']);
   }
 
   get isAuthenticated(): boolean {
-    return !!this.currentUser;
+    return this.supabaseService.isAuthenticated();
+  }
+
+  get userName(): string {
+    if (!this.currentSession?.user) {
+      return 'Tuntematon';
+    }
+    // Use user metadata for display name, or fall back to email
+    return this.currentSession.user.user_metadata?.['full_name'] ||
+           this.currentSession.user.user_metadata?.['name'] ||
+           this.currentSession.user.email ||
+           'Tuntematon';
   }
 }

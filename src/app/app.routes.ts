@@ -11,16 +11,12 @@ export const routes: Routes = [
     loadComponent: () => import('./features/map/map.component').then(m => m.MapComponent)
   },
   {
-    path: 'login',
-    loadComponent: () => import('./features/auth/login/login.component').then(m => m.LoginComponent)
-  },
-  {
-    path: 'register',
-    loadComponent: () => import('./features/auth/register/register.component').then(m => m.RegisterComponent)
-  },
-  {
     path: 'auth/callback',
     loadComponent: () => import('./features/auth/auth-callback/auth-callback.component').then(m => m.AuthCallbackComponent)
+  },
+  {
+    path: 'welcome',
+    loadComponent: () => import('./features/auth/welcome/welcome.component').then(m => m.WelcomeComponent)
   },
   {
     path: 'playground/:id',

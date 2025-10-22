@@ -1,10 +1,15 @@
 <header>
   <div class="header-content">
-    <div class="header-left">
+    <!-- Left spacer for balance -->
+    <div class="header-left-spacer"></div>
+
+    <!-- Center: Title and tagline -->
+    <div class="header-center">
       <h1 [routerLink]="['/']" class="clickable">{{ headerTitle }}</h1>
       <p class="tagline">Löydä leikkikavereita lapsellesi</p>
     </div>
 
+    <!-- Right: Auth button/menu -->
     <div class="header-right">
       @if (!isAuthenticated) {
         <!-- Unauthenticated: Show Login button only (Google OAuth) -->
@@ -14,14 +19,14 @@
       } @else {
         <!-- Authenticated: Show user name and logout -->
         <div class="user-section">
-          <span class="user-name">{{ currentUser?.displayName || currentUser?.name || 'Käyttäjä' }}</span>
+          <span class="user-name">{{ userName }}</span>
           <button mat-icon-button [matMenuTriggerFor]="userMenu">
             <mat-icon>account_circle</mat-icon>
           </button>
           <mat-menu #userMenu="matMenu">
             <div class="user-menu-header">
-              <strong>{{ currentUser?.displayName || currentUser?.name || 'Käyttäjä' }}</strong>
-              <span class="user-email">{{ currentUser?.email }}</span>
+              <strong>{{ userName }}</strong>
+              <span class="user-email">{{ currentSession?.user?.email }}</span>
             </div>
             <button mat-menu-item (click)="onLogout()">
               <mat-icon>logout</mat-icon>

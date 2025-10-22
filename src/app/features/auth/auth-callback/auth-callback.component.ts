@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { AuthService } from '../../../shared/services/auth.service';
+import { SupabaseService } from '../../../shared/services/supabase.service';
 
 @Component({
   selector: 'app-auth-callback',
@@ -17,47 +17,62 @@ export class AuthCallbackComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private authService: AuthService
+    private supabaseService: SupabaseService
   ) {}
 
   ngOnInit(): void {
-    // Get the authorization code from URL query params
+    // Check for error in URL params
     this.route.queryParams.subscribe(params => {
-      const code = params['code'];
       const error = params['error'];
+      const errorDescription = params['error_description'];
 
       if (error) {
-        this.errorMessage = 'Kirjautuminen epäonnistui. Yritä uudelleen.';
-        console.error('OAuth error:', error);
+        this.errorMessage = errorDescription || 'Kirjautuminen epäonnistui. Yritä uudelleen.';
+        console.error('OAuth error:', error, errorDescription);
         setTimeout(() => this.router.navigate(['/']), 3000);
         return;
       }
 
-      if (!code) {
-        this.errorMessage = 'Puuttuva valtuutuskoodi.';
-        setTimeout(() => this.router.navigate(['/']), 3000);
-        return;
-      }
+      // Supabase automatically processes the OAuth callback hash fragment
+      // We just need to wait a moment for the session to be established
+      setTimeout(() => {
+        const session = this.supabaseService.getSession();
 
-      // Exchange the code for tokens
-      this.authService.handleOAuthCallback(code).subscribe({
-        next: (user) => {
-          // Check if user needs to complete profile (no displayName)
-          if (!user.displayName) {
+        if (session) {
+          console.log('Authentication successful:', session.user.email);
+
+          // Check if this is a first-time user
+          // In Supabase, we can check if the user was just created
+          const isNewUser = this.checkIfNewUser();
+
+          if (isNewUser) {
+            // First-time user - show welcome page
             this.router.navigate(['/welcome']);
           } else {
-            // Get the return URL or default to home
-            const returnUrl = localStorage.getItem('auth_return_url') || '/';
-            localStorage.removeItem('auth_return_url');
-            this.router.navigateByUrl(returnUrl);
+            // Returning user - go to home page
+            this.router.navigate(['/']);
           }
-        },
-        error: (error) => {
-          this.errorMessage = error.message || 'Kirjautuminen epäonnistui';
-          console.error('OAuth callback error:', error);
+        } else {
+          this.errorMessage = 'Kirjautuminen epäonnistui. Yritä uudelleen.';
           setTimeout(() => this.router.navigate(['/']), 3000);
         }
-      });
+      }, 1000); // Give Supabase time to process the callback
     });
+  }
+
+  /**
+   * Check if this is a first-time user
+   * Uses localStorage to track if user has seen the welcome page
+   */
+  private checkIfNewUser(): boolean {
+    const hasSeenWelcome = localStorage.getItem('hasSeenWelcome');
+
+    if (!hasSeenWelcome) {
+      // Mark as seen for future visits
+      localStorage.setItem('hasSeenWelcome', 'true');
+      return true;
+    }
+
+    return false;
   }
 }

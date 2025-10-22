@@ -1,0 +1,55 @@
+<div class="welcome-container">
+  <mat-card class="welcome-card">
+    <mat-card-header>
+      <div class="welcome-icon">
+        <mat-icon>waving_hand</mat-icon>
+      </div>
+      <mat-card-title>Tervetuloa Kaveritutka-palveluun!</mat-card-title>
+      <mat-card-subtitle>{{ userName }}</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <div class="welcome-content">
+        <p class="greeting">Hei {{ userName }}!</p>
+        <p>Olet nyt kirjautunut Kaveritutka-palveluun Google-tililläsi <strong>{{ userEmail }}</strong>.</p>
+
+        <div class="features-section">
+          <h3>Mitä voit tehdä:</h3>
+          <ul class="features-list">
+            <li>
+              <mat-icon>place</mat-icon>
+              <span>Selaa Lahden leikkipuistoja kartalta</span>
+            </li>
+            <li>
+              <mat-icon>event</mat-icon>
+              <span>Luo "leikkiaikoja" ilmoittaaksesi milloin olet leikkipuistossa</span>
+            </li>
+            <li>
+              <mat-icon>group</mat-icon>
+              <span>Löydä leikkikavereita lapsellesi</span>
+            </li>
+            <li>
+              <mat-icon>favorite</mat-icon>
+              <span>Näe muiden perheiden leikkiajat</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="info-section">
+          <mat-icon>info</mat-icon>
+          <p>
+            Kaveritutka auttaa vanhempia löytämään leikkikavereita lapsilleen (0-7v)
+            paikallisista leikkipuistoista. Palvelu on ilmainen ja helppokäyttöinen!
+          </p>
+        </div>
+      </div>
+    </mat-card-content>
+
+    <mat-card-actions>
+      <button mat-raised-button color="primary" (click)="onGetStarted()" class="get-started-button">
+        <mat-icon>map</mat-icon>
+        Aloita käyttö
+      </button>
+    </mat-card-actions>
+  </mat-card>
+</div>

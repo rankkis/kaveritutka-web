@@ -4,7 +4,7 @@ import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { AuthService } from '../../../shared/services/auth.service';
+import { SupabaseService } from '../../../shared/services/supabase.service';
 
 @Component({
   selector: 'app-auth-provider-dialog',
@@ -27,19 +27,33 @@ export class AuthProviderDialogComponent {
   showSpinner = false;
 
   constructor(
-    private authService: AuthService,
+    private supabaseService: SupabaseService,
     private dialogRef: MatDialogRef<AuthProviderDialogComponent>
   ) {}
 
-  onGoogleLogin(): void {
+  async onGoogleLogin(): Promise<void> {
     this.loading = true;
     this.showSpinner = true;
     this.buttonText = 'Kirjaudutaan...';
     this.errorMessage = '';
 
-    // Initiate Google OAuth redirect
-    // User will be redirected back to /auth/callback after authentication
-    this.authService.loginWithGoogle();
+    try {
+      console.log('Starting Google OAuth sign-in...');
+      console.log('Redirect URL will be:', `${window.location.origin}/auth/callback`);
+
+      // Initiate Supabase Google OAuth
+      // Supabase will handle the redirect and callback automatically
+      await this.supabaseService.signInWithGoogle();
+
+      console.log('OAuth redirect initiated successfully');
+      this.dialogRef.close();
+    } catch (error: any) {
+      console.error('Google OAuth error:', error);
+      this.loading = false;
+      this.showSpinner = false;
+      this.buttonText = 'Jatka Google-tilillä';
+      this.errorMessage = error?.message || 'Kirjautuminen epäonnistui. Tarkista että Google OAuth on konfiguroitu Supabasessa.';
+    }
   }
 
   onClose(): void {
