@@ -22,11 +22,15 @@
         [disabled]="loading"
       >
         @if (loading) {
-          <mat-spinner diameter="20" class="inline-spinner"></mat-spinner>
-          <span>Kirjaudutaan...</span>
+          <span class="button-content">
+            <mat-spinner diameter="20" class="inline-spinner"></mat-spinner>
+            <span>Kirjaudutaan...</span>
+          </span>
         } @else {
-          <mat-icon class="google-icon">account_circle</mat-icon>
-          <span>Jatka Google-tilillä</span>
+          <span class="button-content">
+            <mat-icon class="google-icon">account_circle</mat-icon>
+            <span>Jatka Google-tilillä</span>
+          </span>
         }
       </button>
 

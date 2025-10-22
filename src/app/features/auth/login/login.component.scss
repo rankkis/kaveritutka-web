@@ -46,7 +46,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+
+  .button-content {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
 
   .google-icon {
     font-size: 24px;
