@@ -2,22 +2,126 @@ header {
   background-color: #4CAF50;
   color: white;
   padding: 1rem;
-  text-align: center;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-header h1 {
-  margin: 0;
-  font-size: 1.8rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 100%;
-  padding: 0 1rem;
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+  gap: 1rem;
 }
 
-header .tagline {
-  margin: 0.5rem 0 0;
-  font-size: 0.9rem;
-  opacity: 0.9;
+.header-left {
+  flex: 1;
+  text-align: center;
+
+  h1 {
+    margin: 0;
+    font-size: 1.8rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+
+    &.clickable:hover {
+      opacity: 0.9;
+    }
+  }
+
+  .tagline {
+    margin: 0.5rem 0 0;
+    font-size: 0.9rem;
+    opacity: 0.9;
+  }
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  .auth-button {
+    color: white;
+    border-color: white;
+
+    &.mat-mdc-raised-button {
+      background-color: rgba(255, 255, 255, 0.2);
+
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.3);
+      }
+    }
+  }
+}
+
+.user-section {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  .user-name {
+    font-size: 0.9rem;
+    font-weight: 500;
+    display: none; // Hide on mobile
+  }
+
+  button {
+    color: white;
+  }
+}
+
+// User menu styling
+::ng-deep .mat-mdc-menu-panel {
+  .user-menu-header {
+    padding: 16px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+
+    strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .user-email {
+      font-size: 0.85rem;
+      color: rgba(0, 0, 0, 0.6);
+    }
+  }
+}
+
+// Responsive design
+@media (min-width: 768px) {
+  .header-left {
+    text-align: left;
+  }
+
+  .user-section .user-name {
+    display: inline; // Show user name on desktop
+  }
+}
+
+@media (max-width: 768px) {
+  .header-content {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .header-left {
+    width: 100%;
+
+    h1 {
+      font-size: 1.5rem;
+    }
+
+    .tagline {
+      font-size: 0.8rem;
+    }
+  }
+
+  .header-right {
+    width: 100%;
+    justify-content: center;
+  }
 }
