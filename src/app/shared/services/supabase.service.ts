@@ -14,7 +14,21 @@ export class SupabaseService {
   constructor() {
     this.supabase = createClient(
       environment.supabase.url,
-      environment.supabase.anonKey
+      environment.supabase.anonKey,
+      {
+        auth: {
+          // Use localStorage instead of default (prevents lock manager issues)
+          storage: window.localStorage,
+          // Reduce lock conflicts
+          storageKey: 'supabase-auth-token',
+          // Automatically refresh session
+          autoRefreshToken: true,
+          // Persist session across tabs
+          persistSession: true,
+          // Detect session in URL hash
+          detectSessionInUrl: true
+        }
+      }
     );
 
     // Initialize session from storage

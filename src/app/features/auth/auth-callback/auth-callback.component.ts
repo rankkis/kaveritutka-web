@@ -33,16 +33,16 @@ export class AuthCallbackComponent implements OnInit {
         return;
       }
 
-      // Supabase automatically processes the OAuth callback hash fragment
-      // We just need to wait a moment for the session to be established
-      setTimeout(() => {
-        const session = this.supabaseService.getSession();
-
+      // Subscribe to auth state changes instead of polling
+      // This avoids Navigator LockManager conflicts
+      const subscription = this.supabaseService.session$.subscribe(session => {
         if (session) {
           console.log('Authentication successful:', session.user.email);
 
+          // Unsubscribe to prevent multiple navigations
+          subscription.unsubscribe();
+
           // Check if this is a first-time user
-          // In Supabase, we can check if the user was just created
           const isNewUser = this.checkIfNewUser();
 
           if (isNewUser) {
@@ -52,11 +52,17 @@ export class AuthCallbackComponent implements OnInit {
             // Returning user - go to home page
             this.router.navigate(['/']);
           }
-        } else {
-          this.errorMessage = 'Kirjautuminen epäonnistui. Yritä uudelleen.';
-          setTimeout(() => this.router.navigate(['/']), 3000);
         }
-      }, 1000); // Give Supabase time to process the callback
+      });
+
+      // Fallback timeout in case session never arrives
+      setTimeout(() => {
+        if (!this.supabaseService.getSession()) {
+          subscription.unsubscribe();
+          this.errorMessage = 'Kirjautuminen epäonnistui. Yritä uudelleen.';
+          setTimeout(() => this.router.navigate(['/']), 2000);
+        }
+      }, 5000);
     });
   }
 
