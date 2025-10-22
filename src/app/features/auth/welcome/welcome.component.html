@@ -2,7 +2,7 @@
   <mat-card class="welcome-card">
     <mat-card-header>
       <div class="welcome-icon">
-        <mat-icon>waving_hand</mat-icon>
+        <mat-icon>emoji_emotions</mat-icon>
       </div>
       <mat-card-title>Tervetuloa Kaveritutka-palveluun!</mat-card-title>
       <mat-card-subtitle>{{ userName }}</mat-card-subtitle>
@@ -17,26 +17,36 @@
           <h3>Mitä voit tehdä:</h3>
           <ul class="features-list">
             <li>
-              <mat-icon>place</mat-icon>
+              <span class="icon-wrapper">
+                <mat-icon>place</mat-icon>
+              </span>
               <span>Selaa Lahden leikkipuistoja kartalta</span>
             </li>
             <li>
-              <mat-icon>event</mat-icon>
+              <span class="icon-wrapper">
+                <mat-icon>event</mat-icon>
+              </span>
               <span>Luo "leikkiaikoja" ilmoittaaksesi milloin olet leikkipuistossa</span>
             </li>
             <li>
-              <mat-icon>group</mat-icon>
+              <span class="icon-wrapper">
+                <mat-icon>group</mat-icon>
+              </span>
               <span>Löydä leikkikavereita lapsellesi</span>
             </li>
             <li>
-              <mat-icon>favorite</mat-icon>
+              <span class="icon-wrapper">
+                <mat-icon>favorite</mat-icon>
+              </span>
               <span>Näe muiden perheiden leikkiajat</span>
             </li>
           </ul>
         </div>
 
         <div class="info-section">
-          <mat-icon>info</mat-icon>
+          <span class="icon-wrapper">
+            <mat-icon>info</mat-icon>
+          </span>
           <p>
             Kaveritutka auttaa vanhempia löytämään leikkikavereita lapsilleen (0-7v)
             paikallisista leikkipuistoista. Palvelu on ilmainen ja helppokäyttöinen!
