@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -8,11 +8,13 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
+import { Subscription } from 'rxjs';
 import {
   Playground,
   CreatePlaytimeDto,
   PLAYTIME_PERIOD
 } from '../../../shared';
+import { AuthService } from '../../../shared/services/auth.service';
 
 @Component({
   selector: 'app-playtime-form',
@@ -31,12 +33,13 @@ import {
   templateUrl: './playtime-form.component.html',
   styleUrls: ['./playtime-form.component.scss']
 })
-export class PlaytimeFormComponent implements OnInit {
+export class PlaytimeFormComponent implements OnInit, OnDestroy {
   @Input() playground!: Playground;
   @Output() formSubmit = new EventEmitter<CreatePlaytimeDto>();
   @Output() formCancel = new EventEmitter<void>();
 
   playtimeForm: FormGroup;
+  private authSubscription?: Subscription;
 
   // Date options (filtered based on current time)
   dateOptions: Array<{ value: string; label: string }> = [];
@@ -90,7 +93,10 @@ export class PlaytimeFormComponent implements OnInit {
 
   submitted = false;
 
-  constructor(private fb: FormBuilder) {
+  constructor(
+    private fb: FormBuilder,
+    private authService: AuthService
+  ) {
     this.playtimeForm = this.fb.group({
       parentName: [''],
       scheduledTime: ['now', Validators.required],
@@ -101,6 +107,25 @@ export class PlaytimeFormComponent implements OnInit {
   ngOnInit(): void {
     this.updateDateOptions();
     this.updateTimeOptions();
+
+    // Auto-populate parent name from logged-in user
+    this.authSubscription = this.authService.currentUser$.subscribe(user => {
+      if (user && user.name) {
+        // Only set if the field is empty (don't override user's manual input)
+        const currentValue = this.playtimeForm.get('parentName')?.value;
+        if (!currentValue || currentValue === '') {
+          this.playtimeForm.patchValue({
+            parentName: user.name
+          });
+        }
+      }
+    });
+  }
+
+  ngOnDestroy(): void {
+    if (this.authSubscription) {
+      this.authSubscription.unsubscribe();
+    }
   }
 
   private roundToNearest15Minutes(date: Date): Date {
