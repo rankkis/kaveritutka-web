@@ -116,10 +116,40 @@ export class SupabaseService {
    * Manually exchange auth code from URL
    * This is called in AuthCallbackComponent to avoid auto-detection lock conflicts
    */
-  async exchangeCodeForSession(): Promise<void> {
-    // Check if we're on a callback URL
-    if (window.location.hash) {
-      await this.supabase.auth.getSession();
+  async exchangeCodeForSession(): Promise<{ session: Session | null; error: any }> {
+    try {
+      // Check if we have a hash fragment (OAuth callback)
+      if (window.location.hash) {
+        // Parse the hash fragment manually
+        const hashParams = new URLSearchParams(window.location.hash.substring(1));
+        const accessToken = hashParams.get('access_token');
+        const refreshToken = hashParams.get('refresh_token');
+
+        if (accessToken) {
+          // Set the session using the tokens from the URL
+          const { data, error } = await this.supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken || ''
+          });
+
+          if (error) {
+            console.error('Session set error:', error);
+            return { session: null, error };
+          }
+
+          // Clear the hash from URL
+          window.history.replaceState({}, document.title, window.location.pathname);
+
+          return { session: data.session, error: null };
+        }
+      }
+
+      // If no hash, just get existing session
+      const { data, error } = await this.supabase.auth.getSession();
+      return { session: data.session, error };
+    } catch (error) {
+      console.error('Exchange code error:', error);
+      return { session: null, error };
     }
   }
 }

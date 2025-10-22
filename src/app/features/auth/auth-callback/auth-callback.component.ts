@@ -34,35 +34,26 @@ export class AuthCallbackComponent implements OnInit {
     }
 
     // Manually trigger session exchange to avoid auto-detection lock conflicts
-    try {
-      await this.supabaseService.exchangeCodeForSession();
+    const { session, error: sessionError } = await this.supabaseService.exchangeCodeForSession();
 
-      // Wait a bit for the session to be established
-      await new Promise(resolve => setTimeout(resolve, 500));
-
-      const session = this.supabaseService.getSession();
-
-      if (session) {
-        console.log('Authentication successful:', session.user.email);
-
-        // Check if this is a first-time user
-        const isNewUser = this.checkIfNewUser();
-
-        if (isNewUser) {
-          // First-time user - show welcome page
-          this.router.navigate(['/welcome']);
-        } else {
-          // Returning user - go to home page
-          this.router.navigate(['/']);
-        }
-      } else {
-        this.errorMessage = 'Kirjautuminen epäonnistui. Yritä uudelleen.';
-        setTimeout(() => this.router.navigate(['/']), 2000);
-      }
-    } catch (error: any) {
-      console.error('Auth callback error:', error);
+    if (sessionError || !session) {
+      console.error('Auth callback error:', sessionError);
       this.errorMessage = 'Kirjautuminen epäonnistui. Yritä uudelleen.';
       setTimeout(() => this.router.navigate(['/']), 2000);
+      return;
+    }
+
+    console.log('Authentication successful:', session.user.email);
+
+    // Check if this is a first-time user
+    const isNewUser = this.checkIfNewUser();
+
+    if (isNewUser) {
+      // First-time user - show welcome page
+      this.router.navigate(['/welcome']);
+    } else {
+      // Returning user - go to home page
+      this.router.navigate(['/']);
     }
   }
 
