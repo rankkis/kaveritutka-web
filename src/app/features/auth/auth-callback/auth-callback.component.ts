@@ -21,33 +21,71 @@ export class AuthCallbackComponent implements OnInit {
   ) {}
 
   async ngOnInit(): Promise<void> {
-    console.log('AuthCallback: Starting OAuth callback processing');
+    console.log('AuthCallback: Processing OAuth callback from backend');
 
     // Check for error in URL params
     const params = await this.route.queryParams.toPromise();
     const error = params?.['error'];
-    const errorDescription = params?.['error_description'];
 
     if (error) {
-      this.errorMessage = errorDescription || 'Kirjautuminen epäonnistui. Yritä uudelleen.';
-      console.error('OAuth error:', error, errorDescription);
+      this.errorMessage = 'Kirjautuminen epäonnistui. Yritä uudelleen.';
+      console.error('OAuth error:', error);
       setTimeout(() => this.router.navigate(['/']), 3000);
       return;
     }
 
-    // Manually exchange code for session (detectSessionInUrl is disabled)
-    console.log('Manually exchanging OAuth code for session...');
+    // Backend redirects with tokens in URL hash fragment
+    // Format: #access_token=xxx&refresh_token=yyy&user_id=zzz&user_name=Name
+    const hash = window.location.hash.substring(1); // Remove leading #
+    console.log('URL hash:', hash);
 
-    const { session, error: sessionError } = await this.supabaseService.exchangeCodeForSession();
-
-    if (sessionError || !session) {
-      console.error('Auth callback error:', sessionError);
+    if (!hash) {
+      console.error('No hash fragment found in URL');
       this.errorMessage = 'Kirjautuminen epäonnistui. Yritä uudelleen.';
       setTimeout(() => this.router.navigate(['/']), 2000);
       return;
     }
 
-    console.log('Authentication successful:', session.user.email);
+    // Parse hash parameters
+    const hashParams = new URLSearchParams(hash);
+    const accessToken = hashParams.get('access_token');
+    const refreshToken = hashParams.get('refresh_token');
+    const userId = hashParams.get('user_id');
+    const userName = hashParams.get('user_name');
+
+    console.log('Parsed tokens:', {
+      hasAccessToken: !!accessToken,
+      hasRefreshToken: !!refreshToken,
+      userId,
+      userName,
+    });
+
+    if (!accessToken || !refreshToken) {
+      console.error('Missing tokens in hash fragment');
+      this.errorMessage = 'Kirjautuminen epäonnistui. Yritä uudelleen.';
+      setTimeout(() => this.router.navigate(['/']), 2000);
+      return;
+    }
+
+    // Set session in Supabase client with tokens from backend
+    const { data, error: sessionError } = await this.supabaseService
+      .getClient()
+      .auth.setSession({
+        access_token: accessToken,
+        refresh_token: refreshToken,
+      });
+
+    if (sessionError || !data.session) {
+      console.error('Error setting session:', sessionError);
+      this.errorMessage = 'Kirjautuminen epäonnistui. Yritä uudelleen.';
+      setTimeout(() => this.router.navigate(['/']), 2000);
+      return;
+    }
+
+    console.log('Authentication successful:', data.session.user.email);
+
+    // Clear hash from URL
+    window.history.replaceState({}, document.title, window.location.pathname);
 
     // Check if this is a first-time user
     const isNewUser = this.checkIfNewUser();

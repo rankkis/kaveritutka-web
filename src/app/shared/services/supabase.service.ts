@@ -45,11 +45,13 @@ export class SupabaseService {
   /**
    * Sign in with Google OAuth
    * Redirects to Google OAuth page
+   * OAuth callback goes to backend which handles code exchange
    */
   async signInWithGoogle() {
-    // Use current origin for redirect (localhost in dev, production domain in prod)
-    const redirectUrl = `${window.location.origin}/auth/callback`;
-    console.log('OAuth redirect URL:', redirectUrl);
+    // OAuth callback goes to backend API, not frontend
+    // Backend exchanges code for session and redirects back to frontend with tokens
+    const redirectUrl = `${environment.apiUrl}/auth/callback`;
+    console.log('OAuth redirect URL (backend):', redirectUrl);
     console.log('Starting signInWithOAuth...');
 
     const { data, error } = await this.supabase.auth.signInWithOAuth({
@@ -73,7 +75,7 @@ export class SupabaseService {
 
     // Check if we got a URL to redirect to
     if (data?.url) {
-      console.log('Redirecting to:', data.url);
+      console.log('Redirecting to Google OAuth:', data.url);
       window.location.href = data.url;
     } else {
       console.error('No redirect URL received from Supabase');
