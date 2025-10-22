@@ -132,15 +132,50 @@ export class SupabaseService {
    * This is called in AuthCallbackComponent to avoid auto-detection lock conflicts
    */
   async exchangeCodeForSession(): Promise<{ session: Session | null; error: any }> {
+    console.log('exchangeCodeForSession: Starting manual session exchange');
+    console.log('Current URL:', window.location.href);
+    console.log('Query string:', window.location.search);
+    console.log('Hash fragment:', window.location.hash);
+
     try {
-      // Check if we have a hash fragment (OAuth callback)
+      // Check if we have an authorization code (PKCE flow)
+      const urlParams = new URLSearchParams(window.location.search);
+      const code = urlParams.get('code');
+
+      if (code) {
+        console.log('Found authorization code in query params, exchanging for session');
+
+        // Let Supabase handle the PKCE code exchange
+        const { data, error } = await this.supabase.auth.exchangeCodeForSession(code);
+
+        if (error) {
+          console.error('Error exchanging code for session:', error);
+          return { session: null, error };
+        }
+
+        console.log('Session established successfully via code exchange:', data.session?.user?.email);
+
+        // Clear the query params from URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+
+        // Update session subject
+        this.sessionSubject.next(data.session);
+
+        return { session: data.session, error: null };
+      }
+
+      // Check if we have a hash fragment (implicit flow - fallback)
       if (window.location.hash) {
+        console.log('Found hash fragment, parsing tokens');
+
         // Parse the hash fragment manually
         const hashParams = new URLSearchParams(window.location.hash.substring(1));
         const accessToken = hashParams.get('access_token');
         const refreshToken = hashParams.get('refresh_token');
 
         if (accessToken) {
+          console.log('Setting session with tokens from hash fragment');
+
           // Set the session using the tokens from the URL
           const { data, error } = await this.supabase.auth.setSession({
             access_token: accessToken,
@@ -152,14 +187,21 @@ export class SupabaseService {
             return { session: null, error };
           }
 
+          console.log('Session established successfully via hash tokens:', data.session?.user?.email);
+
           // Clear the hash from URL
           window.history.replaceState({}, document.title, window.location.pathname);
+
+          // Update session subject
+          this.sessionSubject.next(data.session);
 
           return { session: data.session, error: null };
         }
       }
 
-      // If no hash, just get existing session
+      console.log('No authorization code or tokens found in URL, checking existing session');
+
+      // If no code or hash, just get existing session
       const { data, error } = await this.supabase.auth.getSession();
       return { session: data.session, error };
     } catch (error) {
