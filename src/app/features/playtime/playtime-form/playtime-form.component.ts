@@ -263,15 +263,15 @@ export class PlaytimeFormComponent implements OnInit {
   private calculateScheduledTime(): Date {
     const selectedTime = this.playtimeForm.value.scheduledTime;
 
+    // If "now" is selected, use the actual current time (not rounded)
+    if (selectedTime === 'now') {
+      return new Date();
+    }
+
     // Start with today or tomorrow
     const targetDate = new Date();
     if (this.selectedDate === 'tomorrow') {
       targetDate.setDate(targetDate.getDate() + 1);
-    }
-
-    // If "now" is selected, use rounded time
-    if (selectedTime === 'now') {
-      return this.roundToNearest15Minutes(new Date());
     }
 
     // Parse the time and set it
