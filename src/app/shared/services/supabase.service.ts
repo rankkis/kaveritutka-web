@@ -12,9 +12,6 @@ export class SupabaseService {
   public session$: Observable<Session | null>;
 
   constructor() {
-    // Only detect session in URL on the callback page
-    const isCallbackPage = window.location.pathname === '/auth/callback';
-
     this.supabase = createClient(
       environment.supabase.url,
       environment.supabase.anonKey,
@@ -24,8 +21,9 @@ export class SupabaseService {
           storageKey: 'sb-auth-token',
           autoRefreshToken: true,
           persistSession: true,
-          // Only auto-detect on callback page to avoid lock conflicts elsewhere
-          detectSessionInUrl: isCallbackPage,
+          // Disable auto-detection to prevent lock conflicts
+          // We'll handle OAuth callback manually in AuthCallbackComponent
+          detectSessionInUrl: false,
           flowType: 'pkce'
         }
       }

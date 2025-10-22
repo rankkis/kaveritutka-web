@@ -1,10 +1,8 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { SupabaseService } from '../../../shared/services/supabase.service';
-import { Subscription } from 'rxjs';
-import { filter, take } from 'rxjs/operators';
 
 @Component({
   selector: 'app-auth-callback',
@@ -13,9 +11,8 @@ import { filter, take } from 'rxjs/operators';
   templateUrl: './auth-callback.component.html',
   styleUrls: ['./auth-callback.component.scss']
 })
-export class AuthCallbackComponent implements OnInit, OnDestroy {
+export class AuthCallbackComponent implements OnInit {
   errorMessage = '';
-  private sessionSubscription?: Subscription;
 
   constructor(
     private route: ActivatedRoute,
@@ -38,44 +35,29 @@ export class AuthCallbackComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Supabase will automatically detect the session from URL (detectSessionInUrl: true)
-    // Subscribe to session observable and wait for a non-null session
-    console.log('Waiting for Supabase to process OAuth callback...');
+    // Manually exchange code for session (detectSessionInUrl is disabled)
+    console.log('Manually exchanging OAuth code for session...');
 
-    // Set a timeout in case session never arrives
-    const timeoutId = setTimeout(() => {
-      console.error('Timeout waiting for session');
+    const { session, error: sessionError } = await this.supabaseService.exchangeCodeForSession();
+
+    if (sessionError || !session) {
+      console.error('Auth callback error:', sessionError);
       this.errorMessage = 'Kirjautuminen epäonnistui. Yritä uudelleen.';
       setTimeout(() => this.router.navigate(['/']), 2000);
-    }, 10000); // 10 second timeout
+      return;
+    }
 
-    // Subscribe to session changes and wait for a valid session
-    this.sessionSubscription = this.supabaseService.session$
-      .pipe(
-        filter(session => session !== null), // Wait for non-null session
-        take(1) // Take only the first valid session
-      )
-      .subscribe(session => {
-        clearTimeout(timeoutId);
-        console.log('Authentication successful:', session.user.email);
+    console.log('Authentication successful:', session.user.email);
 
-        // Check if this is a first-time user
-        const isNewUser = this.checkIfNewUser();
+    // Check if this is a first-time user
+    const isNewUser = this.checkIfNewUser();
 
-        if (isNewUser) {
-          // First-time user - show welcome page
-          this.router.navigate(['/welcome']);
-        } else {
-          // Returning user - go to home page
-          this.router.navigate(['/']);
-        }
-      });
-  }
-
-  ngOnDestroy(): void {
-    // Clean up subscription
-    if (this.sessionSubscription) {
-      this.sessionSubscription.unsubscribe();
+    if (isNewUser) {
+      // First-time user - show welcome page
+      this.router.navigate(['/welcome']);
+    } else {
+      // Returning user - go to home page
+      this.router.navigate(['/']);
     }
   }
 
