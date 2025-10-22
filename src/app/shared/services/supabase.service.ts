@@ -17,8 +17,6 @@ export class SupabaseService {
       environment.supabase.anonKey,
       {
         auth: {
-          storage: window.localStorage,
-          storageKey: 'sb-auth-token',
           autoRefreshToken: true,
           persistSession: true,
           // Disable auto-detection to prevent lock conflicts
@@ -139,12 +137,11 @@ export class SupabaseService {
 
       if (code) {
         console.log('Found authorization code in query params, exchanging for session');
+        console.log('Code:', code);
 
-        // For PKCE flow, we need to pass the full callback URL
-        // The code verifier is stored in localStorage by Supabase during the initial OAuth request
-        const { data, error } = await this.supabase.auth.exchangeCodeForSession(
-          window.location.href
-        );
+        // For PKCE flow, pass just the code (not the full URL)
+        // The code verifier is automatically retrieved from localStorage by Supabase
+        const { data, error } = await this.supabase.auth.exchangeCodeForSession(code);
 
         if (error) {
           console.error('Error exchanging code for session:', error);
