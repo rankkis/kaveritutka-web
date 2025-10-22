@@ -21,6 +21,8 @@ export class AuthCallbackComponent implements OnInit {
   ) {}
 
   async ngOnInit(): Promise<void> {
+    console.log('AuthCallback: Starting OAuth callback processing');
+
     // Check for error in URL params
     const params = await this.route.queryParams.toPromise();
     const error = params?.['error'];
@@ -33,11 +35,18 @@ export class AuthCallbackComponent implements OnInit {
       return;
     }
 
-    // Manually trigger session exchange to avoid auto-detection lock conflicts
-    const { session, error: sessionError } = await this.supabaseService.exchangeCodeForSession();
+    // Supabase will automatically detect the session from URL (detectSessionInUrl: true)
+    // Wait a moment for it to process
+    console.log('Waiting for Supabase to process OAuth callback...');
 
-    if (sessionError || !session) {
-      console.error('Auth callback error:', sessionError);
+    // Give Supabase time to process the callback
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    // Now check for session
+    const session = this.supabaseService.getSession();
+
+    if (!session) {
+      console.error('No session found after OAuth callback');
       this.errorMessage = 'Kirjautuminen epäonnistui. Yritä uudelleen.';
       setTimeout(() => this.router.navigate(['/']), 2000);
       return;

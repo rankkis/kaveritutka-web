@@ -12,23 +12,20 @@ export class SupabaseService {
   public session$: Observable<Session | null>;
 
   constructor() {
+    // Only detect session in URL on the callback page
+    const isCallbackPage = window.location.pathname === '/auth/callback';
+
     this.supabase = createClient(
       environment.supabase.url,
       environment.supabase.anonKey,
       {
         auth: {
-          // Use localStorage instead of default
           storage: window.localStorage,
-          // Use a simpler storage key
-          storageKey: 'sb-auth',
-          // Automatically refresh session
+          storageKey: 'sb-auth-token',
           autoRefreshToken: true,
-          // Persist session across tabs
           persistSession: true,
-          // Disable automatic URL detection to avoid lock conflicts
-          // We'll handle this manually in AuthCallbackComponent
-          detectSessionInUrl: false,
-          // Use a shorter lock timeout
+          // Only auto-detect on callback page to avoid lock conflicts elsewhere
+          detectSessionInUrl: isCallbackPage,
           flowType: 'pkce'
         }
       }
