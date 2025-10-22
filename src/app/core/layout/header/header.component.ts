@@ -5,14 +5,16 @@ import { Subscription } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MapStateService } from '../../../core/services/map-state.service';
 import { AuthService } from '../../../shared/services/auth.service';
 import { User } from '../../../shared/models/user.model';
+import { AuthProviderDialogComponent } from '../../../features/auth/auth-provider-dialog/auth-provider-dialog.component';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, RouterModule, MatButtonModule, MatIconModule, MatMenuModule],
+  imports: [CommonModule, RouterModule, MatButtonModule, MatIconModule, MatMenuModule, MatDialogModule],
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss']
 })
@@ -25,7 +27,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
   constructor(
     private mapStateService: MapStateService,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
@@ -55,11 +58,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   onLogin(): void {
-    this.router.navigate(['/login']);
-  }
-
-  onRegister(): void {
-    this.router.navigate(['/register']);
+    this.dialog.open(AuthProviderDialogComponent, {
+      width: '500px',
+      maxWidth: '95vw',
+      panelClass: 'auth-dialog-panel'
+    });
   }
 
   onLogout(): void {

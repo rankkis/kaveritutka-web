@@ -70,6 +70,23 @@ export class AuthService {
   }
 
   /**
+   * Login with Google OAuth
+   * Initiates Google OAuth flow and returns user data
+   */
+  loginWithGoogle(): Observable<User> {
+    return this.http.post<AuthResponse>(`${environment.apiUrl}/auth/google`, {})
+      .pipe(
+        tap(response => {
+          this.storeAuthData(response);
+          this.currentUserSubject.next(response.user);
+          this.startTokenRefreshTimer();
+        }),
+        map(response => response.user),
+        catchError(this.handleError)
+      );
+  }
+
+  /**
    * Logout and clear all authentication data
    */
   logout(): void {

@@ -1,0 +1,49 @@
+<div class="auth-dialog">
+  <div class="dialog-header">
+    <h2>Kirjaudu sisään</h2>
+    <button mat-icon-button (click)="onClose()" class="close-button">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <div class="dialog-content">
+    <p class="subtitle">Valitse kirjautumistapa</p>
+
+    @if (errorMessage) {
+      <div class="error-message">
+        {{ errorMessage }}
+      </div>
+    }
+
+    <div class="provider-buttons">
+      <button
+        mat-raised-button
+        class="provider-button google-button"
+        (click)="onGoogleLogin()"
+        [disabled]="loading"
+      >
+        @if (loading) {
+          <mat-spinner diameter="24" class="button-spinner"></mat-spinner>
+          <span>Kirjaudutaan...</span>
+        } @else {
+          <mat-icon class="provider-icon">account_circle</mat-icon>
+          <span>Jatka Google-tilillä</span>
+        }
+      </button>
+
+      <!-- Placeholder for future providers -->
+      <!-- <button
+        mat-raised-button
+        class="provider-button facebook-button"
+        [disabled]="true"
+      >
+        <mat-icon class="provider-icon">facebook</mat-icon>
+        <span>Jatka Facebook-tilillä</span>
+      </button> -->
+    </div>
+
+    <p class="info-text">
+      Ensimmäisellä kirjautumiskerralla voit valita nimimerkin.
+    </p>
+  </div>
+</div>

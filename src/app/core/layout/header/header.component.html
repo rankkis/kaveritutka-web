@@ -7,12 +7,9 @@
 
     <div class="header-right">
       @if (!isAuthenticated) {
-        <!-- Unauthenticated: Show Login/Register buttons -->
-        <button mat-button (click)="onLogin()" class="auth-button">
+        <!-- Unauthenticated: Show Login button only (Google OAuth) -->
+        <button mat-raised-button color="primary" (click)="onLogin()" class="auth-button">
           Kirjaudu
-        </button>
-        <button mat-raised-button color="primary" (click)="onRegister()" class="auth-button">
-          Rekisteröidy
         </button>
       } @else {
         <!-- Authenticated: Show user name and logout -->
