@@ -1,8 +1,10 @@
 export interface User {
   id: string;
-  email: string;
-  name?: string;
+  displayName?: string;
   createdAt: Date;
+  // Legacy field for backward compatibility
+  name?: string;
+  email?: string;
 }
 
 export interface LoginCredentials {
@@ -18,11 +20,15 @@ export interface RegisterCredentials {
 
 export interface AuthResponse {
   user: User;
-  token: string;
+  accessToken: string;
   refreshToken: string;
 }
 
 export interface TokenRefreshResponse {
-  token: string;
+  accessToken: string;
   refreshToken: string;
+}
+
+export interface UpdateUserDto {
+  displayName: string;
 }

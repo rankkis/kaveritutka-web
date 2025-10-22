@@ -4,7 +4,6 @@ import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { Router } from '@angular/router';
 import { AuthService } from '../../../shared/services/auth.service';
 
 @Component({
@@ -29,7 +28,6 @@ export class AuthProviderDialogComponent {
 
   constructor(
     private authService: AuthService,
-    private router: Router,
     private dialogRef: MatDialogRef<AuthProviderDialogComponent>
   ) {}
 
@@ -39,25 +37,9 @@ export class AuthProviderDialogComponent {
     this.buttonText = 'Kirjaudutaan...';
     this.errorMessage = '';
 
-    this.authService.loginWithGoogle().subscribe({
-      next: (user) => {
-        this.dialogRef.close();
-
-        // If user has no name, redirect to welcome page
-        if (!user.name) {
-          this.router.navigate(['/welcome']);
-        } else {
-          // Existing user, stay on current page or redirect to home
-          this.router.navigate(['/']);
-        }
-      },
-      error: (error: Error) => {
-        this.loading = false;
-        this.showSpinner = false;
-        this.buttonText = 'Jatka Google-tilillä';
-        this.errorMessage = error.message || 'Kirjautuminen epäonnistui';
-      }
-    });
+    // Initiate Google OAuth redirect
+    // User will be redirected back to /auth/callback after authentication
+    this.authService.loginWithGoogle();
   }
 
   onClose(): void {
