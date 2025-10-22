@@ -42,11 +42,24 @@ export class AuthProviderDialogComponent {
       console.log('Redirect URL will be:', `${window.location.origin}/auth/callback`);
 
       // Initiate Supabase Google OAuth
-      // Supabase will handle the redirect and callback automatically
+      // Note: This will redirect the browser to Google OAuth page
+      // If redirect succeeds, this code after await won't execute
       await this.supabaseService.signInWithGoogle();
 
-      console.log('OAuth redirect initiated successfully');
-      this.dialogRef.close();
+      // If we reach here, redirect didn't happen - likely an error
+      console.warn('OAuth redirect did not occur - checking for errors');
+
+      // Keep loading state since redirect might still be processing
+      // Set a timeout to show error if redirect doesn't happen
+      setTimeout(() => {
+        if (this.loading) {
+          console.error('OAuth redirect failed - timeout reached');
+          this.loading = false;
+          this.showSpinner = false;
+          this.buttonText = 'Jatka Google-tilillä';
+          this.errorMessage = 'Uudelleenohjaus epäonnistui. Yritä uudelleen.';
+        }
+      }, 3000);
     } catch (error: any) {
       console.error('Google OAuth error:', error);
       this.loading = false;

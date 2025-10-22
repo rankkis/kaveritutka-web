@@ -57,19 +57,34 @@ export class SupabaseService {
     // Use current origin for redirect (localhost in dev, production domain in prod)
     const redirectUrl = `${window.location.origin}/auth/callback`;
     console.log('OAuth redirect URL:', redirectUrl);
+    console.log('Starting signInWithOAuth...');
 
-    const { error } = await this.supabase.auth.signInWithOAuth({
+    const { data, error } = await this.supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
         redirectTo: redirectUrl,
-        // Skip confirmation - go straight back to app
-        skipBrowserRedirect: false
+        // Query params to include in redirect
+        queryParams: {
+          access_type: 'offline',
+          prompt: 'consent'
+        }
       }
     });
+
+    console.log('signInWithOAuth completed', { data, error });
 
     if (error) {
       console.error('Google sign in error:', error);
       throw error;
+    }
+
+    // Check if we got a URL to redirect to
+    if (data?.url) {
+      console.log('Redirecting to:', data.url);
+      window.location.href = data.url;
+    } else {
+      console.error('No redirect URL received from Supabase');
+      throw new Error('No redirect URL received');
     }
   }
 
