@@ -140,8 +140,11 @@ export class SupabaseService {
       if (code) {
         console.log('Found authorization code in query params, exchanging for session');
 
-        // Let Supabase handle the PKCE code exchange
-        const { data, error } = await this.supabase.auth.exchangeCodeForSession(code);
+        // For PKCE flow, we need to pass the full callback URL
+        // The code verifier is stored in localStorage by Supabase during the initial OAuth request
+        const { data, error } = await this.supabase.auth.exchangeCodeForSession(
+          window.location.href
+        );
 
         if (error) {
           console.error('Error exchanging code for session:', error);
