@@ -81,8 +81,12 @@ src/
 │   │   │       ├── header.component.ts
 │   │   │       ├── header.component.html
 │   │   │       └── header.component.scss
-│   │   └── services/                        # Core singleton services
-│   │       └── map-state.service.ts         # Map state management
+│   │   ├── services/                        # Core singleton services
+│   │   │   └── map-state.service.ts         # Map state management
+│   │   └── auth/                            # Authentication (app-wide)
+│   │       ├── auth-callback/               # OAuth callback handler
+│   │       ├── auth-provider-dialog/        # Login dialog
+│   │       └── welcome/                     # Welcome page for new users
 │   │
 │   ├── features/                            # Feature modules (isolated, no cross-imports)
 │   │   ├── map-view/                        # Map feature
@@ -134,11 +138,11 @@ src/
 ## Architecture Principles
 
 ### Core Module
-- **Purpose**: App-wide singleton services and layout components
+- **Purpose**: App-wide singleton services, layout components, and authentication
 - **Location**: `src/app/core/`
 - **Can import**: `shared/`
 - **Cannot import**: `features/`
-- **Examples**: MapStateService, HeaderComponent
+- **Examples**: MapStateService, HeaderComponent, Auth components (login, callback, welcome)
 
 ### Feature Modules
 - **Purpose**: Self-contained business features

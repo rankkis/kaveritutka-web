@@ -1,0 +1,9 @@
+<div class="callback-container">
+  <mat-spinner diameter="60"></mat-spinner>
+
+  @if (errorMessage) {
+    <p class="error-message">{{ errorMessage }}</p>
+  } @else {
+    <p class="loading-message">Kirjaudutaan sisään...</p>
+  }
+</div>

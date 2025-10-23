@@ -70,6 +70,52 @@ export class AuthService {
   }
 
   /**
+   * Initiate Google OAuth login
+   * Redirects user to Google OAuth page
+   */
+  loginWithGoogle(): void {
+    // Store current location to redirect back after auth
+    const returnUrl = window.location.pathname + window.location.search;
+    localStorage.setItem('auth_return_url', returnUrl);
+
+    // Redirect to backend Google OAuth endpoint
+    // The backend will redirect to Google and handle the OAuth flow
+    window.location.href = `${environment.apiUrl}/auth/google`;
+  }
+
+  /**
+   * Handle OAuth callback
+   * Called after successful OAuth authentication
+   */
+  handleOAuthCallback(code: string): Observable<User> {
+    return this.http.get<AuthResponse>(`${environment.apiUrl}/auth/callback`, {
+      params: { code }
+    }).pipe(
+      tap(response => {
+        this.storeAuthData(response);
+        this.currentUserSubject.next(response.user);
+        this.startTokenRefreshTimer();
+      }),
+      map(response => response.user),
+      catchError(this.handleError)
+    );
+  }
+
+  /**
+   * Update user profile (display name)
+   */
+  updateProfile(displayName: string): Observable<User> {
+    return this.http.put<User>(`${environment.apiUrl}/auth/me`, { displayName })
+      .pipe(
+        tap(user => {
+          this.currentUserSubject.next(user);
+          localStorage.setItem(this.USER_KEY, JSON.stringify(user));
+        }),
+        catchError(this.handleError)
+      );
+  }
+
+  /**
    * Logout and clear all authentication data
    */
   logout(): void {
@@ -132,10 +178,10 @@ export class AuthService {
       { refreshToken }
     ).pipe(
       tap(response => {
-        localStorage.setItem(this.TOKEN_KEY, response.token);
+        localStorage.setItem(this.TOKEN_KEY, response.accessToken);
         localStorage.setItem(this.REFRESH_TOKEN_KEY, response.refreshToken);
       }),
-      map(response => response.token),
+      map(response => response.accessToken),
       catchError(error => {
         // If refresh fails, logout user
         this.logout();
@@ -148,7 +194,7 @@ export class AuthService {
    * Store authentication data in localStorage
    */
   private storeAuthData(response: AuthResponse): void {
-    localStorage.setItem(this.TOKEN_KEY, response.token);
+    localStorage.setItem(this.TOKEN_KEY, response.accessToken);
     localStorage.setItem(this.REFRESH_TOKEN_KEY, response.refreshToken);
     localStorage.setItem(this.USER_KEY, JSON.stringify(response.user));
   }
