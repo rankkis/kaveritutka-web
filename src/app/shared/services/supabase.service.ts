@@ -19,9 +19,8 @@ export class SupabaseService {
         auth: {
           autoRefreshToken: true,
           persistSession: true,
-          // Disable auto-detection to prevent lock conflicts
-          // We'll handle OAuth callback manually in AuthCallbackComponent
-          detectSessionInUrl: false,
+          // Enable auto-detection for PKCE flow to work properly
+          detectSessionInUrl: true,
           flowType: 'pkce'
         }
       }

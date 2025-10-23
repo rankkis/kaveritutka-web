@@ -1,8 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { SupabaseService } from '../../../shared/services/supabase.service';
+import { Subscription } from 'rxjs';
+import { filter, take } from 'rxjs/operators';
 
 @Component({
   selector: 'app-auth-callback',
@@ -11,8 +13,9 @@ import { SupabaseService } from '../../../shared/services/supabase.service';
   templateUrl: './auth-callback.component.html',
   styleUrls: ['./auth-callback.component.scss']
 })
-export class AuthCallbackComponent implements OnInit {
+export class AuthCallbackComponent implements OnInit, OnDestroy {
   errorMessage = '';
+  private sessionSubscription?: Subscription;
 
   constructor(
     private route: ActivatedRoute,
@@ -21,8 +24,7 @@ export class AuthCallbackComponent implements OnInit {
   ) {}
 
   async ngOnInit(): Promise<void> {
-    console.log('AuthCallback: Processing OAuth callback');
-    console.log('Current URL:', window.location.href);
+    console.log('AuthCallback: Waiting for Supabase auto-detection');
 
     // Check for error in URL params
     const params = await this.route.queryParams.toPromise();
@@ -35,31 +37,28 @@ export class AuthCallbackComponent implements OnInit {
       return;
     }
 
-    // Check if we have an authorization code (PKCE flow)
-    const code = params?.['code'];
-    console.log('Authorization code:', code ? 'present' : 'missing');
+    // With detectSessionInUrl: true, Supabase will automatically
+    // process the OAuth callback and emit the session via onAuthStateChange
+    // We just need to wait for the session to be available
 
-    if (code) {
-      // Frontend exchanges code for session
-      // Code verifier is in localStorage from the initial signInWithOAuth call
-      console.log('Exchanging code for session...');
+    console.log('Subscribing to session changes...');
 
-      try {
-        const { data, error: exchangeError } = await this.supabaseService
-          .getClient()
-          .auth.exchangeCodeForSession(code);
+    // Set a timeout in case session never arrives
+    const timeoutId = setTimeout(() => {
+      console.error('Timeout waiting for session after OAuth callback');
+      this.errorMessage = 'Kirjautuminen epäonnistui. Yritä uudelleen.';
+      setTimeout(() => this.router.navigate(['/']), 2000);
+    }, 10000); // 10 second timeout
 
-        if (exchangeError || !data.session) {
-          console.error('Error exchanging code:', exchangeError);
-          this.errorMessage = 'Kirjautuminen epäonnistui. Yritä uudelleen.';
-          setTimeout(() => this.router.navigate(['/']), 2000);
-          return;
-        }
-
-        console.log('Session established:', data.session.user.email);
-
-        // Wait a moment for the session to propagate
-        await new Promise(resolve => setTimeout(resolve, 100));
+    // Wait for session to become available
+    this.sessionSubscription = this.supabaseService.session$
+      .pipe(
+        filter(session => session !== null),
+        take(1)
+      )
+      .subscribe(session => {
+        clearTimeout(timeoutId);
+        console.log('Session received:', session.user.email);
 
         // Clear query params from URL
         window.history.replaceState({}, document.title, window.location.pathname);
@@ -74,15 +73,12 @@ export class AuthCallbackComponent implements OnInit {
         } else {
           this.router.navigate(['/']);
         }
-      } catch (err) {
-        console.error('Exception during code exchange:', err);
-        this.errorMessage = 'Kirjautuminen epäonnistui. Yritä uudelleen.';
-        setTimeout(() => this.router.navigate(['/']), 2000);
-      }
-    } else {
-      console.error('No authorization code in URL');
-      this.errorMessage = 'Kirjautuminen epäonnistui. Yritä uudelleen.';
-      setTimeout(() => this.router.navigate(['/']), 2000);
+      });
+  }
+
+  ngOnDestroy(): void {
+    if (this.sessionSubscription) {
+      this.sessionSubscription.unsubscribe();
     }
   }
 
