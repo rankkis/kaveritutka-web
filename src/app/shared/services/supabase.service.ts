@@ -45,13 +45,13 @@ export class SupabaseService {
   /**
    * Sign in with Google OAuth
    * Redirects to Google OAuth page
-   * OAuth callback goes to backend which handles code exchange
+   * OAuth callback comes back to frontend which handles code exchange
    */
   async signInWithGoogle() {
-    // OAuth callback goes to backend API, not frontend
-    // Backend exchanges code for session and redirects back to frontend with tokens
-    const redirectUrl = `${environment.apiUrl}/auth/callback`;
-    console.log('OAuth redirect URL (backend):', redirectUrl);
+    // OAuth callback goes to FRONTEND (not backend)
+    // Frontend has the PKCE code verifier in localStorage
+    const redirectUrl = `${window.location.origin}/auth/callback`;
+    console.log('OAuth redirect URL (frontend):', redirectUrl);
     console.log('Starting signInWithOAuth...');
 
     const { data, error } = await this.supabase.auth.signInWithOAuth({

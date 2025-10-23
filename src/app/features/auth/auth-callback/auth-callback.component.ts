@@ -21,7 +21,8 @@ export class AuthCallbackComponent implements OnInit {
   ) {}
 
   async ngOnInit(): Promise<void> {
-    console.log('AuthCallback: Processing OAuth callback from backend');
+    console.log('AuthCallback: Processing OAuth callback');
+    console.log('Current URL:', window.location.href);
 
     // Check for error in URL params
     const params = await this.route.queryParams.toPromise();
@@ -34,86 +35,54 @@ export class AuthCallbackComponent implements OnInit {
       return;
     }
 
-    // Backend redirects with tokens in URL hash fragment
-    // Format: #access_token=xxx&refresh_token=yyy&user_id=zzz&user_name=Name
-    const hash = window.location.hash.substring(1); // Remove leading #
-    console.log('URL hash:', hash);
+    // Check if we have an authorization code (PKCE flow)
+    const code = params?.['code'];
+    console.log('Authorization code:', code ? 'present' : 'missing');
 
-    if (!hash) {
-      console.error('No hash fragment found in URL');
-      this.errorMessage = 'Kirjautuminen epäonnistui. Yritä uudelleen.';
-      setTimeout(() => this.router.navigate(['/']), 2000);
-      return;
-    }
+    if (code) {
+      // Frontend exchanges code for session
+      // Code verifier is in localStorage from the initial signInWithOAuth call
+      console.log('Exchanging code for session...');
 
-    // Parse hash parameters
-    const hashParams = new URLSearchParams(hash);
-    const accessToken = hashParams.get('access_token');
-    const refreshToken = hashParams.get('refresh_token');
-    const userId = hashParams.get('user_id');
-    const userName = hashParams.get('user_name');
+      try {
+        const { data, error: exchangeError } = await this.supabaseService
+          .getClient()
+          .auth.exchangeCodeForSession(code);
 
-    console.log('Parsed tokens:', {
-      hasAccessToken: !!accessToken,
-      hasRefreshToken: !!refreshToken,
-      userId,
-      userName,
-    });
+        if (exchangeError || !data.session) {
+          console.error('Error exchanging code:', exchangeError);
+          this.errorMessage = 'Kirjautuminen epäonnistui. Yritä uudelleen.';
+          setTimeout(() => this.router.navigate(['/']), 2000);
+          return;
+        }
 
-    if (!accessToken || !refreshToken) {
-      console.error('Missing tokens in hash fragment');
-      this.errorMessage = 'Kirjautuminen epäonnistui. Yritä uudelleen.';
-      setTimeout(() => this.router.navigate(['/']), 2000);
-      return;
-    }
+        console.log('Session established:', data.session.user.email);
 
-    // Set session in Supabase client with tokens from backend
-    console.log('Setting session with tokens...');
-    const { data, error: sessionError } = await this.supabaseService
-      .getClient()
-      .auth.setSession({
-        access_token: accessToken,
-        refresh_token: refreshToken,
-      });
+        // Wait a moment for the session to propagate
+        await new Promise(resolve => setTimeout(resolve, 100));
 
-    console.log('setSession result:', { data, error: sessionError });
+        // Clear query params from URL
+        window.history.replaceState({}, document.title, window.location.pathname);
 
-    if (sessionError || !data.session) {
-      console.error('Error setting session:', sessionError);
-      this.errorMessage = 'Kirjautuminen epäonnistui. Yritä uudelleen.';
-      setTimeout(() => this.router.navigate(['/']), 2000);
-      return;
-    }
+        // Check if this is a first-time user
+        const isNewUser = this.checkIfNewUser();
 
-    console.log('Session set successfully:', {
-      user: data.session.user.email,
-      expiresAt: data.session.expires_at,
-    });
+        console.log('Navigating to:', isNewUser ? '/welcome' : '/');
 
-    // Wait a moment for the session to propagate through the auth state change listener
-    await new Promise(resolve => setTimeout(resolve, 100));
-
-    // Verify session is actually available
-    const currentSession = this.supabaseService.getSession();
-    console.log('Current session after setSession:', {
-      hasSession: !!currentSession,
-      userEmail: currentSession?.user?.email,
-    });
-
-    // Clear hash from URL
-    window.history.replaceState({}, document.title, window.location.pathname);
-
-    // Check if this is a first-time user
-    const isNewUser = this.checkIfNewUser();
-
-    console.log('Navigating to:', isNewUser ? '/welcome' : '/');
-
-    if (isNewUser) {
-      // First-time user - show welcome page
-      this.router.navigate(['/welcome']);
+        if (isNewUser) {
+          this.router.navigate(['/welcome']);
+        } else {
+          this.router.navigate(['/']);
+        }
+      } catch (err) {
+        console.error('Exception during code exchange:', err);
+        this.errorMessage = 'Kirjautuminen epäonnistui. Yritä uudelleen.';
+        setTimeout(() => this.router.navigate(['/']), 2000);
+      }
     } else {
-      // Returning user - go to home page
-      this.router.navigate(['/']);
+      console.error('No authorization code in URL');
+      this.errorMessage = 'Kirjautuminen epäonnistui. Yritä uudelleen.';
+      setTimeout(() => this.router.navigate(['/']), 2000);
     }
   }
 

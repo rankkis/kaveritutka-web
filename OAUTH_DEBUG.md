@@ -155,7 +155,7 @@ Would require:
 - Frontend: https://kaveritutka.app
 - Backend: https://api.kaveritutka.app (assumed - needs verification)
 
-## Implementation Complete ✅
+## Implementation Status
 
 1. ✅ Document the issue (this file)
 2. ✅ Verify backend URL in production (`https://kaveritutka-server.vercel.app`)
@@ -163,7 +163,18 @@ Would require:
 4. ✅ Implement backend redirect to frontend with tokens
 5. ✅ Implement frontend token handling from backend redirect
 6. ✅ Update Supabase Dashboard OAuth redirect URLs
-7. ⏳ Test complete OAuth flow
+7. ✅ Fix NestJS @Res() redirect issue (add explicit return statements)
+8. ⏳ Deploy backend with fixes
+9. ⏳ Test complete OAuth flow
+
+## Debugging Session
+
+### Issue 1: No Console Logs After Login
+**Problem**: Frontend callback component never reached - no console logs
+**Root Cause**: Backend `res.redirect()` not working properly in NestJS
+**Solution**: Added explicit `return` statements after `res.redirect()`
+
+**NestJS Gotcha**: When using `@Res()` decorator, you must explicitly return after calling response methods, otherwise NestJS may continue processing and interfere with the redirect.
 
 ## Final Implementation
 
