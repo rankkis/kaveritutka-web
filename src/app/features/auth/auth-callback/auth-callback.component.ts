@@ -68,12 +68,15 @@ export class AuthCallbackComponent implements OnInit {
     }
 
     // Set session in Supabase client with tokens from backend
+    console.log('Setting session with tokens...');
     const { data, error: sessionError } = await this.supabaseService
       .getClient()
       .auth.setSession({
         access_token: accessToken,
         refresh_token: refreshToken,
       });
+
+    console.log('setSession result:', { data, error: sessionError });
 
     if (sessionError || !data.session) {
       console.error('Error setting session:', sessionError);
@@ -82,13 +85,28 @@ export class AuthCallbackComponent implements OnInit {
       return;
     }
 
-    console.log('Authentication successful:', data.session.user.email);
+    console.log('Session set successfully:', {
+      user: data.session.user.email,
+      expiresAt: data.session.expires_at,
+    });
+
+    // Wait a moment for the session to propagate through the auth state change listener
+    await new Promise(resolve => setTimeout(resolve, 100));
+
+    // Verify session is actually available
+    const currentSession = this.supabaseService.getSession();
+    console.log('Current session after setSession:', {
+      hasSession: !!currentSession,
+      userEmail: currentSession?.user?.email,
+    });
 
     // Clear hash from URL
     window.history.replaceState({}, document.title, window.location.pathname);
 
     // Check if this is a first-time user
     const isNewUser = this.checkIfNewUser();
+
+    console.log('Navigating to:', isNewUser ? '/welcome' : '/');
 
     if (isNewUser) {
       // First-time user - show welcome page
