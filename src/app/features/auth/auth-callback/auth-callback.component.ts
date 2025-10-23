@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { SupabaseService } from '../../../shared/services/supabase.service';
-import { Subscription } from 'rxjs';
+import { Subscription, firstValueFrom } from 'rxjs';
 import { filter, take } from 'rxjs/operators';
 
 @Component({
@@ -28,8 +28,11 @@ export class AuthCallbackComponent implements OnInit, OnDestroy {
     console.log('Current URL:', window.location.href);
 
     // Check for error in URL params
-    const params = await this.route.queryParams.toPromise();
+    const params = await firstValueFrom(this.route.queryParams);
     const error = params?.['error'];
+
+    console.log('Query params:', params);
+    console.log('Error param:', error);
 
     if (error) {
       this.errorMessage = 'Kirjautuminen epäonnistui. Yritä uudelleen.';
