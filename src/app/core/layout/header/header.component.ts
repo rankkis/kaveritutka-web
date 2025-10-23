@@ -9,7 +9,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MapStateService } from '../../../core/services/map-state.service';
 import { SupabaseService } from '../../../shared/services/supabase.service';
-import { AuthProviderDialogComponent } from '../../../features/auth/auth-provider-dialog/auth-provider-dialog.component';
+import { AuthProviderDialogComponent } from '../../auth/auth-provider-dialog/auth-provider-dialog.component';
 
 @Component({
   selector: 'app-header',

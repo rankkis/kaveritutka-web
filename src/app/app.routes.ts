@@ -12,11 +12,11 @@ export const routes: Routes = [
   },
   {
     path: 'auth/callback',
-    loadComponent: () => import('./features/auth/auth-callback/auth-callback.component').then(m => m.AuthCallbackComponent)
+    loadComponent: () => import('./core/auth/auth-callback/auth-callback.component').then(m => m.AuthCallbackComponent)
   },
   {
     path: 'welcome',
-    loadComponent: () => import('./features/auth/welcome/welcome.component').then(m => m.WelcomeComponent)
+    loadComponent: () => import('./core/auth/welcome/welcome.component').then(m => m.WelcomeComponent)
   },
   {
     path: 'playground/:id',
