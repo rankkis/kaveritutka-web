@@ -25,6 +25,7 @@ export class AuthCallbackComponent implements OnInit, OnDestroy {
 
   async ngOnInit(): Promise<void> {
     console.log('AuthCallback: Processing OAuth callback');
+    console.log('Current URL:', window.location.href);
 
     // Check for error in URL params
     const params = await this.route.queryParams.toPromise();
@@ -33,13 +34,13 @@ export class AuthCallbackComponent implements OnInit, OnDestroy {
     if (error) {
       this.errorMessage = 'Kirjautuminen epäonnistui. Yritä uudelleen.';
       console.error('OAuth error:', error);
-      setTimeout(() => this.router.navigate(['/']), 3000);
+      setTimeout(() => this.router.navigate(['/map']), 3000);
       return;
     }
 
     // Give Supabase a moment to process the OAuth callback
     console.log('Waiting for Supabase to process callback...');
-    await new Promise(resolve => setTimeout(resolve, 500));
+    await new Promise(resolve => setTimeout(resolve, 1000)); // Increased to 1 second
 
     // Check if session is already available (Supabase might have processed it already)
     const existingSession = this.supabaseService.getSession();
@@ -58,7 +59,7 @@ export class AuthCallbackComponent implements OnInit, OnDestroy {
     const timeoutId = setTimeout(() => {
       console.error('Timeout waiting for session after OAuth callback');
       this.errorMessage = 'Kirjautuminen epäonnistui. Yritä uudelleen.';
-      setTimeout(() => this.router.navigate(['/']), 2000);
+      setTimeout(() => this.router.navigate(['/map']), 2000);
     }, 10000); // 10 second timeout
 
     // Wait for session to become available via observable
@@ -67,27 +68,40 @@ export class AuthCallbackComponent implements OnInit, OnDestroy {
         filter(session => session !== null),
         take(1)
       )
-      .subscribe(session => {
-        clearTimeout(timeoutId);
-        console.log('Session received via observable:', session.user.email);
-        this.completeLogin();
+      .subscribe({
+        next: (session) => {
+          clearTimeout(timeoutId);
+          console.log('Session received via observable:', session.user.email);
+          this.completeLogin();
+        },
+        error: (err) => {
+          console.error('Error in session subscription:', err);
+          clearTimeout(timeoutId);
+          this.errorMessage = 'Kirjautuminen epäonnistui. Yritä uudelleen.';
+          setTimeout(() => this.router.navigate(['/map']), 2000);
+        }
       });
   }
 
   private completeLogin(): void {
+    console.log('completeLogin() called');
+
     // Clear query params from URL
     window.history.replaceState({}, document.title, window.location.pathname);
 
     // Check if this is a first-time user
     const isNewUser = this.checkIfNewUser();
+    const targetRoute = isNewUser ? '/welcome' : '/map';
 
-    console.log('Navigating to:', isNewUser ? '/welcome' : '/');
+    console.log('Is new user:', isNewUser);
+    console.log('Target route:', targetRoute);
+    console.log('About to navigate...');
 
-    if (isNewUser) {
-      this.router.navigate(['/welcome']);
-    } else {
-      this.router.navigate(['/']);
-    }
+    // Use absolute path and ensure navigation happens
+    this.router.navigate([targetRoute], { replaceUrl: true }).then(
+      success => console.log('Navigation success:', success),
+      error => console.error('Navigation error:', error)
+    );
   }
 
   ngOnDestroy(): void {
