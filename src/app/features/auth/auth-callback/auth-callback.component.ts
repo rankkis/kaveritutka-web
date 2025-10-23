@@ -37,8 +37,14 @@ export class AuthCallbackComponent implements OnInit, OnDestroy {
       return;
     }
 
+    // Give Supabase a moment to process the OAuth callback
+    console.log('Waiting for Supabase to process callback...');
+    await new Promise(resolve => setTimeout(resolve, 500));
+
     // Check if session is already available (Supabase might have processed it already)
     const existingSession = this.supabaseService.getSession();
+
+    console.log('Checking for existing session:', existingSession ? 'found' : 'not found');
 
     if (existingSession) {
       console.log('Session already available:', existingSession.user.email);
