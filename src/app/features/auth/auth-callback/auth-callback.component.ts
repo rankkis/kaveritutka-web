@@ -24,7 +24,7 @@ export class AuthCallbackComponent implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit(): Promise<void> {
-    console.log('AuthCallback: Waiting for Supabase auto-detection');
+    console.log('AuthCallback: Processing OAuth callback');
 
     // Check for error in URL params
     const params = await this.route.queryParams.toPromise();
@@ -37,11 +37,16 @@ export class AuthCallbackComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // With detectSessionInUrl: true, Supabase will automatically
-    // process the OAuth callback and emit the session via onAuthStateChange
-    // We just need to wait for the session to be available
+    // Check if session is already available (Supabase might have processed it already)
+    const existingSession = this.supabaseService.getSession();
 
-    console.log('Subscribing to session changes...');
+    if (existingSession) {
+      console.log('Session already available:', existingSession.user.email);
+      this.completeLogin();
+      return;
+    }
+
+    console.log('Waiting for session via observable...');
 
     // Set a timeout in case session never arrives
     const timeoutId = setTimeout(() => {
@@ -50,7 +55,7 @@ export class AuthCallbackComponent implements OnInit, OnDestroy {
       setTimeout(() => this.router.navigate(['/']), 2000);
     }, 10000); // 10 second timeout
 
-    // Wait for session to become available
+    // Wait for session to become available via observable
     this.sessionSubscription = this.supabaseService.session$
       .pipe(
         filter(session => session !== null),
@@ -58,22 +63,25 @@ export class AuthCallbackComponent implements OnInit, OnDestroy {
       )
       .subscribe(session => {
         clearTimeout(timeoutId);
-        console.log('Session received:', session.user.email);
-
-        // Clear query params from URL
-        window.history.replaceState({}, document.title, window.location.pathname);
-
-        // Check if this is a first-time user
-        const isNewUser = this.checkIfNewUser();
-
-        console.log('Navigating to:', isNewUser ? '/welcome' : '/');
-
-        if (isNewUser) {
-          this.router.navigate(['/welcome']);
-        } else {
-          this.router.navigate(['/']);
-        }
+        console.log('Session received via observable:', session.user.email);
+        this.completeLogin();
       });
+  }
+
+  private completeLogin(): void {
+    // Clear query params from URL
+    window.history.replaceState({}, document.title, window.location.pathname);
+
+    // Check if this is a first-time user
+    const isNewUser = this.checkIfNewUser();
+
+    console.log('Navigating to:', isNewUser ? '/welcome' : '/');
+
+    if (isNewUser) {
+      this.router.navigate(['/welcome']);
+    } else {
+      this.router.navigate(['/']);
+    }
   }
 
   ngOnDestroy(): void {
