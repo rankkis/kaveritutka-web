@@ -1,0 +1,149 @@
+.friend-listing-card {
+  margin-bottom: 16px;
+  transition: all 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  &.closed {
+    opacity: 0.7;
+    background-color: #f5f5f5;
+  }
+}
+
+.card-header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 100%;
+  gap: 16px;
+}
+
+.child-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+
+  .child-name {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+    color: #673ab7;
+  }
+
+  .parent-name {
+    font-size: 14px;
+    color: rgba(0, 0, 0, 0.6);
+  }
+}
+
+.status-chip {
+  &.active {
+    background-color: #4caf50 !important;
+    color: white !important;
+  }
+
+  &.closed {
+    background-color: #9e9e9e !important;
+    color: white !important;
+  }
+}
+
+mat-card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-top: 16px;
+}
+
+.interests-section {
+  mat-chip-set {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .interest-chip {
+    background-color: rgba(103, 58, 183, 0.1);
+    color: #673ab7;
+    font-size: 12px;
+  }
+}
+
+.description {
+  margin: 0;
+  line-height: 1.6;
+  color: rgba(0, 0, 0, 0.87);
+  white-space: pre-wrap;
+  word-wrap: break-word;
+
+  .read-more-link {
+    color: #673ab7;
+    cursor: pointer;
+    text-decoration: none;
+    margin-left: 4px;
+    font-weight: 500;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+.location,
+.created-date {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.6);
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    color: #673ab7;
+  }
+}
+
+mat-card-actions {
+  padding: 16px;
+  display: flex;
+  justify-content: flex-end;
+
+  .public-actions,
+  .owner-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  button {
+    mat-icon {
+      margin-right: 4px;
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .card-header-content {
+    flex-direction: column;
+  }
+
+  mat-card-actions {
+    .public-actions,
+    .owner-actions {
+      width: 100%;
+      flex-direction: column;
+
+      button {
+        width: 100%;
+      }
+    }
+  }
+}

@@ -1,0 +1,44 @@
+<h2 mat-dialog-title>Lähetä viesti</h2>
+
+<mat-dialog-content>
+  <div class="listing-info">
+    <h3>{{ data.listing.childName }}, {{ data.listing.childAge }} v</h3>
+    <p>Vanhempi: {{ data.listing.parentName }}</p>
+  </div>
+
+  <form [formGroup]="form" class="message-form">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Viestisi</mat-label>
+      <textarea
+        matInput
+        formControlName="message"
+        rows="8"
+        placeholder="Hei! Meillä on myös sammanikäinen lapsi. Haluaisitko jutella lisää ja sopia yhteisestä leikkiajasta?"
+        required></textarea>
+      <mat-hint align="end">{{ remainingChars }} / 300 merkkiä jäljellä</mat-hint>
+      <mat-error *ngIf="form.get('message')?.hasError('required')">
+        Viesti on pakollinen
+      </mat-error>
+      <mat-error *ngIf="form.get('message')?.hasError('maxlength')">
+        Viesti voi olla enintään 300 merkkiä
+      </mat-error>
+    </mat-form-field>
+
+    <div class="info-box">
+      <p>💡 Vinkki: Kerro lyhyesti lapsestasi ja miksi otit yhteyttä. Ilmoituksen luoja saa viestisi sähköpostiinsa.</p>
+    </div>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()" [disabled]="isSubmitting">
+    Peruuta
+  </button>
+  <button
+    mat-raised-button
+    color="primary"
+    (click)="onSubmit()"
+    [disabled]="form.invalid || isSubmitting">
+    {{ isSubmitting ? 'Lähetetään...' : 'Lähetä viesti' }}
+  </button>
+</mat-dialog-actions>

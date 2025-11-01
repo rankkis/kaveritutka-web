@@ -1,0 +1,79 @@
+<mat-card class="friend-listing-card" [class.closed]="listing.status === 'closed'">
+  <mat-card-header>
+    <div class="card-header-content">
+      <div class="child-info">
+        <h3 class="child-name">{{ listing.childName }}, {{ listing.childAge }} v</h3>
+        <span class="parent-name">Vanhempi: {{ listing.parentName }}</span>
+      </div>
+      <mat-chip *ngIf="listing.status === 'closed'" class="status-chip closed">
+        Ratkaistu
+      </mat-chip>
+      <mat-chip *ngIf="listing.status === 'active'" class="status-chip active">
+        Aktiivinen
+      </mat-chip>
+    </div>
+  </mat-card-header>
+
+  <mat-card-content>
+    <!-- Interests -->
+    <div class="interests-section" *ngIf="listing.interests && listing.interests.length > 0">
+      <mat-chip-set>
+        <mat-chip *ngFor="let interest of listing.interests" class="interest-chip">
+          {{ interest }}
+        </mat-chip>
+      </mat-chip-set>
+    </div>
+
+    <!-- Description -->
+    <p class="description">
+      {{ displayDescription }}
+      <a *ngIf="isLongDescription"
+         class="read-more-link"
+         (click)="toggleDescription()">
+        {{ showFullDescription ? 'Näytä vähemmän' : 'Lue lisää' }}
+      </a>
+    </p>
+
+    <!-- Location -->
+    <div class="location">
+      <mat-icon>location_on</mat-icon>
+      <span>{{ listing.location.cityName }}</span>
+    </div>
+
+    <!-- Created date -->
+    <div class="created-date">
+      <mat-icon>schedule</mat-icon>
+      <span>{{ getRelativeTime() }}</span>
+    </div>
+  </mat-card-content>
+
+  <mat-card-actions>
+    <!-- Actions for non-owners -->
+    <div *ngIf="!isOwner && listing.status === 'active'" class="public-actions">
+      <button mat-raised-button color="primary" (click)="onSendMessage()">
+        <mat-icon>mail</mat-icon>
+        Lähetä viesti
+      </button>
+      <button mat-raised-button color="accent" (click)="onProposePlaytime()">
+        <mat-icon>event</mat-icon>
+        Ehdota leikkiaikaa
+      </button>
+    </div>
+
+    <!-- Actions for owners -->
+    <div *ngIf="isOwner" class="owner-actions">
+      <button mat-button (click)="onEdit()" *ngIf="listing.status === 'active'">
+        <mat-icon>edit</mat-icon>
+        Muokkaa
+      </button>
+      <button mat-button color="primary" (click)="onClose()" *ngIf="listing.status === 'active'">
+        <mat-icon>check_circle</mat-icon>
+        Merkitse ratkaistuksi
+      </button>
+      <button mat-button color="warn" (click)="onDelete()">
+        <mat-icon>delete</mat-icon>
+        Poista
+      </button>
+    </div>
+  </mat-card-actions>
+</mat-card>

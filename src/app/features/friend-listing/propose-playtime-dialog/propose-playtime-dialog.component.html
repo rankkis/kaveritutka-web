@@ -1,0 +1,104 @@
+<h2 mat-dialog-title>Ehdota leikkiaikaa</h2>
+
+<mat-dialog-content>
+  <div class="listing-info">
+    <h3>{{ data.listing.childName }}, {{ data.listing.childAge }} v</h3>
+    <p>Vanhempi: {{ data.listing.parentName }}</p>
+    <div class="interests" *ngIf="data.listing.interests && data.listing.interests.length > 0">
+      <strong>Kiinnostukset:</strong> {{ data.listing.interests.join(', ') }}
+    </div>
+  </div>
+
+  <form [formGroup]="form" class="playtime-form">
+    <!-- Playground Selection -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Leikkipuisto</mat-label>
+      <mat-select formControlName="playgroundId" required>
+        <mat-option *ngFor="let playground of playgrounds" [value]="playground.id">
+          {{ playground.name }}
+        </mat-option>
+      </mat-select>
+      <mat-error *ngIf="form.get('playgroundId')?.hasError('required')">
+        Valitse leikkipuisto
+      </mat-error>
+    </mat-form-field>
+
+    <!-- Date -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Päivämäärä</mat-label>
+      <input
+        matInput
+        [matDatepicker]="picker"
+        formControlName="date"
+        [min]="minDate"
+        placeholder="Valitse päivä"
+        required>
+      <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+      <mat-datepicker #picker></mat-datepicker>
+      <mat-error *ngIf="form.get('date')?.hasError('required')">
+        Valitse päivämäärä
+      </mat-error>
+    </mat-form-field>
+
+    <!-- Time -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Kellonaika</mat-label>
+      <mat-select formControlName="time" required>
+        <mat-option *ngFor="let slot of timeSlots" [value]="slot">
+          {{ slot }}
+        </mat-option>
+      </mat-select>
+      <mat-error *ngIf="form.get('time')?.hasError('required')">
+        Valitse kellonaika
+      </mat-error>
+    </mat-form-field>
+
+    <!-- Duration -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Kesto</mat-label>
+      <mat-select formControlName="duration" required>
+        <mat-option *ngFor="let duration of durationOptions" [value]="duration">
+          {{ duration }} h
+        </mat-option>
+      </mat-select>
+      <mat-error *ngIf="form.get('duration')?.hasError('required')">
+        Valitse kesto
+      </mat-error>
+    </mat-form-field>
+
+    <!-- Message -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Viestisi</mat-label>
+      <textarea
+        matInput
+        formControlName="message"
+        rows="5"
+        placeholder="Haluaisitko tulla leikkimään huomenna? Voimme sopia tarkemman ajan!"
+        required></textarea>
+      <mat-hint align="end">{{ remainingChars }} / 300 merkkiä jäljellä</mat-hint>
+      <mat-error *ngIf="form.get('message')?.hasError('required')">
+        Viesti on pakollinen
+      </mat-error>
+      <mat-error *ngIf="form.get('message')?.hasError('maxlength')">
+        Viesti voi olla enintään 300 merkkiä
+      </mat-error>
+    </mat-form-field>
+
+    <div class="info-box">
+      <p>💡 Ehdotettu aika on alustava. Voitte sopia tarkan ajan yhdessä viestien kautta.</p>
+    </div>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()" [disabled]="isSubmitting">
+    Peruuta
+  </button>
+  <button
+    mat-raised-button
+    color="primary"
+    (click)="onSubmit()"
+    [disabled]="form.invalid || isSubmitting">
+    {{ isSubmitting ? 'Lähetetään...' : 'Lähetä ehdotus' }}
+  </button>
+</mat-dialog-actions>
