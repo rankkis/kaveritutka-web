@@ -25,5 +25,9 @@ export const routes: Routes = [
   {
     path: 'playground/:id/new-playtime',
     loadComponent: () => import('./features/playtime/playtime-form-page/playtime-form-page.component').then(m => m.PlaytimeFormPageComponent)
+  },
+  {
+    path: 'friend-listings',
+    loadComponent: () => import('./features/friend-listing/friend-listing-table-page/friend-listing-table-page.component').then(m => m.FriendListingTablePageComponent)
   }
 ];

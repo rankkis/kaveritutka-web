@@ -1,0 +1,83 @@
+<div class="table-page-container">
+  <!-- Header -->
+  <header class="page-header">
+    <button mat-icon-button (click)="goBack()" class="back-button">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <h1>Kaverihakuilmoitukset</h1>
+    <button mat-fab color="primary" (click)="onCreateListing()" class="fab-button">
+      <mat-icon>add</mat-icon>
+    </button>
+  </header>
+
+  <!-- Filters -->
+  <div class="filters-section">
+    <!-- Search -->
+    <mat-form-field appearance="outline" class="search-field">
+      <mat-label>Hae</mat-label>
+      <input
+        matInput
+        [(ngModel)]="searchText"
+        (ngModelChange)="onSearchChange()"
+        placeholder="Etsi nimellä, kiinnostuksilla, kaupungilla...">
+      <mat-icon matPrefix>search</mat-icon>
+    </mat-form-field>
+
+    <!-- Status filter -->
+    <mat-form-field appearance="outline" class="filter-field">
+      <mat-label>Tila</mat-label>
+      <mat-select [(ngModel)]="selectedStatus" (ngModelChange)="onStatusChange()">
+        <mat-option value="all">Kaikki</mat-option>
+        <mat-option value="active">Aktiiviset</mat-option>
+        <mat-option value="closed">Ratkaistut</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <!-- Age filter -->
+    <mat-form-field appearance="outline" class="filter-field">
+      <mat-label>Ikä</mat-label>
+      <mat-select [(ngModel)]="selectedAge" (ngModelChange)="onAgeChange()">
+        <mat-option [value]="null">Kaikki iät</mat-option>
+        <mat-option *ngFor="let age of ageOptions" [value]="age">
+          {{ age }} vuotta
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <!-- Loading spinner -->
+  <div *ngIf="isLoading" class="loading-container">
+    <mat-spinner></mat-spinner>
+  </div>
+
+  <!-- Listings -->
+  <div *ngIf="!isLoading" class="listings-container">
+    <div *ngIf="filteredListings.length === 0" class="empty-state">
+      <mat-icon>inbox</mat-icon>
+      <h3>Ei ilmoituksia</h3>
+      <p *ngIf="searchText || selectedAge !== null">
+        Kokeile muuttaa hakuehtoja.
+      </p>
+      <p *ngIf="!searchText && selectedAge === null">
+        Ole ensimmäinen ja luo ilmoitus!
+      </p>
+      <button mat-raised-button color="primary" (click)="onCreateListing()">
+        <mat-icon>add</mat-icon>
+        Luo ilmoitus
+      </button>
+    </div>
+
+    <div *ngIf="filteredListings.length > 0" class="listings-grid">
+      <app-friend-listing-card
+        *ngFor="let listing of filteredListings"
+        [listing]="listing"
+        [isOwner]="isOwner(listing)"
+        (sendMessage)="onSendMessage($event)"
+        (proposePlaytime)="onProposePlaytime($event)"
+        (edit)="onEditListing($event)"
+        (delete)="onDeleteListing($event)"
+        (close)="onCloseListing($event)">
+      </app-friend-listing-card>
+    </div>
+  </div>
+</div>
