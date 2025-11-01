@@ -15,7 +15,7 @@ import { environment } from '../../../environments/environment';
 })
 export class FriendListingService {
   private http = inject(HttpClient);
-  private apiUrl = `${environment.apiUrl}/friend-listings`;
+  private apiUrl = `${environment.apiUrl}/friend-requests`;
 
   private listingsSubject = new BehaviorSubject<FriendListing[]>([]);
 
@@ -76,7 +76,7 @@ export class FriendListingService {
    * Get friend listings created by the logged-in user
    */
   getUserFriendListings(): Observable<FriendListing[]> {
-    return this.http.get<FriendListing[]>(`${this.apiUrl}/my-listings`).pipe(
+    return this.http.get<FriendListing[]>(`${this.apiUrl}/my`).pipe(
       map(listings => this.convertListingDates(listings))
     );
   }
@@ -125,7 +125,7 @@ export class FriendListingService {
    * Close a friend listing (mark as resolved)
    */
   closeFriendListing(id: string): Observable<FriendListing> {
-    return this.http.patch<FriendListing>(`${this.apiUrl}/${id}/close`, {}).pipe(
+    return this.http.post<FriendListing>(`${this.apiUrl}/${id}/close`, {}).pipe(
       map(listing => ({
         ...listing,
         createdAt: new Date(listing.createdAt),
@@ -140,7 +140,7 @@ export class FriendListingService {
    */
   sendMessage(dto: SendMessageDto): Observable<FriendListingResponse> {
     return this.http.post<FriendListingResponse>(
-      `${this.apiUrl}/${dto.listingId}/message`,
+      `${this.apiUrl}/${dto.listingId}/contact`,
       { message: dto.message }
     ).pipe(
       map(response => ({
