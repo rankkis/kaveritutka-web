@@ -2,6 +2,7 @@ import { Component, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
+import { take } from 'rxjs/operators';
 import {
   PlaytimeService,
   CreatePlaytimeDto,
@@ -29,8 +30,17 @@ export class PlaytimeDialogComponent {
   ) {}
 
   onFormSubmit(playtimeDto: CreatePlaytimeDto): void {
-    this.playtimeService.createPlaytime(playtimeDto).subscribe(playtime => {
-      this.dialogRef.close(playtime);
+    this.playtimeService.createPlaytime(playtimeDto).pipe(
+      take(1)
+    ).subscribe({
+      next: (playtime) => {
+        this.dialogRef.close(playtime);
+      },
+      error: (error) => {
+        console.error('Error creating playtime:', error);
+        // Don't close the dialog on error, so user can retry
+        alert('Leikkiajan luominen epäonnistui. Yritä uudelleen.');
+      }
     });
   }
 

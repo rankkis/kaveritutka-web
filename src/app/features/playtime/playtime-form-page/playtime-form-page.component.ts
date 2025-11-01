@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
+import { take } from 'rxjs/operators';
 import {
   PlaytimeService,
   PlaygroundService,
@@ -32,16 +33,26 @@ export class PlaytimeFormPageComponent implements OnInit {
   ngOnInit(): void {
     const playgroundId = this.route.snapshot.paramMap.get('id');
     if (playgroundId) {
-      this.playgroundService.getPlaygrounds().subscribe(playgrounds => {
+      this.playgroundService.getPlaygrounds().pipe(
+        take(1)
+      ).subscribe(playgrounds => {
         this.playground = playgrounds.find(p => p.id === playgroundId) || null;
       });
     }
   }
 
   onFormSubmit(playtimeDto: CreatePlaytimeDto): void {
-    this.playtimeService.createPlaytime(playtimeDto).subscribe(() => {
-      // Navigate back to playground detail page
-      this.router.navigate(['/playground', this.playground!.id]);
+    this.playtimeService.createPlaytime(playtimeDto).pipe(
+      take(1)
+    ).subscribe({
+      next: () => {
+        // Navigate back to playground detail page
+        this.router.navigate(['/playground', this.playground!.id]);
+      },
+      error: (error) => {
+        console.error('Error creating playtime:', error);
+        alert('Leikkiajan luominen epäonnistui. Yritä uudelleen.');
+      }
     });
   }
 
