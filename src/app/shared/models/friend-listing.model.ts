@@ -1,30 +1,24 @@
 /**
- * Friend Listing Model
+ * Friend Listing Model (matches backend response exactly)
  *
  * Represents a "Kaverihaku" (friend search) listing where parents
  * can post about their child looking for playmates.
  */
 export interface FriendListing {
   id: string;
-  userId: string;
+  user_id: string;
   parentName: string;
   childName: string;
   childAge: number;
-  description: string; // Main field for special needs, restrictions, situation
-  location: FriendListingLocation;
-  interests: string[];
-  createdAt: Date;
-  updatedAt: Date;
-  status: FriendListingStatus;
-}
-
-/**
- * Location information for friend listing
- */
-export interface FriendListingLocation {
+  description: string;
   latitude: number;
   longitude: number;
-  cityName: string;
+  city: string;
+  interests: string[];
+  status: FriendListingStatus;
+  responseCount?: number;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 /**
@@ -33,27 +27,26 @@ export interface FriendListingLocation {
 export type FriendListingStatus = 'active' | 'closed';
 
 /**
- * DTO for creating a new friend listing
+ * DTO for creating a new friend listing (backend request format)
  */
 export interface CreateFriendListingDto {
+  parentName: string;
   childName: string;
   childAge: number;
   description: string;
-  location: FriendListingLocation;
+  latitude: number;
+  longitude: number;
+  city: string;
   interests: string[];
 }
 
 /**
- * Friend Listing Response Model
- *
- * Represents a response to a friend listing, either a contact message
- * or a playtime proposal.
+ * Friend Listing Response Model (backend format)
  */
 export interface FriendListingResponse {
   id?: string;
-  listingId: string;
-  responderId: string;
-  responderName: string;
+  friendRequestId?: string;
+  responderUserId?: string;
   responseType: FriendListingResponseType;
   message: string;
   playtimeDetails?: PlaytimeProposalDetails;
@@ -61,19 +54,19 @@ export interface FriendListingResponse {
 }
 
 /**
- * Type of response to friend listing
+ * Type of response to friend listing (backend uses underscore)
  */
-export type FriendListingResponseType = 'contact-message' | 'playtime-proposal';
+export type FriendListingResponseType = 'contact' | 'playtime_proposal';
 
 /**
- * Details for playtime proposal response
+ * Details for playtime proposal response (backend format)
  */
 export interface PlaytimeProposalDetails {
-  playgroundId: string;
-  playgroundName: string;
-  scheduledTime: Date;
+  date: string; // ISO date string (YYYY-MM-DD)
+  time: string; // HH:mm format
+  location: string; // Playground/location name
   duration: number; // in hours
-  activities: string[];
+  notes?: string; // Optional notes
 }
 
 /**
@@ -85,7 +78,7 @@ export interface SendMessageDto {
 }
 
 /**
- * DTO for proposing a playtime
+ * DTO for proposing a playtime (for service layer)
  */
 export interface ProposePlaytimeDto {
   listingId: string;

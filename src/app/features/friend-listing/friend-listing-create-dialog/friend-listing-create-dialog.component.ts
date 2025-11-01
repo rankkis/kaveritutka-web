@@ -98,15 +98,14 @@ export class FriendListingCreateDialogComponent implements OnInit {
     this.isSubmitting = true;
 
     const dto: CreateFriendListingDto = {
+      parentName: '', // Will be populated by backend from authenticated user
       childName: this.form.value.childName,
       childAge: this.form.value.childAge,
       description: this.form.value.description,
       interests: this.selectedInterests,
-      location: {
-        latitude: this.data.latitude,
-        longitude: this.data.longitude,
-        cityName: this.data.city
-      }
+      latitude: this.data.latitude,
+      longitude: this.data.longitude,
+      city: this.data.city
     };
 
     this.friendListingService.createFriendListing(dto).pipe(

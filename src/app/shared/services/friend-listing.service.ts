@@ -154,15 +154,11 @@ export class FriendListingService {
    * Propose a playtime to listing creator
    */
   proposePlaytime(dto: ProposePlaytimeDto): Observable<FriendListingResponse> {
-    // Convert Date to ISO string if needed
+    // Backend expects responseType field
     const payload = {
+      responseType: 'playtime_proposal',
       message: dto.message,
-      playtimeDetails: {
-        ...dto.playtimeDetails,
-        scheduledTime: dto.playtimeDetails.scheduledTime instanceof Date
-          ? dto.playtimeDetails.scheduledTime.toISOString()
-          : dto.playtimeDetails.scheduledTime
-      }
+      playtimeDetails: dto.playtimeDetails
     };
 
     return this.http.post<FriendListingResponse>(
@@ -171,11 +167,7 @@ export class FriendListingService {
     ).pipe(
       map(response => ({
         ...response,
-        createdAt: response.createdAt ? new Date(response.createdAt) : undefined,
-        playtimeDetails: response.playtimeDetails ? {
-          ...response.playtimeDetails,
-          scheduledTime: new Date(response.playtimeDetails.scheduledTime)
-        } : undefined
+        createdAt: response.createdAt ? new Date(response.createdAt) : undefined
       }))
     );
   }

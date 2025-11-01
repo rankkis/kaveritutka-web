@@ -89,20 +89,19 @@ export class ProposePlaytimeDialogComponent implements OnInit {
       return;
     }
 
-    // Combine date and time
-    const [hours, minutes] = formValue.time.split(':');
-    const scheduledTime = new Date(formValue.date);
-    scheduledTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+    // Format date as ISO string (YYYY-MM-DD)
+    const dateObj = new Date(formValue.date);
+    const dateStr = dateObj.toISOString().split('T')[0];
 
     const dto: ProposePlaytimeDto = {
       listingId: this.data.listing.id,
       message: formValue.message,
       playtimeDetails: {
-        playgroundId: formValue.playgroundId,
-        playgroundName: selectedPlayground.name,
-        scheduledTime: scheduledTime,
+        date: dateStr,
+        time: formValue.time,
+        location: selectedPlayground.name,
         duration: formValue.duration,
-        activities: this.data.listing.interests // Use interests from the listing
+        notes: '' // Optional notes
       }
     };
 
