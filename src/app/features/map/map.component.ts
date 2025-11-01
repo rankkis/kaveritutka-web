@@ -26,6 +26,7 @@ export class MapComponent implements OnInit, OnDestroy {
   private map: L.Map | undefined;
   private markers: Map<string, L.Marker> = new Map();
   private markerUpdateSubscription: Subscription | undefined;
+  private playtimesSubscription: Subscription | undefined;
 
   playgrounds: Playground[] = [];
   selectedPlayground: Playground | null = null;
@@ -43,6 +44,11 @@ export class MapComponent implements OnInit, OnDestroy {
     this.initMap();
     this.loadPlaygrounds();
 
+    // Subscribe to playtime changes to update markers immediately
+    this.playtimesSubscription = this.playtimeService.getAllPlaytimes().subscribe(() => {
+      this.updateMarkerAnimations();
+    });
+
     // Update markers every minute to reflect changing event statuses
     this.markerUpdateSubscription = interval(60000).subscribe(() => {
       this.updateMarkerAnimations();
@@ -55,6 +61,9 @@ export class MapComponent implements OnInit, OnDestroy {
     }
     if (this.markerUpdateSubscription) {
       this.markerUpdateSubscription.unsubscribe();
+    }
+    if (this.playtimesSubscription) {
+      this.playtimesSubscription.unsubscribe();
     }
   }
 
