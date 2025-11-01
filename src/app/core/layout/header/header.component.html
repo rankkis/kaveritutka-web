@@ -1,7 +1,16 @@
 <header>
   <div class="header-content">
-    <!-- Left spacer for balance -->
-    <div class="header-left-spacer"></div>
+    <!-- Left: Navigation -->
+    <div class="header-left">
+      <button mat-button [routerLink]="['/']" class="nav-button">
+        <mat-icon>map</mat-icon>
+        Kartta
+      </button>
+      <button mat-button [routerLink]="['/friend-listings']" class="nav-button">
+        <mat-icon>people</mat-icon>
+        Kaverihaku
+      </button>
+    </div>
 
     <!-- Center: Title and tagline -->
     <div class="header-center">
