@@ -1,14 +1,14 @@
-<mat-card class="friend-listing-card" [class.closed]="listing.status === 'closed'">
+<mat-card class="friend-request-card" [class.closed]="request.status === 'closed'">
   <mat-card-header>
     <div class="card-header-content">
       <div class="child-info">
-        <h3 class="child-name">{{ listing.childName }}, {{ listing.childAge }} v</h3>
-        <span class="parent-name">Vanhempi: {{ listing.parentName }}</span>
+        <h3 class="child-name">{{ request.childName }}, {{ request.childAge }} v</h3>
+        <span class="parent-name">Vanhempi: {{ request.parentName }}</span>
       </div>
-      <mat-chip *ngIf="listing.status === 'closed'" class="status-chip closed">
+      <mat-chip *ngIf="request.status === 'closed'" class="status-chip closed">
         Ratkaistu
       </mat-chip>
-      <mat-chip *ngIf="listing.status === 'active'" class="status-chip active">
+      <mat-chip *ngIf="request.status === 'active'" class="status-chip active">
         Aktiivinen
       </mat-chip>
     </div>
@@ -16,9 +16,9 @@
 
   <mat-card-content>
     <!-- Interests -->
-    <div class="interests-section" *ngIf="listing.interests && listing.interests.length > 0">
+    <div class="interests-section" *ngIf="request.interests && request.interests.length > 0">
       <mat-chip-set>
-        <mat-chip *ngFor="let interest of listing.interests" class="interest-chip">
+        <mat-chip *ngFor="let interest of request.interests" class="interest-chip">
           {{ interest }}
         </mat-chip>
       </mat-chip-set>
@@ -37,7 +37,7 @@
     <!-- Location -->
     <div class="location">
       <mat-icon>location_on</mat-icon>
-      <span>{{ listing.city }}</span>
+      <span>{{ request.city }}</span>
     </div>
 
     <!-- Created date -->
@@ -49,7 +49,7 @@
 
   <mat-card-actions>
     <!-- Actions for non-owners -->
-    <div *ngIf="!isOwner && listing.status === 'active'" class="public-actions">
+    <div *ngIf="!isOwner && request.status === 'active'" class="public-actions">
       <button mat-raised-button color="primary" (click)="onSendMessage()">
         <mat-icon>mail</mat-icon>
         Lähetä viesti
@@ -62,11 +62,11 @@
 
     <!-- Actions for owners -->
     <div *ngIf="isOwner" class="owner-actions">
-      <button mat-button (click)="onEdit()" *ngIf="listing.status === 'active'">
+      <button mat-button (click)="onEdit()" *ngIf="request.status === 'active'">
         <mat-icon>edit</mat-icon>
         Muokkaa
       </button>
-      <button mat-button color="primary" (click)="onClose()" *ngIf="listing.status === 'active'">
+      <button mat-button color="primary" (click)="onClose()" *ngIf="request.status === 'active'">
         <mat-icon>check_circle</mat-icon>
         Merkitse ratkaistuksi
       </button>

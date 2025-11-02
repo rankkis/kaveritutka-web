@@ -10,8 +10,8 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatSelectModule } from '@angular/material/select';
 import { take } from 'rxjs/operators';
 import {
-  FriendListingService,
-  FriendListing,
+  FriendRequestService,
+  FriendRequest,
   ProposePlaytimeDto,
   PlaygroundService,
   Playground
@@ -19,7 +19,7 @@ import {
 import { generateTimeSlots } from '../../../shared/utils/generate-time-slots.helper';
 
 export interface ProposePlaytimeDialogData {
-  listing: FriendListing;
+  request: FriendRequest;
 }
 
 @Component({
@@ -50,7 +50,7 @@ export class ProposePlaytimeDialogComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private friendListingService: FriendListingService,
+    private friendRequestService: FriendRequestService,
     private playgroundService: PlaygroundService,
     private dialogRef: MatDialogRef<ProposePlaytimeDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: ProposePlaytimeDialogData
@@ -94,7 +94,7 @@ export class ProposePlaytimeDialogComponent implements OnInit {
     const dateStr = dateObj.toISOString().split('T')[0];
 
     const dto: ProposePlaytimeDto = {
-      listingId: this.data.listing.id,
+      requestId: this.data.request.id,
       message: formValue.message,
       playtimeDetails: {
         date: dateStr,
@@ -105,7 +105,7 @@ export class ProposePlaytimeDialogComponent implements OnInit {
       }
     };
 
-    this.friendListingService.proposePlaytime(dto).pipe(
+    this.friendRequestService.proposePlaytime(dto).pipe(
       take(1)
     ).subscribe({
       next: () => {

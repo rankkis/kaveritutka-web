@@ -9,16 +9,16 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
 import { take } from 'rxjs/operators';
-import { FriendListingService, CreateFriendListingDto } from '../../../shared';
+import { FriendRequestService, CreateFriendRequestDto } from '../../../shared';
 
-export interface FriendListingDialogData {
+export interface FriendRequestDialogData {
   latitude: number;
   longitude: number;
   city: string;
 }
 
 @Component({
-  selector: 'app-friend-listing-create-dialog',
+  selector: 'app-friend-request-create-dialog',
   standalone: true,
   imports: [
     CommonModule,
@@ -31,10 +31,10 @@ export interface FriendListingDialogData {
     MatChipsModule,
     MatIconModule
   ],
-  templateUrl: './friend-listing-create-dialog.component.html',
-  styleUrls: ['./friend-listing-create-dialog.component.scss']
+  templateUrl: './friend-request-create-dialog.component.html',
+  styleUrls: ['./friend-request-create-dialog.component.scss']
 })
-export class FriendListingCreateDialogComponent implements OnInit {
+export class FriendRequestCreateDialogComponent implements OnInit {
   form!: FormGroup;
   isSubmitting = false;
 
@@ -60,9 +60,9 @@ export class FriendListingCreateDialogComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private friendListingService: FriendListingService,
-    private dialogRef: MatDialogRef<FriendListingCreateDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: FriendListingDialogData
+    private friendRequestService: FriendRequestService,
+    private dialogRef: MatDialogRef<FriendRequestCreateDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: FriendRequestDialogData
   ) {}
 
   ngOnInit(): void {
@@ -97,7 +97,7 @@ export class FriendListingCreateDialogComponent implements OnInit {
 
     this.isSubmitting = true;
 
-    const dto: CreateFriendListingDto = {
+    const dto: CreateFriendRequestDto = {
       parentName: 'Vanhempi', // Default parent name - backend should ideally get this from auth
       childName: this.form.value.childName,
       childAge: this.form.value.childAge,
@@ -108,17 +108,17 @@ export class FriendListingCreateDialogComponent implements OnInit {
       city: this.data.city
     };
 
-    console.log('Creating friend listing with DTO:', dto);
+    console.log('Creating friend request with DTO:', dto);
 
-    this.friendListingService.createFriendListing(dto).pipe(
+    this.friendRequestService.createFriendRequest(dto).pipe(
       take(1)
     ).subscribe({
-      next: (listing) => {
-        console.log('Friend listing created successfully:', listing);
-        this.dialogRef.close(listing);
+      next: (request) => {
+        console.log('Friend request created successfully:', request);
+        this.dialogRef.close(request);
       },
       error: (error) => {
-        console.error('Error creating friend listing:', error);
+        console.error('Error creating friend request:', error);
         console.error('Error details:', error.error);
 
         let errorMessage = 'Kaverihakuilmoituksen luominen epäonnistui.';

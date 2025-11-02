@@ -5,10 +5,10 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatBadgeModule } from '@angular/material/badge';
-import { FriendListing } from '../../../shared';
+import { FriendRequest } from '../../../shared';
 
 @Component({
-  selector: 'app-friend-listing-card',
+  selector: 'app-friend-request-card',
   standalone: true,
   imports: [
     CommonModule,
@@ -18,29 +18,29 @@ import { FriendListing } from '../../../shared';
     MatChipsModule,
     MatBadgeModule
   ],
-  templateUrl: './friend-listing-card.component.html',
-  styleUrls: ['./friend-listing-card.component.scss']
+  templateUrl: './friend-request-card.component.html',
+  styleUrls: ['./friend-request-card.component.scss']
 })
-export class FriendListingCardComponent {
-  @Input() listing!: FriendListing;
+export class FriendRequestCardComponent {
+  @Input() request!: FriendRequest;
   @Input() isOwner = false;
-  @Output() sendMessage = new EventEmitter<FriendListing>();
-  @Output() proposePlaytime = new EventEmitter<FriendListing>();
-  @Output() edit = new EventEmitter<FriendListing>();
-  @Output() delete = new EventEmitter<FriendListing>();
-  @Output() close = new EventEmitter<FriendListing>();
+  @Output() sendMessage = new EventEmitter<FriendRequest>();
+  @Output() proposePlaytime = new EventEmitter<FriendRequest>();
+  @Output() edit = new EventEmitter<FriendRequest>();
+  @Output() delete = new EventEmitter<FriendRequest>();
+  @Output() close = new EventEmitter<FriendRequest>();
 
   showFullDescription = false;
 
   get isLongDescription(): boolean {
-    return this.listing.description.length > 150;
+    return this.request.description.length > 150;
   }
 
   get displayDescription(): string {
     if (this.showFullDescription || !this.isLongDescription) {
-      return this.listing.description;
+      return this.request.description;
     }
-    return this.listing.description.substring(0, 150) + '...';
+    return this.request.description.substring(0, 150) + '...';
   }
 
   toggleDescription(): void {
@@ -48,32 +48,32 @@ export class FriendListingCardComponent {
   }
 
   onSendMessage(): void {
-    this.sendMessage.emit(this.listing);
+    this.sendMessage.emit(this.request);
   }
 
   onProposePlaytime(): void {
-    this.proposePlaytime.emit(this.listing);
+    this.proposePlaytime.emit(this.request);
   }
 
   onEdit(): void {
-    this.edit.emit(this.listing);
+    this.edit.emit(this.request);
   }
 
   onDelete(): void {
     if (confirm('Haluatko varmasti poistaa tämän ilmoituksen?')) {
-      this.delete.emit(this.listing);
+      this.delete.emit(this.request);
     }
   }
 
   onClose(): void {
     if (confirm('Haluatko merkitä ilmoituksen ratkaistuksi?')) {
-      this.close.emit(this.listing);
+      this.close.emit(this.request);
     }
   }
 
   getRelativeTime(): string {
     const now = new Date();
-    const created = new Date(this.listing.createdAt);
+    const created = new Date(this.request.createdAt);
     const diffMs = now.getTime() - created.getTime();
     const diffMins = Math.floor(diffMs / 60000);
     const diffHours = Math.floor(diffMins / 60);

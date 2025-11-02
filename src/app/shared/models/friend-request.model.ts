@@ -1,10 +1,10 @@
 /**
- * Friend Listing Model (matches backend response exactly)
+ * Friend Request Model (matches backend response exactly)
  *
- * Represents a "Kaverihaku" (friend search) listing where parents
+ * Represents a "Kaverihaku" (friend search) request where parents
  * can post about their child looking for playmates.
  */
-export interface FriendListing {
+export interface FriendRequest {
   id: string;
   user_id: string;
   parentName: string;
@@ -15,21 +15,21 @@ export interface FriendListing {
   longitude: number;
   city: string;
   interests: string[];
-  status: FriendListingStatus;
+  status: FriendRequestStatus;
   responseCount?: number;
   createdAt: Date;
   updatedAt: Date;
 }
 
 /**
- * Status of friend listing
+ * Status of friend request
  */
-export type FriendListingStatus = 'active' | 'closed';
+export type FriendRequestStatus = 'active' | 'closed';
 
 /**
- * DTO for creating a new friend listing (backend request format)
+ * DTO for creating a new friend request (backend request format)
  */
-export interface CreateFriendListingDto {
+export interface CreateFriendRequestDto {
   parentName: string;
   childName: string;
   childAge: number;
@@ -41,22 +41,22 @@ export interface CreateFriendListingDto {
 }
 
 /**
- * Friend Listing Response Model (backend format)
+ * Friend Request Response Model (backend format)
  */
-export interface FriendListingResponse {
+export interface FriendRequestResponse {
   id?: string;
   friendRequestId?: string;
   responderUserId?: string;
-  responseType: FriendListingResponseType;
+  responseType: FriendRequestResponseType;
   message: string;
   playtimeDetails?: PlaytimeProposalDetails;
   createdAt?: Date;
 }
 
 /**
- * Type of response to friend listing (backend uses underscore)
+ * Type of response to friend request (backend uses underscore)
  */
-export type FriendListingResponseType = 'contact' | 'playtime_proposal';
+export type FriendRequestResponseType = 'contact' | 'playtime_proposal';
 
 /**
  * Details for playtime proposal response (backend format)
@@ -73,7 +73,7 @@ export interface PlaytimeProposalDetails {
  * DTO for sending a contact message
  */
 export interface SendMessageDto {
-  listingId: string;
+  requestId: string;
   message: string;
 }
 
@@ -81,7 +81,7 @@ export interface SendMessageDto {
  * DTO for proposing a playtime (for service layer)
  */
 export interface ProposePlaytimeDto {
-  listingId: string;
+  requestId: string;
   message: string;
   playtimeDetails: PlaytimeProposalDetails;
 }

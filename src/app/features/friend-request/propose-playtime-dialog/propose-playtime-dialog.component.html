@@ -1,11 +1,11 @@
 <h2 mat-dialog-title>Ehdota leikkiaikaa</h2>
 
 <mat-dialog-content>
-  <div class="listing-info">
-    <h3>{{ data.listing.childName }}, {{ data.listing.childAge }} v</h3>
-    <p>Vanhempi: {{ data.listing.parentName }}</p>
-    <div class="interests" *ngIf="data.listing.interests && data.listing.interests.length > 0">
-      <strong>Kiinnostukset:</strong> {{ data.listing.interests.join(', ') }}
+  <div class="request-info">
+    <h3>{{ data.request.childName }}, {{ data.request.childAge }} v</h3>
+    <p>Vanhempi: {{ data.request.parentName }}</p>
+    <div class="interests" *ngIf="data.request.interests && data.request.interests.length > 0">
+      <strong>Kiinnostukset:</strong> {{ data.request.interests.join(', ') }}
     </div>
   </div>
 

@@ -5,7 +5,7 @@
       <mat-icon>arrow_back</mat-icon>
     </button>
     <h1>Kaverihakuilmoitukset</h1>
-    <button mat-fab color="primary" (click)="onCreateListing()" class="fab-button">
+    <button mat-fab color="primary" (click)="onCreateRequest()" class="fab-button">
       <mat-icon>add</mat-icon>
     </button>
   </header>
@@ -50,9 +50,9 @@
     <mat-spinner></mat-spinner>
   </div>
 
-  <!-- Listings -->
-  <div *ngIf="!isLoading" class="listings-container">
-    <div *ngIf="filteredListings.length === 0" class="empty-state">
+  <!-- Requests -->
+  <div *ngIf="!isLoading" class="requests-container">
+    <div *ngIf="filteredRequests.length === 0" class="empty-state">
       <mat-icon>inbox</mat-icon>
       <h3>Ei ilmoituksia</h3>
       <p *ngIf="searchText || selectedAge !== null">
@@ -61,23 +61,23 @@
       <p *ngIf="!searchText && selectedAge === null">
         Ole ensimmäinen ja luo ilmoitus!
       </p>
-      <button mat-raised-button color="primary" (click)="onCreateListing()">
+      <button mat-raised-button color="primary" (click)="onCreateRequest()">
         <mat-icon>add</mat-icon>
         Luo ilmoitus
       </button>
     </div>
 
-    <div *ngIf="filteredListings.length > 0" class="listings-grid">
-      <app-friend-listing-card
-        *ngFor="let listing of filteredListings"
-        [listing]="listing"
-        [isOwner]="isOwner(listing)"
+    <div *ngIf="filteredRequests.length > 0" class="requests-grid">
+      <app-friend-request-card
+        *ngFor="let request of filteredRequests"
+        [request]="request"
+        [isOwner]="isOwner(request)"
         (sendMessage)="onSendMessage($event)"
         (proposePlaytime)="onProposePlaytime($event)"
-        (edit)="onEditListing($event)"
-        (delete)="onDeleteListing($event)"
-        (close)="onCloseListing($event)">
-      </app-friend-listing-card>
+        (edit)="onEditRequest($event)"
+        (delete)="onDeleteRequest($event)"
+        (close)="onCloseRequest($event)">
+      </app-friend-request-card>
     </div>
   </div>
 </div>

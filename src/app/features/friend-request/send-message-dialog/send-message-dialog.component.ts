@@ -6,10 +6,10 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { take } from 'rxjs/operators';
-import { FriendListingService, FriendListing, SendMessageDto } from '../../../shared';
+import { FriendRequestService, FriendRequest, SendMessageDto } from '../../../shared';
 
 export interface SendMessageDialogData {
-  listing: FriendListing;
+  request: FriendRequest;
 }
 
 @Component({
@@ -32,7 +32,7 @@ export class SendMessageDialogComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private friendListingService: FriendListingService,
+    private friendRequestService: FriendRequestService,
     private dialogRef: MatDialogRef<SendMessageDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: SendMessageDialogData
   ) {}
@@ -51,11 +51,11 @@ export class SendMessageDialogComponent implements OnInit {
     this.isSubmitting = true;
 
     const dto: SendMessageDto = {
-      listingId: this.data.listing.id,
+      requestId: this.data.request.id,
       message: this.form.value.message
     };
 
-    this.friendListingService.sendMessage(dto).pipe(
+    this.friendRequestService.sendMessage(dto).pipe(
       take(1)
     ).subscribe({
       next: () => {

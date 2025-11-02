@@ -1,4 +1,4 @@
 // Barrel export for services
 export * from './playground.service';
 export * from './playtime.service';
-export * from './friend-listing.service';
+export * from './friend-request.service';
