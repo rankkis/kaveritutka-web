@@ -7,8 +7,8 @@ header {
 }
 
 .header-content {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  display: flex;
+  justify-content: space-between;
   align-items: center;
   max-width: 1200px;
   margin: 0 auto;
@@ -16,8 +16,8 @@ header {
 }
 
 .header-center {
+  flex: 1;
   text-align: center;
-  justify-self: center;
 
   h1 {
     margin: 0;
@@ -124,14 +124,7 @@ header {
 
 @media (max-width: 768px) {
   .header-content {
-    grid-template-columns: auto 1fr auto;
     gap: 0.5rem;
-  }
-
-  .header-left {
-    .nav-button span {
-      display: none; // Hide text on mobile, show only icons
-    }
   }
 
   .header-center {
@@ -144,10 +137,6 @@ header {
     .tagline {
       font-size: 0.8rem;
     }
-  }
-
-  .header-right {
-    justify-self: end;
   }
 }
 
