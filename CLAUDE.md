@@ -220,6 +220,15 @@ Application runs on http://localhost:4200
   - **Glowing light green**: Upcoming playtime (within 2 hours)
   - **Standard green**: Future playtimes or no events
 
+### Accessibility
+- **Use semantic navigation**: Always use `<a>` tags with `[routerLink]` for navigation instead of click handlers
+  - ✅ Good: `<a [routerLink]="['/path']">Link</a>`
+  - ❌ Bad: `<div (click)="navigate()">Link</div>`
+- **Benefits**: Screen reader support, keyboard navigation (Tab/Enter), right-click context menu, browser features
+- **Add aria-labels**: Include descriptive `aria-label` attributes for screen readers when link text isn't self-explanatory
+- **Focus visible styles**: Use `:focus-visible` pseudo-class for keyboard focus indicators
+- **Remove text decoration**: Add `text-decoration: none` to styled anchor tags to maintain design consistency
+
 ## Known Issues
 
 ### Styling Challenges

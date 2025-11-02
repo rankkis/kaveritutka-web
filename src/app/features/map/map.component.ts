@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -21,7 +21,7 @@ import { Subscription, interval } from 'rxjs';
 @Component({
   selector: 'app-map',
   standalone: true,
-  imports: [CommonModule, PlaygroundDetailComponent, MatButtonModule, MatIconModule],
+  imports: [CommonModule, RouterModule, PlaygroundDetailComponent, MatButtonModule, MatIconModule],
   templateUrl: './map.component.html',
   styleUrls: ['./map.component.scss']
 })
@@ -216,10 +216,6 @@ export class MapComponent implements OnInit, OnDestroy {
   closeSidebar(): void {
     this.selectedPlayground = null;
     this.playtimes = [];
-  }
-
-  navigateToFriendRequests(): void {
-    this.router.navigate(['/friend-requests']);
   }
 
   private getMarkerClass(playgroundId: string): string {

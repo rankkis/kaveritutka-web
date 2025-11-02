@@ -2,10 +2,10 @@
   <div id="map"></div>
 
   <!-- Floating panel with friend request count -->
-  <div class="friend-requests-panel" (click)="navigateToFriendRequests()">
+  <a class="friend-requests-panel" [routerLink]="['/friend-requests']" aria-label="Näytä kaveripyynnöt">
     <mat-icon>people</mat-icon>
     <span class="panel-text">Kaveripyyntöjä: <strong>{{ friendRequestCount }}</strong></span>
-  </div>
+  </a>
 
   <div class="sidebar" [class.open]="selectedPlayground">
     <div class="sidebar-content" *ngIf="selectedPlayground">
