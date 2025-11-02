@@ -121,7 +121,7 @@ import { HeaderComponent } from './core/layout/header/header.component';
 })
 export class AppComponent implements OnInit, OnDestroy {
   title = 'kaveritutka-web-app';
-  showConstructionStamp = true;
+  showConstructionStamp = false;
   private isDialogOpen = false;
 
   constructor(
