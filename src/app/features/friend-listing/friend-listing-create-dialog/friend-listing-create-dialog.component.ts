@@ -98,7 +98,7 @@ export class FriendListingCreateDialogComponent implements OnInit {
     this.isSubmitting = true;
 
     const dto: CreateFriendListingDto = {
-      parentName: '', // Will be populated by backend from authenticated user
+      parentName: 'Vanhempi', // Default parent name - backend should ideally get this from auth
       childName: this.form.value.childName,
       childAge: this.form.value.childAge,
       description: this.form.value.description,
@@ -108,15 +108,27 @@ export class FriendListingCreateDialogComponent implements OnInit {
       city: this.data.city
     };
 
+    console.log('Creating friend listing with DTO:', dto);
+
     this.friendListingService.createFriendListing(dto).pipe(
       take(1)
     ).subscribe({
       next: (listing) => {
+        console.log('Friend listing created successfully:', listing);
         this.dialogRef.close(listing);
       },
       error: (error) => {
         console.error('Error creating friend listing:', error);
-        alert('Kaverihakuilmoituksen luominen epäonnistui. Yritä uudelleen.');
+        console.error('Error details:', error.error);
+
+        let errorMessage = 'Kaverihakuilmoituksen luominen epäonnistui.';
+        if (error.status === 401) {
+          errorMessage = 'Kirjaudu sisään luodaksesi ilmoituksen.';
+        } else if (error.error?.message) {
+          errorMessage = error.error.message;
+        }
+
+        alert(errorMessage + ' Yritä uudelleen.');
         this.isSubmitting = false;
       }
     });

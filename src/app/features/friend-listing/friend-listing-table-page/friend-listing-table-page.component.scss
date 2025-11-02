@@ -29,6 +29,12 @@
 
   .fab-button {
     flex-shrink: 0;
+
+    mat-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
   }
 }
 
