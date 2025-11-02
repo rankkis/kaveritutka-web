@@ -1,6 +1,12 @@
 <div class="map-container">
   <div id="map"></div>
 
+  <!-- Floating panel with friend request count -->
+  <div class="friend-requests-panel" (click)="navigateToFriendRequests()">
+    <mat-icon>people</mat-icon>
+    <span class="panel-text">Kaveripyyntöjä: <strong>{{ friendRequestCount }}</strong></span>
+  </div>
+
   <div class="sidebar" [class.open]="selectedPlayground">
     <div class="sidebar-content" *ngIf="selectedPlayground">
       <div class="sidebar-header">

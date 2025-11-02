@@ -2,11 +2,14 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import * as L from 'leaflet';
 import { MapStateService } from '../../core/services/map-state.service';
 import {
   PlaygroundService,
   PlaytimeService,
+  FriendRequestService,
   Playground,
   Playtime,
   PlaygroundDetailComponent
@@ -18,7 +21,7 @@ import { Subscription, interval } from 'rxjs';
 @Component({
   selector: 'app-map',
   standalone: true,
-  imports: [CommonModule, PlaygroundDetailComponent],
+  imports: [CommonModule, PlaygroundDetailComponent, MatButtonModule, MatIconModule],
   templateUrl: './map.component.html',
   styleUrls: ['./map.component.scss']
 })
@@ -27,14 +30,17 @@ export class MapComponent implements OnInit, OnDestroy {
   private markers: Map<string, L.Marker> = new Map();
   private markerUpdateSubscription: Subscription | undefined;
   private playtimesSubscription: Subscription | undefined;
+  private friendRequestsSubscription: Subscription | undefined;
 
   playgrounds: Playground[] = [];
   selectedPlayground: Playground | null = null;
   playtimes: Playtime[] = [];
+  friendRequestCount: number = 0;
 
   constructor(
     private playgroundService: PlaygroundService,
     private playtimeService: PlaytimeService,
+    private friendRequestService: FriendRequestService,
     private dialog: MatDialog,
     private router: Router,
     private mapStateService: MapStateService
@@ -47,6 +53,12 @@ export class MapComponent implements OnInit, OnDestroy {
     // Subscribe to playtime changes to update markers immediately
     this.playtimesSubscription = this.playtimeService.getAllPlaytimes().subscribe(() => {
       this.updateMarkerAnimations();
+    });
+
+    // Subscribe to friend requests to get the count
+    this.friendRequestsSubscription = this.friendRequestService.getAllRequests().subscribe(requests => {
+      // Filter to only active requests
+      this.friendRequestCount = requests.filter(r => r.status === 'active').length;
     });
 
     // Update markers every minute to reflect changing event statuses
@@ -64,6 +76,9 @@ export class MapComponent implements OnInit, OnDestroy {
     }
     if (this.playtimesSubscription) {
       this.playtimesSubscription.unsubscribe();
+    }
+    if (this.friendRequestsSubscription) {
+      this.friendRequestsSubscription.unsubscribe();
     }
   }
 
@@ -201,6 +216,10 @@ export class MapComponent implements OnInit, OnDestroy {
   closeSidebar(): void {
     this.selectedPlayground = null;
     this.playtimes = [];
+  }
+
+  navigateToFriendRequests(): void {
+    this.router.navigate(['/friend-requests']);
   }
 
   private getMarkerClass(playgroundId: string): string {
