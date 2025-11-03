@@ -3,8 +3,7 @@ import { Routes } from '@angular/router';
 export const routes: Routes = [
   {
     path: '',
-    redirectTo: '/map',
-    pathMatch: 'full'
+    loadComponent: () => import('./core/landing/landing.component').then(m => m.LandingComponent)
   },
   {
     path: 'map',

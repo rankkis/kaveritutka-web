@@ -1,0 +1,23 @@
+<div class="landing-container">
+  <div class="landing-content">
+    <h1 class="landing-title">{{ title }}</h1>
+
+    <div class="jumbotron-links">
+      <a [routerLink]="['/map']" class="jumbotron-card">
+        <mat-icon class="jumbotron-icon">place</mat-icon>
+        <h2 class="jumbotron-title">Leikkimään!</h2>
+        <p class="jumbotron-description">
+          Näe lähialueen leikkipuistot ja löydä leikkikavereita
+        </p>
+      </a>
+
+      <a [routerLink]="['/friend-requests']" class="jumbotron-card">
+        <mat-icon class="jumbotron-icon">group</mat-icon>
+        <h2 class="jumbotron-title">Kaverihaku</h2>
+        <p class="jumbotron-description">
+          Löydä uusia leikkikavereita ja vastaa kaveripyyntöihin
+        </p>
+      </a>
+    </div>
+  </div>
+</div>

@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterOutlet } from '@angular/router';
+import { Router, RouterOutlet, NavigationEnd } from '@angular/router';
+import { filter, map } from 'rxjs/operators';
 import { HeaderComponent } from './core/layout/header/header.component';
 
 @Component({
@@ -9,7 +10,9 @@ import { HeaderComponent } from './core/layout/header/header.component';
   imports: [CommonModule, RouterOutlet, HeaderComponent],
   template: `
     <div class="app-container">
-      <app-header></app-header>
+      @if (showHeader$ | async) {
+        <app-header></app-header>
+      }
       <main>
         <router-outlet></router-outlet>
       </main>
@@ -25,9 +28,15 @@ import { HeaderComponent } from './core/layout/header/header.component';
     main {
       flex: 1;
       overflow: hidden;
+      position: relative; // Enable absolute positioning within main
     }
   `]
 })
 export class AppComponent {
-  title = 'kaveritutka-web-app';
+  private readonly router = inject(Router);
+
+  readonly showHeader$ = this.router.events.pipe(
+    filter(event => event instanceof NavigationEnd),
+    map(() => this.router.url !== '/')
+  );
 }
