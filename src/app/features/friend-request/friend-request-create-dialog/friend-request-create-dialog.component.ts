@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
@@ -10,6 +10,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
 import { take } from 'rxjs/operators';
 import { FriendRequestService, CreateFriendRequestDto } from '../../../shared';
+import { UserService } from '../../../core/services/user.service';
 
 export interface FriendRequestDialogData {
   latitude: number;
@@ -68,6 +69,8 @@ export class FriendRequestCreateDialogComponent implements OnInit {
     { value: 'girl' as const, icon: '👧', label: 'Tyttö' }
   ];
 
+  private readonly userService = inject(UserService);
+
   constructor(
     private fb: FormBuilder,
     private friendRequestService: FriendRequestService,
@@ -121,8 +124,12 @@ export class FriendRequestCreateDialogComponent implements OnInit {
 
     this.isSubmitting = true;
 
+    // Get parent name from user profile or default to 'Anonyymi'
+    const currentUser = this.userService.getCurrentUserValue();
+    const parentName = currentUser?.displayName || 'Anonyymi';
+
     const dto: CreateFriendRequestDto = {
-      parentName: 'Vanhempi', // Default parent name - backend should ideally get this from auth
+      parentName: parentName,
       childName: this.form.value.childName,
       childAge: this.selectedAge,
       description: this.form.value.description,
@@ -172,9 +179,9 @@ export class FriendRequestCreateDialogComponent implements OnInit {
     const childName = this.form.get('childName')?.value || '';
 
     if (childName && this.selectedAge !== null) {
-      return `${this.selectedAge}v-${childName.toLowerCase()}`;
+      return `${childName} (${this.selectedAge}v.)`;
     } else if (this.selectedAge !== null) {
-      return `${this.selectedAge}v-lapsi`;
+      return `Lapsi (${this.selectedAge}v.)`;
     } else if (childName) {
       return childName;
     }
