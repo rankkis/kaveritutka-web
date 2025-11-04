@@ -1,16 +1,30 @@
 .landing-container {
+  min-height: 100%;
   height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   padding: 2rem;
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  @media (max-width: 768px) {
+    // On mobile, allow content to flow naturally and be scrollable
+    align-items: flex-start;
+    padding: 1.5rem 1rem;
+  }
 }
 
 .landing-content {
   max-width: 1200px;
   width: 100%;
   text-align: center;
+
+  @media (max-width: 768px) {
+    // Add top margin on mobile to ensure content isn't flush with top
+    margin-top: 2rem;
+  }
 }
 
 .landing-title {
