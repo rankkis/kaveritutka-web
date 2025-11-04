@@ -13,6 +13,7 @@ export interface Playtime {
   participants: Participant[];
   additionalInfo?: string;
   createdAt: Date;
+  user_id?: string; // Optional: set when playtime is created by authenticated user
 }
 
 export interface CreatePlaytimeDto {

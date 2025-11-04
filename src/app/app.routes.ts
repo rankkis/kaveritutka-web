@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { profileCompletionGuard } from './core/guards/profile-completion.guard';
 
 export const routes: Routes = [
   {
@@ -7,7 +8,8 @@ export const routes: Routes = [
   },
   {
     path: 'map',
-    loadComponent: () => import('./features/map/map.component').then(m => m.MapComponent)
+    loadComponent: () => import('./features/map/map.component').then(m => m.MapComponent),
+    canActivate: [profileCompletionGuard]
   },
   {
     path: 'auth/callback',
@@ -27,6 +29,11 @@ export const routes: Routes = [
   },
   {
     path: 'friend-requests',
-    loadComponent: () => import('./features/friend-request/friend-request-table-page/friend-request-table-page.component').then(m => m.FriendRequestTablePageComponent)
+    loadComponent: () => import('./features/friend-request/friend-request-table-page/friend-request-table-page.component').then(m => m.FriendRequestTablePageComponent),
+    canActivate: [profileCompletionGuard]
+  },
+  {
+    path: 'profile',
+    loadComponent: () => import('./core/user/user-profile/user-profile.component').then(m => m.UserProfileComponent)
   }
 ];

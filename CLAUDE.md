@@ -12,6 +12,8 @@ Kaveritutka is a web application that helps parents find playmates for their chi
 - **Angular Material 19** - UI component library
 - **RxJS 7.8** - Reactive programming
 - **SCSS** - Styling with nested selectors
+- **Supabase** - Authentication provider (Google OAuth with PKCE flow)
+- **Backend API** - https://kaveritutka-server.vercel.app (Node.js/Express)
 
 ## Key Features
 
@@ -50,16 +52,32 @@ Modern chip-based form with:
   - participants: Participant[] (supports multiple children)
   - additionalInfo?: string
   - createdAt: Date
+  - user_id?: string (optional, set for authenticated users)
 
 - **Participant**
   - childAge: number
   - childGender: 'boy' | 'girl' | null (optional)
   - interests: string[]
 
+- **User** ([user.model.ts](src/app/shared/models/user.model.ts))
+  - id, email, displayName, createdAt
+
+- **FriendRequest** ([friend-request.model.ts](src/app/shared/models/friend-request.model.ts))
+  - id, user_id, parentName, childName, childAge, description
+  - latitude, longitude, city, interests[]
+  - status: 'active' | 'closed'
+
 ### 4. Services
-- **PlaygroundService** ([playground.service.ts](src/app/shared/services/playground.service.ts)) - Mock data for 6 Lahti playgrounds
-- **PlaytimeService** ([playtime.service.ts](src/app/shared/services/playtime.service.ts)) - Mock playtimes with reactive BehaviorSubject, time-based filtering
-- **MapStateService** ([map-state.service.ts](src/app/core/services/map-state.service.ts)) - Manages map state (center, zoom, location detection)
+
+**Core Services:**
+- **UserService** ([user.service.ts](src/app/core/services/user.service.ts)) - User profile management (GET/PUT /users/me)
+- **SupabaseService** ([supabase.service.ts](src/app/shared/services/supabase.service.ts)) - Authentication with Google OAuth (PKCE flow)
+- **MapStateService** ([map-state.service.ts](src/app/core/services/map-state.service.ts)) - Map state management
+
+**Shared Services:**
+- **PlaygroundService** ([playground.service.ts](src/app/shared/services/playground.service.ts)) - Playground data (GET /playgrounds)
+- **PlaytimeService** ([playtime.service.ts](src/app/shared/services/playtime.service.ts)) - Playtime management (GET/POST/DELETE /playtimes)
+- **FriendRequestService** ([friend-request.service.ts](src/app/shared/services/friend-request.service.ts)) - Friend request management (GET/POST/PATCH/DELETE /friend-requests)
 
 ## Playgrounds in Lahti
 
@@ -160,6 +178,212 @@ src/
 - **Contains**: Models, services, utilities, constants, reusable components
 - **Examples**: Playground model, PlaytimeService
 
+## Angular Component Code Style
+
+### 1. Dependency Injection with `inject()`
+Always use Angular's `inject()` function instead of constructor-based injection for cleaner, more functional code.
+
+```typescript
+// ✅ Good: Modern inject() function
+import { inject } from '@angular/core';
+
+export class MapComponent {
+  private readonly playgroundService = inject(PlaygroundService);
+  private readonly router = inject(Router);
+}
+
+// ❌ Bad: Constructor injection
+export class MapComponent {
+  constructor(
+    private playgroundService: PlaygroundService,
+    private router: Router
+  ) {}
+}
+```
+
+### 2. Reactive Data with Async Pipe
+Avoid manual subscriptions. Keep data streams reactive and use the `async` pipe in templates.
+
+```typescript
+// ✅ Good: Observable exposed directly
+export class MapComponent {
+  private readonly playtimeService = inject(PlaytimeService);
+
+  playtimes$ = this.playtimeService.getAllPlaytimes();
+}
+
+// Template: <div *ngFor="let playtime of playtimes$ | async">
+
+// ❌ Bad: Manual subscription
+export class MapComponent {
+  playtimes: Playtime[] = [];
+
+  ngOnInit() {
+    this.playtimeService.getAllPlaytimes().subscribe(
+      playtimes => this.playtimes = playtimes
+    );
+  }
+}
+```
+
+### 3. ViewModel Pattern (vm$)
+Use the ViewModel pattern for complex state management. All data for the template comes from a single `vm$` observable.
+
+**Reference**: [VM Pattern in Angular](https://www.angularspace.com/vm-pattern-in-angular/)
+
+```typescript
+// ✅ Good: Single vm$ observable
+export class MapComponent {
+  private readonly playgroundService = inject(PlaygroundService);
+  private readonly playtimeService = inject(PlaytimeService);
+
+  private selectedPlaygroundId$ = new BehaviorSubject<string | null>(null);
+
+  vm$ = combineLatest({
+    playgrounds: this.playgroundService.getAll(),
+    playtimes: this.playtimeService.getAllPlaytimes(),
+    selectedId: this.selectedPlaygroundId$
+  }).pipe(
+    map(({ playgrounds, playtimes, selectedId }) => ({
+      playgrounds,
+      playtimes,
+      selectedPlayground: playgrounds.find(p => p.id === selectedId)
+    }))
+  );
+
+  // Public methods update BehaviorSubjects, not the vm directly
+  selectPlayground(id: string): void {
+    this.selectedPlaygroundId$.next(id);
+  }
+}
+```
+
+```html
+<!-- Template: Single async pipe at the root -->
+<ng-container *ngIf="vm$ | async as vm">
+  <div *ngFor="let playground of vm.playgrounds">
+    {{ playground.name }}
+  </div>
+  <div *ngIf="vm.selectedPlayground">
+    {{ vm.selectedPlayground.description }}
+  </div>
+</ng-container>
+```
+
+**Key principles:**
+- Only **one public property** for template: `vm$`
+- Template starts with: `<ng-container *ngIf="vm$ | async as vm">`
+- Build `vm$` using `combineLatest()` from RxJS
+- Public methods don't mutate `vm$` directly—they update source observables/subjects
+- All reactive state flows through `vm$`
+
+### 4. Component Structure & Organization
+Components must follow a consistent structure with alphabetical ordering within each section.
+
+**Order of sections:**
+1. **Properties** (private subjects, signals, etc.)
+2. **ViewModel builder** (`vm$` definition)
+3. **Public methods** (called from template)
+4. **Lifecycle methods** (`ngOnInit`, `ngOnDestroy`, etc.)
+5. **Private methods** (internal helpers)
+
+**Alphabetical ordering** applies within each section.
+
+```typescript
+export class PlaytimeDialogComponent {
+  // 1. PROPERTIES (alphabetical)
+  private readonly dialog = inject(MatDialog);
+  private readonly router = inject(Router);
+  private selectedDate$ = new BehaviorSubject<Date>(new Date());
+  private selectedTime$ = new BehaviorSubject<string>('now');
+
+  // 2. VIEWMODEL BUILDER
+  vm$ = combineLatest({
+    date: this.selectedDate$,
+    time: this.selectedTime$,
+    timeSlots: this.generateTimeSlots()
+  });
+
+  // 3. PUBLIC METHODS (alphabetical)
+  selectDate(date: Date): void {
+    this.selectedDate$.next(date);
+  }
+
+  selectTime(time: string): void {
+    this.selectedTime$.next(time);
+  }
+
+  submitForm(): void {
+    // Form submission logic
+  }
+
+  // 4. LIFECYCLE METHODS
+  ngOnInit(): void {
+    // Initialization
+  }
+
+  ngOnDestroy(): void {
+    // Cleanup
+  }
+
+  // 5. PRIVATE METHODS (alphabetical)
+  // (Avoid when possible—use helpers instead)
+}
+```
+
+### 5. Pure Helper Functions over Private Methods
+Extract complex logic into **pure helper functions** in separate files instead of private methods. These helpers should:
+- Be **pure functions** (same input → same output, no side effects)
+- Live in `src/app/shared/utils/` or feature-specific `helpers/` folders
+- Have **unit tests**
+
+```typescript
+// ✅ Good: Pure helper function (testable)
+// src/app/shared/utils/time-helpers.ts
+export function isPlaytimeOngoing(playtime: Playtime, now: Date): boolean {
+  const endTime = new Date(playtime.scheduledTime.getTime() + playtime.duration * 60000);
+  return now >= playtime.scheduledTime && now <= endTime;
+}
+
+// Component uses the helper
+import { isPlaytimeOngoing } from '@shared/utils/time-helpers';
+
+export class MapComponent {
+  vm$ = combineLatest({
+    playtimes: this.playtimeService.getAllPlaytimes(),
+    now: interval(1000).pipe(map(() => new Date()))
+  }).pipe(
+    map(({ playtimes, now }) => ({
+      ongoingPlaytimes: playtimes.filter(p => isPlaytimeOngoing(p, now))
+    }))
+  );
+}
+
+// ❌ Bad: Private method in component (harder to test)
+export class MapComponent {
+  private isPlaytimeOngoing(playtime: Playtime): boolean {
+    const now = new Date();
+    const endTime = new Date(playtime.scheduledTime.getTime() + playtime.duration * 60000);
+    return now >= playtime.scheduledTime && now <= endTime;
+  }
+}
+```
+
+**Benefits:**
+- ✅ Easier to test (pure functions)
+- ✅ Reusable across components
+- ✅ Components stay focused on orchestration
+- ✅ Clear separation of concerns
+
+### Summary Checklist
+- [ ] Use `inject()` instead of constructor injection
+- [ ] Expose observables with `async` pipe (avoid manual subscriptions)
+- [ ] Use `vm$` pattern with `combineLatest()` for complex state
+- [ ] Template starts with `<ng-container *ngIf="vm$ | async as vm">`
+- [ ] Follow component structure: Properties → vm$ → Public → Lifecycle → Private
+- [ ] Use alphabetical ordering within each section
+- [ ] Extract logic to pure helper functions with unit tests
+
 ## Development
 
 ### Setup
@@ -229,6 +453,59 @@ Application runs on http://localhost:4200
 - **Focus visible styles**: Use `:focus-visible` pseudo-class for keyboard focus indicators
 - **Remove text decoration**: Add `text-decoration: none` to styled anchor tags to maintain design consistency
 
+## Backend API Integration
+
+### Authentication
+- **Provider**: Supabase with Google OAuth
+- **Flow**: PKCE (Proof Key for Code Exchange) for enhanced security
+- **Token Management**: Automatic token refresh via Supabase SDK
+- **Session Storage**: Persisted in localStorage
+- **HTTP Interceptor**: Automatically adds Bearer token to API requests
+
+### API Endpoints
+
+**Base URL**: `https://kaveritutka-server.vercel.app`
+
+**Authentication** (via Supabase):
+- Google OAuth login redirects to `/auth/callback`
+- Access tokens are JWT tokens from Supabase
+- Tokens automatically added to requests via [auth.interceptor.ts](src/app/core/interceptors/auth.interceptor.ts)
+
+**User Management**:
+- `GET /users/me` - Get current user profile
+- `PUT /users/me` - Update user profile (displayName)
+
+**Playgrounds** (Public):
+- `GET /playgrounds` - Get all playgrounds
+- `GET /playgrounds/:id` - Get playground by ID
+
+**Playtimes** (Optional Auth):
+- `GET /playtimes` - Get all playtimes (public)
+- `POST /playtimes` - Create playtime (optional auth, sets user_id if authenticated)
+- `GET /playtimes/my` - Get user's playtimes (requires auth)
+- `GET /playtimes/playground/:playgroundId` - Get playtimes for specific playground
+- `DELETE /playtimes/:id` - Delete playtime (requires auth, owner only)
+
+**Friend Requests** (Mixed Auth):
+- `GET /friend-requests?latitude=X&longitude=Y&radius=Z` - Get requests by location (public)
+- `POST /friend-requests` - Create request (requires auth)
+- `GET /friend-requests/my` - Get user's requests (requires auth)
+- `PATCH /friend-requests/:id` - Update request (requires auth, owner only)
+- `DELETE /friend-requests/:id` - Delete request (requires auth, owner only)
+- `POST /friend-requests/:id/close` - Close request (requires auth, owner only)
+- `POST /friend-requests/:id/contact` - Send contact message (requires auth)
+- `POST /friend-requests/:id/propose-playtime` - Propose playtime (requires auth)
+
+### HTTP Interceptors
+1. **AuthInterceptor** - Adds Supabase JWT token to all requests to backend API
+2. **HttpErrorInterceptor** - Centralized error handling and user-friendly error messages
+
+### Error Handling
+- All API errors are caught and logged
+- User-friendly Finnish error messages displayed via Material snackbars
+- Automatic retry logic for token refresh failures
+- Graceful degradation when services are unavailable
+
 ## Known Issues
 
 ### Styling Challenges
@@ -244,13 +521,9 @@ Material Design form fields with outline appearance have complex layering:
 
 ## Future Enhancements
 
-### Backend Integration
-- Replace mock services with real API calls
-- User authentication (optional profiles)
+### Features
 - Real-time updates via WebSockets
 - Push notifications for nearby playtimes
-
-### Features
 - Weather integration
 - Photo sharing
 - Direct messaging between parents

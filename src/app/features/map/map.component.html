@@ -1,24 +1,29 @@
-<div class="map-container">
-  <div id="map"></div>
+<ng-container *ngIf="vm$ | async as vm">
+  <div class="map-container">
+    <div id="map"></div>
 
-  <!-- Floating panel with friend request count -->
-  <a class="friend-requests-panel" [routerLink]="['/friend-requests']" aria-label="Näytä kaveripyynnöt">
-    <mat-icon>people</mat-icon>
-    <span class="panel-text">Kaveripyyntöjä: <strong>{{ friendRequestCount }}</strong></span>
-  </a>
+    <!-- Floating panel with friend request count (hidden during loading, shown when data loaded) -->
+    <a *ngIf="vm.friendRequestCount"
+       class="friend-requests-panel"
+       [routerLink]="['/friend-requests']"
+       aria-label="Näytä kaveripyynnöt">
+      <mat-icon>people</mat-icon>
+      <span class="panel-text">Kaveripyyntöjä: <strong>{{ vm.friendRequestCount }}</strong></span>
+    </a>
 
-  <div class="sidebar" [class.open]="selectedPlayground">
-    <div class="sidebar-content" *ngIf="selectedPlayground">
-      <div class="sidebar-header">
-        <button class="close-btn" (click)="closeSidebar()">×</button>
+    <div class="sidebar" [class.open]="vm.selectedPlayground">
+      <div class="sidebar-content" *ngIf="vm.selectedPlayground">
+        <div class="sidebar-header">
+          <button class="close-btn" (click)="closeSidebar()">×</button>
+        </div>
+
+        <app-playground-detail
+          [playground]="vm.selectedPlayground"
+          [playtimes]="vm.selectedPlaygroundPlaytimes"
+          [showBackButton]="false"
+          (createPlaytime)="onCreatePlaytime(vm.selectedPlayground)">
+        </app-playground-detail>
       </div>
-
-      <app-playground-detail
-        [playground]="selectedPlayground"
-        [playtimes]="playtimes"
-        [showBackButton]="false"
-        (createPlaytime)="onCreatePlaytime()">
-      </app-playground-detail>
     </div>
   </div>
-</div>
+</ng-container>

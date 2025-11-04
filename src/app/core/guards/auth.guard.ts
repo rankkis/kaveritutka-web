@@ -1,13 +1,13 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
-import { AuthService } from '../../shared/services/auth.service';
+import { SupabaseService } from '../../shared/services/supabase.service';
 
 /**
  * Auth Guard to protect routes requiring authentication
  *
  * Usage:
  * - Add to route definition: canActivate: [authGuard]
- * - Checks if user is authenticated via AuthService
+ * - Checks if user is authenticated via SupabaseService
  * - Redirects to home page if not authenticated
  * - Stores intended URL in query params for post-login redirect
  */
@@ -15,11 +15,11 @@ export const authGuard: CanActivateFn = (
   _route: ActivatedRouteSnapshot,
   state: RouterStateSnapshot
 ) => {
-  const authService = inject(AuthService);
+  const supabaseService = inject(SupabaseService);
   const router = inject(Router);
 
   // Check if user is authenticated
-  if (authService.isAuthenticated()) {
+  if (supabaseService.isAuthenticated()) {
     return true;
   }
 

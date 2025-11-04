@@ -69,4 +69,14 @@ export class PlaytimeService {
       tap(() => this.refreshPlaytimes())
     );
   }
+
+  /**
+   * Get playtimes created by the authenticated user
+   * Requires authentication
+   */
+  getUserPlaytimes(): Observable<Playtime[]> {
+    return this.http.get<Playtime[]>(`${this.apiUrl}/my`).pipe(
+      map(playtimes => this.convertPlaytimeDates(playtimes))
+    );
+  }
 }

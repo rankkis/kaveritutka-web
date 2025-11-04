@@ -2,6 +2,14 @@
   position: relative;
   height: 100%;
   width: 100%;
+  overflow: visible; // Allow panel to be visible
+  isolation: isolate; // Create new stacking context for iOS
+  -webkit-overflow-scrolling: touch; // Smooth scrolling on iOS
+
+  @media (max-width: 768px) {
+    touch-action: pan-x pan-y; // Allow map panning but prevent page scroll
+    overscroll-behavior: contain; // Prevent scroll chaining to body
+  }
 }
 
 #map {
@@ -12,8 +20,9 @@
 .friend-requests-panel {
   position: absolute;
   bottom: 20px;
+  bottom: calc(20px + env(safe-area-inset-bottom)); // iOS safe area support
   left: 50%;
-  transform: translateX(-50%);
+  transform: translate3d(-50%, 0, 0); // Use translate3d for better iOS support
   background: white;
   padding: 12px 20px;
   border-radius: 24px;
@@ -25,11 +34,18 @@
   z-index: 1000;
   transition: all 0.3s ease;
   text-decoration: none;
+  will-change: transform;
+  -webkit-transform: translate3d(-50%, 0, 0); // iOS-specific 3D transform
+  -webkit-backface-visibility: hidden; // Prevent iOS rendering glitches
+  backface-visibility: hidden;
+  isolation: isolate; // Force new layer on iOS
+  pointer-events: auto; // Ensure it's clickable
 
   &:hover {
     background: #f5f5f5;
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
-    transform: translateX(-50%) translateY(-2px);
+    transform: translate3d(-50%, -2px, 0);
+    -webkit-transform: translate3d(-50%, -2px, 0);
   }
 
   &:focus-visible {
@@ -57,6 +73,7 @@
 
   @media (max-width: 768px) {
     bottom: 16px;
+    bottom: calc(16px + env(safe-area-inset-bottom)); // iOS safe area for mobile
     padding: 10px 16px;
 
     mat-icon {
@@ -68,6 +85,17 @@
     .panel-text {
       font-size: 13px;
     }
+  }
+
+  // iOS-specific portrait mode fix
+  @media (max-width: 768px) and (orientation: portrait) {
+    position: fixed !important; // Use fixed positioning in portrait to escape container bounds
+    bottom: max(16px, env(safe-area-inset-bottom, 16px)) !important;
+    // Force visibility in portrait mode
+    visibility: visible !important;
+    opacity: 1 !important;
+    display: flex !important;
+    z-index: 9999 !important; // Ensure it's above everything
   }
 }
 

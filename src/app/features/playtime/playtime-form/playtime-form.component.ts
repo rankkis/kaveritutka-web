@@ -14,7 +14,7 @@ import {
   CreatePlaytimeDto,
   PLAYTIME_PERIOD
 } from '../../../shared';
-import { AuthService } from '../../../shared/services/auth.service';
+import { UserService } from '../../../core/services/user.service';
 
 @Component({
   selector: 'app-playtime-form',
@@ -39,7 +39,7 @@ export class PlaytimeFormComponent implements OnInit, OnDestroy {
   @Output() formCancel = new EventEmitter<void>();
 
   playtimeForm: FormGroup;
-  private authSubscription?: Subscription;
+  private userSubscription?: Subscription;
 
   // Date options (filtered based on current time)
   dateOptions: Array<{ value: string; label: string }> = [];
@@ -95,7 +95,7 @@ export class PlaytimeFormComponent implements OnInit, OnDestroy {
 
   constructor(
     private fb: FormBuilder,
-    private authService: AuthService
+    private userService: UserService
   ) {
     this.playtimeForm = this.fb.group({
       parentName: [''],
@@ -108,14 +108,14 @@ export class PlaytimeFormComponent implements OnInit, OnDestroy {
     this.updateDateOptions();
     this.updateTimeOptions();
 
-    // Auto-populate parent name from logged-in user
-    this.authSubscription = this.authService.currentUser$.subscribe(user => {
-      if (user && user.name) {
+    // Auto-populate parent name from logged-in user's displayName
+    this.userSubscription = this.userService.getCurrentUser().subscribe(user => {
+      if (user && user.displayName) {
         // Only set if the field is empty (don't override user's manual input)
         const currentValue = this.playtimeForm.get('parentName')?.value;
         if (!currentValue || currentValue === '') {
           this.playtimeForm.patchValue({
-            parentName: user.name
+            parentName: user.displayName
           });
         }
       }
@@ -123,8 +123,8 @@ export class PlaytimeFormComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    if (this.authSubscription) {
-      this.authSubscription.unsubscribe();
+    if (this.userSubscription) {
+      this.userSubscription.unsubscribe();
     }
   }
 

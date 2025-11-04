@@ -49,8 +49,20 @@ export class FriendRequestService {
 
   /**
    * Get all friend requests as observable
+   * @param locations Optional array of location names to filter by
    */
-  getAllRequests(): Observable<FriendRequest[]> {
+  getAllRequests(locations?: string[]): Observable<FriendRequest[]> {
+    // If locations provided, fetch filtered results
+    if (locations && locations.length > 0) {
+      const params = new HttpParams()
+        .set('locations', locations.join(','));
+
+      return this.http.get<FriendRequest[]>(this.apiUrl, { params }).pipe(
+        map(requests => this.convertRequestDates(requests))
+      );
+    }
+
+    // Otherwise return cached results
     return this.requestsSubject.asObservable();
   }
 

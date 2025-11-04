@@ -62,15 +62,11 @@
 
     <!-- Actions for owners -->
     <div *ngIf="isOwner" class="owner-actions">
-      <button mat-button (click)="onEdit()" *ngIf="request.status === 'active'">
+      <button mat-raised-button (click)="onEdit()" *ngIf="request.status === 'active'">
         <mat-icon>edit</mat-icon>
         Muokkaa
       </button>
-      <button mat-button color="primary" (click)="onClose()" *ngIf="request.status === 'active'">
-        <mat-icon>check_circle</mat-icon>
-        Merkitse ratkaistuksi
-      </button>
-      <button mat-button color="warn" (click)="onDelete()">
+      <button mat-raised-button color="warn" (click)="onDelete()">
         <mat-icon>delete</mat-icon>
         Poista
       </button>

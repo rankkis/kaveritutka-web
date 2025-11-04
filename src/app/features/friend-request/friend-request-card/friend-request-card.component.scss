@@ -118,9 +118,13 @@ mat-card-actions {
     display: flex;
     gap: 8px;
     flex-wrap: wrap;
+    width: 100%;
   }
 
   button {
+    flex: 1;
+    min-width: 0;
+
     mat-icon {
       margin-right: 4px;
       font-size: 18px;
@@ -143,6 +147,7 @@ mat-card-actions {
 
       button {
         width: 100%;
+        flex: none;
       }
     }
   }
