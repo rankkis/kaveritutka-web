@@ -1,57 +1,10 @@
-.friend-listing-form {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+// Component-specific styles (global form styles are in shared/styles/forms.scss)
+
+.app-form {
   min-width: 400px;
-  padding: 16px 0;
 
   @media (max-width: 768px) {
     min-width: 280px;
-  }
-}
-
-.full-width {
-  width: 100%;
-}
-
-.form-section {
-  margin-bottom: 16px;
-
-  .section-label {
-    display: block;
-    font-size: 14px;
-    font-weight: 500;
-    color: rgba(0, 0, 0, 0.87);
-    margin-bottom: 12px;
-  }
-}
-
-.interests-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-
-  .interest-chip {
-    cursor: pointer;
-    transition: all 0.2s ease;
-
-    &:hover {
-      background-color: rgba(103, 58, 183, 0.1);
-    }
-  }
-}
-
-.location-info {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px;
-  background-color: rgba(103, 58, 183, 0.05);
-  border-radius: 4px;
-  color: rgba(0, 0, 0, 0.6);
-
-  mat-icon {
-    color: #673ab7;
   }
 }
 

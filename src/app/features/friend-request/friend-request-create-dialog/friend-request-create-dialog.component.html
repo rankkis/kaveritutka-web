@@ -1,7 +1,7 @@
 <h2 mat-dialog-title>Luo kaverihakuilmoitus</h2>
 
 <mat-dialog-content>
-  <form [formGroup]="form" class="friend-request-form">
+  <form [formGroup]="form" class="app-form">
     <!-- Child Name -->
     <mat-form-field appearance="outline" class="full-width">
       <mat-label>Lapsen nimi</mat-label>
@@ -30,12 +30,11 @@
     <!-- Interests -->
     <div class="form-section">
       <label class="section-label">Kiinnostuksen kohteet *</label>
-      <div class="interests-chips">
+      <div class="chips-container">
         <mat-chip-option
           *ngFor="let interest of availableInterests"
           [selected]="isInterestSelected(interest)"
-          (click)="toggleInterest(interest)"
-          class="interest-chip">
+          (click)="toggleInterest(interest)">
           {{ interest }}
         </mat-chip-option>
       </div>
@@ -63,7 +62,7 @@
     </mat-form-field>
 
     <!-- Location Info -->
-    <div class="location-info">
+    <div class="info-box">
       <mat-icon>location_on</mat-icon>
       <span>Sijainti: {{ data.city }}</span>
     </div>
