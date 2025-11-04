@@ -58,6 +58,16 @@ export class FriendRequestCreateDialogComponent implements OnInit {
   // Age options 0-7
   ageOptions = [0, 1, 2, 3, 4, 5, 6, 7];
 
+  // Selected values for chip-based controls
+  selectedAge: number | null = null;
+  selectedGender: 'boy' | 'girl' | null = null;
+
+  // Gender options
+  genderOptions = [
+    { value: 'boy' as const, icon: '👦', label: 'Poika' },
+    { value: 'girl' as const, icon: '👧', label: 'Tyttö' }
+  ];
+
   constructor(
     private fb: FormBuilder,
     private friendRequestService: FriendRequestService,
@@ -68,11 +78,25 @@ export class FriendRequestCreateDialogComponent implements OnInit {
   ngOnInit(): void {
     this.form = this.fb.group({
       childName: ['', [Validators.required, Validators.maxLength(255)]],
-      childAge: ['', [Validators.required]],
       description: ['', [Validators.required, Validators.maxLength(500)]],
     });
   }
 
+  // Age selection
+  selectAge(age: number): void {
+    this.selectedAge = age;
+  }
+
+  // Gender selection
+  selectGender(gender: 'boy' | 'girl'): void {
+    this.selectedGender = gender;
+  }
+
+  removeGenderSelection(): void {
+    this.selectedGender = null;
+  }
+
+  // Interest selection
   toggleInterest(interest: string): void {
     const index = this.selectedInterests.indexOf(interest);
     if (index >= 0) {
@@ -87,7 +111,7 @@ export class FriendRequestCreateDialogComponent implements OnInit {
   }
 
   onSubmit(): void {
-    if (this.form.invalid || this.selectedInterests.length === 0) {
+    if (this.form.invalid || this.selectedInterests.length === 0 || this.selectedAge === null) {
       return;
     }
 
@@ -100,7 +124,7 @@ export class FriendRequestCreateDialogComponent implements OnInit {
     const dto: CreateFriendRequestDto = {
       parentName: 'Vanhempi', // Default parent name - backend should ideally get this from auth
       childName: this.form.value.childName,
-      childAge: this.form.value.childAge,
+      childAge: this.selectedAge,
       description: this.form.value.description,
       interests: this.selectedInterests,
       latitude: this.data.latitude,

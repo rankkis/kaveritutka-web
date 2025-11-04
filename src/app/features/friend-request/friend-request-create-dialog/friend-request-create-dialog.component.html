@@ -2,46 +2,77 @@
 
 <mat-dialog-content>
   <form [formGroup]="form" class="app-form">
-    <!-- Child Name -->
-    <mat-form-field appearance="outline" class="full-width">
-      <mat-label>Lapsen nimi</mat-label>
-      <input matInput formControlName="childName" placeholder="Esim. Emma" required>
-      <mat-error *ngIf="form.get('childName')?.hasError('required')">
-        Lapsen nimi on pakollinen
-      </mat-error>
-      <mat-error *ngIf="form.get('childName')?.hasError('maxlength')">
-        Nimi voi olla enintään 255 merkkiä
-      </mat-error>
-    </mat-form-field>
+    <!-- Child Details Fieldset -->
+    <fieldset class="form-fieldset">
+      <legend class="fieldset-legend">Lapsen tiedot</legend>
 
-    <!-- Child Age -->
-    <mat-form-field appearance="outline" class="full-width">
-      <mat-label>Lapsen ikä</mat-label>
-      <mat-select formControlName="childAge" required>
-        <mat-option *ngFor="let age of ageOptions" [value]="age">
-          {{ age }} vuotta
-        </mat-option>
-      </mat-select>
-      <mat-error *ngIf="form.get('childAge')?.hasError('required')">
-        Valitse lapsen ikä
-      </mat-error>
-    </mat-form-field>
+      <!-- Child Name -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Lapsen nimi</mat-label>
+        <input matInput formControlName="childName" placeholder="Esim. Emma" required>
+        <mat-error *ngIf="form.get('childName')?.hasError('required')">
+          Lapsen nimi on pakollinen
+        </mat-error>
+        <mat-error *ngIf="form.get('childName')?.hasError('maxlength')">
+          Nimi voi olla enintään 255 merkkiä
+        </mat-error>
+      </mat-form-field>
 
-    <!-- Interests -->
-    <div class="form-section">
-      <label class="section-label">Kiinnostuksen kohteet *</label>
-      <div class="chips-container">
-        <mat-chip-option
-          *ngFor="let interest of availableInterests"
-          [selected]="isInterestSelected(interest)"
-          (click)="toggleInterest(interest)">
-          {{ interest }}
-        </mat-chip-option>
+      <!-- Age Selection (Chips) -->
+      <div class="form-section">
+        <label class="section-label">Lapsen ikä</label>
+        <div class="chip-row">
+          <button type="button"
+                  *ngFor="let age of ageOptions"
+                  class="selection-chip age-chip"
+                  [class.selected]="selectedAge === age"
+                  (click)="selectAge(age)">
+            {{ age }}v
+          </button>
+        </div>
+        <div class="error-message" *ngIf="selectedAge === null">
+          Valitse lapsen ikä
+        </div>
       </div>
-      <div class="hint" *ngIf="selectedInterests.length === 0" style="color: #f44336; font-size: 12px; margin-top: 4px;">
-        Valitse vähintään yksi kiinnostuksen kohde
+
+      <!-- Gender Selection (Chips - Optional) -->
+      <div class="form-section">
+        <label class="section-label">Sukupuoli (valinnainen)</label>
+        <div class="chip-row">
+          <button type="button"
+                  *ngFor="let gender of genderOptions"
+                  class="selection-chip gender-chip"
+                  [class.selected]="selectedGender === gender.value"
+                  (click)="selectGender(gender.value)">
+            <span class="icon">{{ gender.icon }}</span>
+            <span class="label">{{ gender.label }}</span>
+          </button>
+          <button type="button"
+                  *ngIf="selectedGender !== null"
+                  class="selection-chip remove-selection-btn"
+                  (click)="removeGenderSelection()">
+            Poista valinta
+          </button>
+        </div>
       </div>
-    </div>
+
+      <!-- Interests -->
+      <div class="form-section">
+        <label class="section-label">Kiinnostuksen kohteet (valitse vähintään yksi)</label>
+        <div class="interests-grid">
+          <button type="button"
+                  *ngFor="let interest of availableInterests"
+                  class="interest-chip"
+                  [class.selected]="isInterestSelected(interest)"
+                  (click)="toggleInterest(interest)">
+            {{ interest }}
+          </button>
+        </div>
+        <div class="error-message" *ngIf="selectedInterests.length === 0">
+          Valitse vähintään yksi kiinnostuksen kohde
+        </div>
+      </div>
+    </fieldset>
 
     <!-- Description -->
     <mat-form-field appearance="outline" class="full-width">
@@ -77,7 +108,7 @@
     mat-raised-button
     color="primary"
     (click)="onSubmit()"
-    [disabled]="form.invalid || selectedInterests.length === 0 || isSubmitting">
+    [disabled]="form.invalid || selectedInterests.length === 0 || selectedAge === null || isSubmitting">
     {{ isSubmitting ? 'Luodaan...' : 'Luo ilmoitus' }}
   </button>
 </mat-dialog-actions>
