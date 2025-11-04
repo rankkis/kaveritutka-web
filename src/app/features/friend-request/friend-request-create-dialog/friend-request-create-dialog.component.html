@@ -4,7 +4,7 @@
   <form [formGroup]="form" class="app-form">
     <!-- Child Details Fieldset -->
     <fieldset class="form-fieldset">
-      <legend class="fieldset-legend">Lapsen tiedot</legend>
+      <legend class="fieldset-legend">{{ childLegend }}</legend>
 
       <!-- Child Name -->
       <mat-form-field appearance="outline" class="full-width">
@@ -72,25 +72,25 @@
           Valitse vähintään yksi kiinnostuksen kohde
         </div>
       </div>
-    </fieldset>
 
-    <!-- Description -->
-    <mat-form-field appearance="outline" class="full-width">
-      <mat-label>Kuvaus</mat-label>
-      <textarea
-        matInput
-        formControlName="description"
-        rows="6"
-        placeholder="Kerro lapsestasi ja mitä etsitte. Esim. erityistarpeet, toiveet leikkikaverin suhteen..."
-        required></textarea>
-      <mat-hint align="end">{{ remainingChars }} / 500 merkkiä jäljellä</mat-hint>
-      <mat-error *ngIf="form.get('description')?.hasError('required')">
-        Kuvaus on pakollinen
-      </mat-error>
-      <mat-error *ngIf="form.get('description')?.hasError('maxlength')">
-        Kuvaus voi olla enintään 500 merkkiä
-      </mat-error>
-    </mat-form-field>
+      <!-- Description -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Kuvaus</mat-label>
+        <textarea
+          matInput
+          formControlName="description"
+          rows="6"
+          placeholder="Kerro lapsestasi ja mitä etsitte. Esim. erityistarpeet, toiveet leikkikaverin suhteen..."
+          required></textarea>
+        <mat-hint align="end">{{ remainingChars }} / 500 merkkiä jäljellä</mat-hint>
+        <mat-error *ngIf="form.get('description')?.hasError('required')">
+          Kuvaus on pakollinen
+        </mat-error>
+        <mat-error *ngIf="form.get('description')?.hasError('maxlength')">
+          Kuvaus voi olla enintään 500 merkkiä
+        </mat-error>
+      </mat-form-field>
+    </fieldset>
 
     <!-- Location Info -->
     <div class="info-box">

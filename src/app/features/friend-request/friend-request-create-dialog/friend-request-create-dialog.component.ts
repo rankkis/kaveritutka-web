@@ -166,4 +166,19 @@ export class FriendRequestCreateDialogComponent implements OnInit {
     const desc = this.form.get('description')?.value || '';
     return 500 - desc.length;
   }
+
+  // Dynamic legend showing child name and age
+  get childLegend(): string {
+    const childName = this.form.get('childName')?.value || '';
+
+    if (childName && this.selectedAge !== null) {
+      return `${this.selectedAge}v-${childName.toLowerCase()}`;
+    } else if (this.selectedAge !== null) {
+      return `${this.selectedAge}v-lapsi`;
+    } else if (childName) {
+      return childName;
+    }
+
+    return 'Lapsen tiedot';
+  }
 }
