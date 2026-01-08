@@ -1,0 +1,93 @@
+<h2 mat-dialog-title>Muokkaa ilmoitusta</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="form" class="app-form">
+    <!-- Child Details Fieldset -->
+    <fieldset class="form-fieldset">
+      <legend class="fieldset-legend">{{ childLegend }}</legend>
+
+      <!-- Child Name -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Lapsen nimi</mat-label>
+        <input matInput formControlName="childName" placeholder="Esim. Emma" required>
+        <mat-error *ngIf="form.get('childName')?.hasError('required')">
+          Lapsen nimi on pakollinen
+        </mat-error>
+        <mat-error *ngIf="form.get('childName')?.hasError('maxlength')">
+          Nimi voi olla enintään 255 merkkiä
+        </mat-error>
+      </mat-form-field>
+
+      <!-- Age Selection (Chips) -->
+      <div class="form-section">
+        <label class="section-label">Lapsen ikä</label>
+        <div class="chip-row">
+          <button type="button"
+                  *ngFor="let age of ageOptions"
+                  class="selection-chip age-chip"
+                  [class.selected]="selectedAge === age"
+                  (click)="selectAge(age)">
+            {{ age }}v
+          </button>
+        </div>
+        <div class="error-message" *ngIf="selectedAge === null">
+          Valitse lapsen ikä
+        </div>
+      </div>
+
+      <!-- Interests -->
+      <div class="form-section">
+        <label class="section-label">Kiinnostuksen kohteet (valitse vähintään yksi)</label>
+        <div class="interests-grid">
+          <button type="button"
+                  *ngFor="let interest of availableInterests"
+                  class="interest-chip"
+                  [class.selected]="isInterestSelected(interest)"
+                  (click)="toggleInterest(interest)">
+            {{ interest }}
+          </button>
+        </div>
+        <div class="error-message" *ngIf="selectedInterests.length === 0">
+          Valitse vähintään yksi kiinnostuksen kohde
+        </div>
+      </div>
+
+      <!-- Description -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Kuvaus</mat-label>
+        <textarea
+          matInput
+          formControlName="description"
+          rows="6"
+          placeholder="Kerro lapsestasi ja mitä etsitte. Esim. erityistarpeet, toiveet leikkikaverin suhteen..."
+          required></textarea>
+        <mat-hint align="end">{{ remainingChars }} / 500 merkkiä jäljellä</mat-hint>
+        <mat-error *ngIf="form.get('description')?.hasError('required')">
+          Kuvaus on pakollinen
+        </mat-error>
+        <mat-error *ngIf="form.get('description')?.hasError('maxlength')">
+          Kuvaus voi olla enintään 500 merkkiä
+        </mat-error>
+      </mat-form-field>
+    </fieldset>
+
+    <!-- Location Info -->
+    <div class="info-box">
+      <mat-icon>location_on</mat-icon>
+      <span>Sijainti: {{ data.request.city }}</span>
+    </div>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()" [disabled]="isSubmitting">
+    Peruuta
+  </button>
+  <button
+    mat-raised-button
+    color="primary"
+    (click)="onSubmit()"
+    [disabled]="form.invalid || selectedInterests.length === 0 || selectedAge === null || isSubmitting">
+    {{ isSubmitting ? 'Tallennetaan...' : 'Tallenna muutokset' }}
+  </button>
+</mat-dialog-actions>

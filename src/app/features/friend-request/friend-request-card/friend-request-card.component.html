@@ -17,11 +17,9 @@
   <mat-card-content>
     <!-- Interests -->
     <div class="interests-section" *ngIf="request.interests && request.interests.length > 0">
-      <mat-chip-set>
-        <mat-chip *ngFor="let interest of request.interests" class="interest-chip">
-          {{ interest }}
-        </mat-chip>
-      </mat-chip-set>
+      <span *ngFor="let interest of request.interests" class="interest-chip">
+        {{ interest }}
+      </span>
     </div>
 
     <!-- Description -->

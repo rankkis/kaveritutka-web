@@ -1,0 +1,18 @@
+// Component-specific styles (global form styles are in shared/styles/forms.scss)
+
+.app-form {
+  min-width: 400px;
+
+  @media (max-width: 768px) {
+    min-width: 280px;
+  }
+}
+
+mat-dialog-content {
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+mat-dialog-actions {
+  padding: 16px 24px;
+}

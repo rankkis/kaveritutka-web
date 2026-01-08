@@ -289,6 +289,13 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // Emit initial viewport
     updateMapViewport();
+
+    // Force Leaflet to recalculate container size after initialization
+    // This fixes the issue where tiles don't render until user interaction
+    // when the map is inside an *ngIf that may affect initial dimensions
+    setTimeout(() => {
+      this.map?.invalidateSize();
+    }, 0);
   }
 
   private updateMarkerAnimations(playgrounds: Playground[], allPlaytimes: Playtime[], now: Date): void {

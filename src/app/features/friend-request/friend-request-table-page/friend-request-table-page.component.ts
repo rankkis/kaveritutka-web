@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -12,12 +12,14 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Subscription } from 'rxjs';
 import { take } from 'rxjs/operators';
 import {
+  BreakpointService,
   FriendRequestService,
   FriendRequest
 } from '../../../shared';
 import { SupabaseService } from '../../../shared/services/supabase.service';
 import { FriendRequestCardComponent } from '../friend-request-card/friend-request-card.component';
 import { FriendRequestCreateDialogComponent } from '../friend-request-create-dialog/friend-request-create-dialog.component';
+import { FriendRequestEditDialogComponent } from '../friend-request-edit-dialog/friend-request-edit-dialog.component';
 import { SendMessageDialogComponent } from '../send-message-dialog/send-message-dialog.component';
 import { ProposePlaytimeDialogComponent } from '../propose-playtime-dialog/propose-playtime-dialog.component';
 
@@ -39,10 +41,19 @@ import { ProposePlaytimeDialogComponent } from '../propose-playtime-dialog/propo
   styleUrls: ['./friend-request-table-page.component.scss']
 })
 export class FriendRequestTablePageComponent implements OnInit, OnDestroy {
+  private readonly breakpointService = inject(BreakpointService);
+  private readonly dialog = inject(MatDialog);
+  private readonly friendRequestService = inject(FriendRequestService);
+  private readonly router = inject(Router);
+  private readonly supabaseService = inject(SupabaseService);
+
   requests: FriendRequest[] = [];
   filteredRequests: FriendRequest[] = [];
   isLoading = true;
   currentUserId: string | null = null;
+
+  // Filter visibility (collapsed by default on mobile/tablet)
+  filterActive = this.breakpointService.isGreaterThan('s');
 
   // Filters
   searchText = '';
@@ -52,13 +63,6 @@ export class FriendRequestTablePageComponent implements OnInit, OnDestroy {
   private requestsSubscription?: Subscription;
 
   ageOptions = [0, 1, 2, 3, 4, 5, 6, 7];
-
-  constructor(
-    private friendRequestService: FriendRequestService,
-    private supabaseService: SupabaseService,
-    private dialog: MatDialog,
-    private router: Router
-  ) {}
 
   ngOnInit(): void {
     // Get current user from session
@@ -117,6 +121,16 @@ export class FriendRequestTablePageComponent implements OnInit, OnDestroy {
     this.applyFilters();
   }
 
+  toggleFilter(): void {
+    this.filterActive = !this.filterActive;
+  }
+
+  hasActiveFilters(): boolean {
+    return this.searchText.trim() !== '' ||
+           this.selectedStatus !== 'active' ||
+           this.selectedAge !== null;
+  }
+
   onCreateRequest(): void {
     // Get current location (default to Lahti center)
     const dialogRef = this.dialog.open(FriendRequestCreateDialogComponent, {
@@ -152,9 +166,18 @@ export class FriendRequestTablePageComponent implements OnInit, OnDestroy {
     });
   }
 
-  onEditRequest(_request: FriendRequest): void {
-    // TODO: Implement edit functionality
-    alert('Muokkaus-toiminto tulossa pian!');
+  onEditRequest(request: FriendRequest): void {
+    const dialogRef = this.dialog.open(FriendRequestEditDialogComponent, {
+      width: '600px',
+      maxWidth: '95vw',
+      data: { request }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        // Request updated successfully - the service already refreshes the list
+      }
+    });
   }
 
   onDeleteRequest(request: FriendRequest): void {

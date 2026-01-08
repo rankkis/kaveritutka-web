@@ -70,6 +70,17 @@
               "optimization": false,
               "extractLicenses": false,
               "sourceMap": true
+            },
+            "local": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true,
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.local.ts"
+                }
+              ]
             }
           },
           "defaultConfiguration": "production"
@@ -82,6 +93,9 @@
             },
             "development": {
               "buildTarget": "kaveritutka-web-app:build:development"
+            },
+            "local": {
+              "buildTarget": "kaveritutka-web-app:build:local"
             }
           },
           "defaultConfiguration": "development"

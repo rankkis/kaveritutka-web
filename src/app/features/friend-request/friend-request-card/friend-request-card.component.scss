@@ -59,16 +59,18 @@ mat-card-content {
 }
 
 .interests-section {
-  mat-chip-set {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 
   .interest-chip {
-    background-color: rgba(103, 58, 183, 0.1);
-    color: #673ab7;
-    font-size: 12px;
+    padding: 0.5rem 1rem;
+    border: 1px solid #e0e0e0;
+    background: white;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    color: #333;
+    font-weight: 500;
   }
 }
 
