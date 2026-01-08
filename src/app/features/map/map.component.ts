@@ -5,8 +5,8 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import * as L from 'leaflet';
-import { BehaviorSubject, combineLatest, interval, Subscription } from 'rxjs';
-import { distinctUntilChanged, map, shareReplay, startWith, switchMap } from 'rxjs/operators';
+import { BehaviorSubject, combineLatest, interval, Subscription, of } from 'rxjs';
+import { catchError, debounceTime, distinctUntilChanged, map, shareReplay, startWith, switchMap, tap } from 'rxjs/operators';
 import { MapStateService } from '../../core/services/map-state.service';
 import {
   PlaygroundService,
@@ -18,7 +18,6 @@ import {
 } from '../../shared';
 import { PlaytimeDialogComponent } from '../playtime/playtime-dialog/playtime-dialog.component';
 import { getMarkerClass, isMobileDevice } from './map.helpers';
-import { areEqual as areLocationArraysEqual } from '../../shared/utils';
 
 // Map component for displaying playgrounds
 @Component({
@@ -37,9 +36,11 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly playtimeService = inject(PlaytimeService);
   private readonly router = inject(Router);
 
+  private friendRequestsLoading$ = new BehaviorSubject<boolean>(false);
   private map: L.Map | undefined;
   private mapInitialized = false;
   private mapUpdateSubscription: Subscription | undefined;
+  private mapViewport$ = new BehaviorSubject<{ lat: number; lng: number; zoom: number } | null>(null);
   private markers: Map<string, L.Marker> = new Map();
   private now$ = interval(60000).pipe(
     startWith(0),
@@ -55,25 +56,45 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
     shareReplay({ bufferSize: 1, refCount: true })
   );
 
-  // Friend requests filtered by current map locations
-  private friendRequests$ = this.mapStateService.mapState$.pipe(
-    map(({locations}) => locations),
-    distinctUntilChanged(areLocationArraysEqual),
-    switchMap(locations =>
-      this.friendRequestService.getAllRequests(locations)
-    ),
-    startWith(null)
+  // Friend requests filtered by current map viewport with location-based filtering
+  private friendRequests$ = this.mapViewport$.pipe(
+    debounceTime(500), // Debounce to avoid too many API calls
+    distinctUntilChanged((prev, curr) => {
+      if (!prev && !curr) return true;
+      if (!prev || !curr) return false;
+      return prev.lat === curr.lat && prev.lng === curr.lng && prev.zoom === curr.zoom;
+    }),
+    switchMap(viewport => {
+      if (!viewport) return of(null);
+      this.friendRequestsLoading$.next(true);
+      const radius = this.calculateSearchRadius(viewport.zoom);
+      return this.friendRequestService.getFriendRequestsByLocation(
+        viewport.lat,
+        viewport.lng,
+        radius
+      ).pipe(
+        tap(() => this.friendRequestsLoading$.next(false)),
+        catchError(error => {
+          console.error('Error loading friend requests:', error);
+          this.friendRequestsLoading$.next(false);
+          return of([]);
+        })
+      );
+    }),
+    startWith(null),
+    shareReplay({ bufferSize: 1, refCount: true })
   );
 
   // 2. VIEWMODEL BUILDER
   vm$ = combineLatest({
     friendRequests: this.friendRequests$,
+    friendRequestsLoading: this.friendRequestsLoading$,
     playgrounds: this.playgrounds$,
     playtimes: this.playtimes$,
     selectedId: this.selectedPlaygroundId$,
     now: this.now$
   }).pipe(
-    map(({ friendRequests, playgrounds, playtimes, selectedId, now }) => {
+    map(({ friendRequests, friendRequestsLoading, playgrounds, playtimes, selectedId, now }) => {
       const selectedPlayground = playgrounds.find(p => p.id === selectedId) || null;
       const selectedPlaygroundPlaytimes = selectedPlayground
         ? playtimes.filter(pt => pt.playgroundId === selectedPlayground.id)
@@ -81,6 +102,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
 
       return {
         friendRequestCount: friendRequests?.filter(r => r.status === 'active').length,
+        friendRequestsLoading,
         playgrounds,
         playtimes,
         selectedPlayground,
@@ -176,6 +198,25 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   // 5. PRIVATE METHODS (alphabetical)
+  /**
+   * Calculate search radius in kilometers based on zoom level
+   * Higher zoom (more zoomed in) = smaller radius
+   * Lower zoom (more zoomed out) = larger radius
+   */
+  private calculateSearchRadius(zoom: number): number {
+    // Zoom levels and corresponding radius in kilometers
+    // Zoom 15 (1km view) = 5km radius
+    // Zoom 14 = 10km radius
+    // Zoom 13 = 20km radius
+    // Zoom 12 = 30km radius
+    // Zoom 11 and below = 50km radius
+    if (zoom >= 15) return 5;
+    if (zoom >= 14) return 10;
+    if (zoom >= 13) return 20;
+    if (zoom >= 12) return 30;
+    return 50;
+  }
+
   private addMarkersToMap(playgrounds: Playground[]): void {
     if (!this.map) return;
 
@@ -233,22 +274,21 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
       subdomains: 'abcd'
     }).addTo(this.map);
 
-    // Update city detection whenever the map moves or zooms
-    this.map.on('moveend', () => {
+    // Update map state and viewport for friend request filtering whenever the map moves or zooms
+    const updateMapViewport = () => {
       if (this.map) {
         const center = this.map.getCenter();
         const zoom = this.map.getZoom();
         this.mapStateService.saveMapState([center.lat, center.lng], zoom);
+        this.mapViewport$.next({ lat: center.lat, lng: center.lng, zoom });
       }
-    });
+    };
 
-    this.map.on('zoomend', () => {
-      if (this.map) {
-        const center = this.map.getCenter();
-        const zoom = this.map.getZoom();
-        this.mapStateService.saveMapState([center.lat, center.lng], zoom);
-      }
-    });
+    this.map.on('moveend', updateMapViewport);
+    this.map.on('zoomend', updateMapViewport);
+
+    // Emit initial viewport
+    updateMapViewport();
   }
 
   private updateMarkerAnimations(playgrounds: Playground[], allPlaytimes: Playtime[], now: Date): void {
