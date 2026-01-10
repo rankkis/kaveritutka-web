@@ -1,28 +1,55 @@
-<div class="messages-page">
-  <ng-container *ngIf="vm$ | async as vm">
+<ng-container *ngIf="vm$ | async as vm">
+  <div class="messages-page">
     <!-- Loading state -->
-    <div *ngIf="vm.loading" class="loading-container">
+    <div class="loading-container" *ngIf="vm.loading">
       <mat-spinner diameter="40"></mat-spinner>
       <span>Ladataan keskusteluja...</span>
     </div>
 
-    <!-- Content -->
-    <div *ngIf="!vm.loading" class="messages-content">
-      <!-- Empty state -->
-      <div *ngIf="vm.conversations.length === 0" class="empty-state">
+    <ng-container *ngIf="!vm.loading">
+      <!-- Empty state when no conversations -->
+      <div class="empty-state" *ngIf="vm.conversations.length === 0">
         <mat-icon>forum</mat-icon>
         <h2>Ei vielä keskusteluja</h2>
         <p>Kun aloitat keskustelun toisen vanhemman kanssa, se näkyy täällä.</p>
       </div>
 
-      <!-- Conversations grid -->
-      <div *ngIf="vm.conversations.length > 0" class="conversations-grid">
-        <app-conversation-card
-          *ngFor="let conversation of vm.conversations"
-          [conversation]="conversation"
-          (click)="onConversationSelected(conversation)"
-        ></app-conversation-card>
-      </div>
-    </div>
-  </ng-container>
-</div>
+      <!-- WhatsApp-style split view -->
+      <ng-container *ngIf="vm.conversations.length > 0">
+        <!-- Conversation list panel -->
+        <div class="conversation-list-panel">
+          <app-conversation-list
+            [conversations]="vm.conversations"
+            [selectedConversationId]="vm.selectedConversation?.id"
+            (conversationSelected)="onConversationSelected($event, vm.isDesktop)"
+          ></app-conversation-list>
+        </div>
+
+        <!-- Chat panel -->
+        <div class="chat-panel" *ngIf="vm.selectedConversation">
+          <app-conversation-header
+            [conversation]="vm.selectedConversation"
+            [showBackButton]="false"
+          ></app-conversation-header>
+
+          <app-message-thread
+            [messages]="vm.messages"
+            [currentUserId]="vm.currentUserId"
+          ></app-message-thread>
+
+          <app-message-input
+            (messageSent)="onMessageSent(vm.selectedConversation.id, $event)"
+          ></app-message-input>
+        </div>
+
+        <!-- Placeholder when no conversation selected -->
+        <div class="chat-panel placeholder" *ngIf="!vm.selectedConversation">
+          <div class="placeholder-content">
+            <mat-icon>chat</mat-icon>
+            <p>Valitse keskustelu vasemmalta</p>
+          </div>
+        </div>
+      </ng-container>
+    </ng-container>
+  </div>
+</ng-container>
