@@ -1,56 +1,28 @@
-<ng-container *ngIf="vm$ | async as vm">
-  <div class="messages-page" [class.split-view]="vm.showSplitView">
+<div class="messages-page">
+  <ng-container *ngIf="vm$ | async as vm">
     <!-- Loading state -->
-    <div class="loading-container" *ngIf="vm.loading">
+    <div *ngIf="vm.loading" class="loading-container">
       <mat-spinner diameter="40"></mat-spinner>
       <span>Ladataan keskusteluja...</span>
     </div>
 
-    <ng-container *ngIf="!vm.loading">
-      <!-- Conversation list (always shown, either full width or as sidebar) -->
-      <div class="conversation-list-panel">
-        <app-conversation-list
-          [conversations]="vm.conversations"
-          [selectedConversationId]="vm.selectedConversation?.id"
-          (conversationSelected)="onConversationSelected($event, vm.showSplitView)"
-        ></app-conversation-list>
+    <!-- Content -->
+    <div *ngIf="!vm.loading" class="messages-content">
+      <!-- Empty state -->
+      <div *ngIf="vm.conversations.length === 0" class="empty-state">
+        <mat-icon>forum</mat-icon>
+        <h2>Ei vielä keskusteluja</h2>
+        <p>Kun aloitat keskustelun toisen vanhemman kanssa, se näkyy täällä.</p>
       </div>
 
-      <!-- Chat panel (only in split view) -->
-      <ng-container *ngIf="vm.showSplitView">
-        <div class="chat-panel" *ngIf="vm.selectedConversation">
-          <app-conversation-header
-            [conversation]="vm.selectedConversation"
-            [showBackButton]="false"
-          ></app-conversation-header>
-
-          <app-message-thread
-            [messages]="vm.messages"
-            [currentUserId]="vm.currentUserId"
-          ></app-message-thread>
-
-          <app-message-input
-            (messageSent)="onMessageSent(vm.selectedConversation.id, $event)"
-          ></app-message-input>
-        </div>
-
-        <!-- Empty state when no conversation selected -->
-        <div class="chat-panel empty-state" *ngIf="!vm.selectedConversation && vm.conversations.length > 0">
-          <div class="empty-content">
-            <span class="material-icons">chat</span>
-            <p>Valitse keskustelu vasemmalta</p>
-          </div>
-        </div>
-      </ng-container>
-
-      <!-- Empty state when no conversations -->
-      <div class="empty-state full-page" *ngIf="vm.conversations.length === 0">
-        <div class="empty-content">
-          <span class="material-icons">forum</span>
-          <h2>Ei vielä keskusteluja</h2>
-          <p>Kun aloitat keskustelun toisen vanhemman kanssa, se näkyy täällä.</p>
-        </div>
+      <!-- Conversations grid -->
+      <div *ngIf="vm.conversations.length > 0" class="conversations-grid">
+        <app-conversation-card
+          *ngFor="let conversation of vm.conversations"
+          [conversation]="conversation"
+          (click)="onConversationSelected(conversation)"
+        ></app-conversation-card>
       </div>
-    </ng-container>
-  </div>
-</ng-container>
+    </div>
+  </ng-container>
+</div>
