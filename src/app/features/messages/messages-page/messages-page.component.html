@@ -7,8 +7,8 @@
     </div>
 
     <ng-container *ngIf="!vm.loading">
-      <!-- Conversation list -->
-      <div class="conversation-list-panel" *ngIf="!vm.showSplitView || !vm.selectedConversation">
+      <!-- Conversation list (always shown, either full width or as sidebar) -->
+      <div class="conversation-list-panel">
         <app-conversation-list
           [conversations]="vm.conversations"
           [selectedConversationId]="vm.selectedConversation?.id"
@@ -16,16 +16,8 @@
         ></app-conversation-list>
       </div>
 
-      <!-- Split view: show both panels -->
+      <!-- Chat panel (only in split view) -->
       <ng-container *ngIf="vm.showSplitView">
-        <div class="conversation-list-panel">
-          <app-conversation-list
-            [conversations]="vm.conversations"
-            [selectedConversationId]="vm.selectedConversation?.id"
-            (conversationSelected)="onConversationSelected($event, vm.showSplitView)"
-          ></app-conversation-list>
-        </div>
-
         <div class="chat-panel" *ngIf="vm.selectedConversation">
           <app-conversation-header
             [conversation]="vm.selectedConversation"
