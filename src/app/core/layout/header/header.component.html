@@ -34,6 +34,13 @@
                   <span>Profiili</span>
                 </span>
               </a>
+              <a mat-menu-item [routerLink]="['/messages']">
+                <span class="menu-item-content">
+                  <mat-icon>mail</mat-icon>
+                  <span>Viestit</span>
+                </span>
+              </a>
+              <mat-divider></mat-divider>
               <button mat-menu-item (click)="onLogout()">
                 <span class="menu-item-content">
                   <mat-icon>logout</mat-icon>

@@ -1,0 +1,20 @@
+<div class="conversation-header">
+  <button
+    mat-icon-button
+    *ngIf="showBackButton"
+    (click)="onBack()"
+    aria-label="Takaisin"
+    class="back-button"
+  >
+    <mat-icon>arrow_back</mat-icon>
+  </button>
+
+  <div class="header-icon">
+    <mat-icon>{{ icon }}</mat-icon>
+  </div>
+
+  <div class="header-content">
+    <span class="title">{{ title }}</span>
+    <span class="subtitle" *ngIf="subtitle">{{ subtitle }}</span>
+  </div>
+</div>

@@ -1,0 +1,33 @@
+<ng-container *ngIf="vm$ | async as vm">
+  <div class="conversation-detail-page">
+    <!-- Loading state -->
+    <div class="loading-container" *ngIf="vm.loading">
+      <mat-spinner diameter="40"></mat-spinner>
+      <span>Ladataan viestejä...</span>
+    </div>
+
+    <ng-container *ngIf="!vm.loading && vm.conversation">
+      <app-conversation-header
+        [conversation]="vm.conversation"
+        [showBackButton]="true"
+        (backClicked)="onBackToList()"
+      ></app-conversation-header>
+
+      <app-message-thread
+        [messages]="vm.messages"
+        [currentUserId]="vm.currentUserId"
+      ></app-message-thread>
+
+      <app-message-input
+        (messageSent)="onMessageSent(vm.conversation.id, $event)"
+      ></app-message-input>
+    </ng-container>
+
+    <!-- Error state -->
+    <div class="error-state" *ngIf="!vm.loading && !vm.conversation">
+      <span class="material-icons">error_outline</span>
+      <p>Keskustelua ei löytynyt</p>
+      <button (click)="onBackToList()">Takaisin</button>
+    </div>
+  </div>
+</ng-container>

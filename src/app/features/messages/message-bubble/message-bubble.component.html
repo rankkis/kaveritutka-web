@@ -1,0 +1,5 @@
+<div class="message-bubble" [class.own]="isOwn" [class.received]="!isOwn">
+  <div class="sender-name" *ngIf="!isOwn">{{ message.senderName }}</div>
+  <div class="content" [innerHTML]="formattedContent"></div>
+  <div class="timestamp">{{ timestamp }}</div>
+</div>

@@ -5,6 +5,7 @@ import { combineLatest, map } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatDividerModule } from '@angular/material/divider';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MapStateService } from '../../../core/services/map-state.service';
 import { SupabaseService } from '../../../shared/services/supabase.service';
@@ -14,7 +15,7 @@ import { AuthProviderDialogComponent } from '../../auth/auth-provider-dialog/aut
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, RouterModule, MatButtonModule, MatIconModule, MatMenuModule, MatDialogModule],
+  imports: [CommonModule, RouterModule, MatButtonModule, MatDividerModule, MatIconModule, MatMenuModule, MatDialogModule],
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss']
 })

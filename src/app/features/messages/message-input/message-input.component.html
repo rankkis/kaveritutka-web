@@ -1,0 +1,22 @@
+<div class="message-input-container">
+  <textarea
+    [(ngModel)]="messageText"
+    placeholder="Kirjoita viesti..."
+    maxlength="1000"
+    rows="2"
+    [disabled]="isSending"
+    class="message-textarea"
+    aria-label="Viestikenttä"
+  ></textarea>
+
+  <button
+    mat-icon-button
+    color="primary"
+    (click)="sendMessage()"
+    [disabled]="!canSend"
+    aria-label="Lähetä"
+    class="send-button"
+  >
+    <mat-icon>send</mat-icon>
+  </button>
+</div>
