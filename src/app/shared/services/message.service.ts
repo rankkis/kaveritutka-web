@@ -349,6 +349,12 @@ export class MessageService {
    */
   markAsRead(conversationId: string): Observable<void> {
     if (this.useMockData) {
+      // Update local mock data to clear unread count
+      const conversations = this.conversationsSubject.getValue();
+      const updatedConversations = conversations.map((c) =>
+        c.id === conversationId ? { ...c, unreadCount: 0 } : c
+      );
+      this.conversationsSubject.next(updatedConversations);
       return of(undefined);
     }
 
