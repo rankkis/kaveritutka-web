@@ -17,14 +17,10 @@ export class MessageInputComponent {
   isSending = false;
   messageText = '';
 
-  get canSend(): boolean {
-    return this.messageText.trim().length > 0 && !this.isSending;
-  }
-
   sendMessage(): void {
-    if (!this.canSend) return;
-
     const content = this.messageText.trim();
+    if (!content || this.isSending) return;
+
     this.isSending = true;
     this.messageSent.emit(content);
 

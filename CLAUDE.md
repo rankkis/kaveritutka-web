@@ -385,6 +385,81 @@ export class MapComponent {
 - ✅ Components stay focused on orchestration
 - ✅ Clear separation of concerns
 
+### 7. Property Access and Performance
+
+#### Private vs Public Properties
+- Mark properties as `private` if they are NOT used in the template
+- Only expose properties that the template needs
+
+```typescript
+// ✅ Good: Private property not used in template
+export class MyComponent {
+  private readonly service = inject(MyService);  // Not in template
+
+  items$ = this.service.getItems();  // Used in template (public)
+}
+
+// ❌ Bad: Public property not used in template
+export class MyComponent {
+  readonly service = inject(MyService);  // Should be private
+}
+```
+
+#### Readonly Properties over Getters
+- Use `readonly` properties instead of `get` accessors for computed values that don't change
+- Getters are re-evaluated on every change detection cycle, causing performance issues
+
+```typescript
+// ✅ Good: Readonly property (computed once)
+export class ConversationCardComponent {
+  @Input() conversation!: Conversation;
+
+  // These are set once in ngOnChanges or via Input transform
+  readonly displayInfo = computed(() => getConversationDisplayInfo(this.conversation));
+}
+
+// ❌ Bad: Getter (re-evaluated on every change detection)
+export class ConversationCardComponent {
+  @Input() conversation!: Conversation;
+
+  get icon(): string {
+    return this.conversation.displayInfo.icon;  // Called many times!
+  }
+
+  get title(): string {
+    return this.conversation.displayInfo.title;  // Called many times!
+  }
+}
+```
+
+**When getters ARE acceptable:**
+- Simple property access that's truly trivial (e.g., `get isEmpty() { return this.items.length === 0; }`)
+- When the value MUST be re-computed on each access (rare)
+
+**Preferred alternatives to getters:**
+1. **Direct template access**: `{{ conversation.displayInfo.title }}` instead of `{{ title }}`
+2. **Computed values in vm$**: Include computed values in the ViewModel
+3. **ngOnChanges**: Compute values when inputs change
+4. **Angular Signals**: Use `computed()` for reactive derived values
+
+```typescript
+// ✅ Best: Access directly in template
+// Template: {{ conversation.displayInfo.title }}
+
+// ✅ Good: Compute in ngOnChanges
+export class ConversationCardComponent implements OnChanges {
+  @Input() conversation!: ConversationWithDisplay;
+
+  displayTitle = '';
+  displaySubtitle = '';
+
+  ngOnChanges(): void {
+    this.displayTitle = this.conversation.displayInfo.title;
+    this.displaySubtitle = this.conversation.displayInfo.subtitle ?? '';
+  }
+}
+```
+
 ### Summary Checklist
 - [ ] Use `inject()` instead of constructor injection
 - [ ] Expose observables with `async` pipe (avoid manual subscriptions)
@@ -393,8 +468,11 @@ export class MapComponent {
 - [ ] Follow component structure: Properties → vm$ → Public → Lifecycle → Private
 - [ ] Use alphabetical ordering within each section
 - [ ] Extract logic to pure helper functions with unit tests
+- [ ] Mark properties `private` if not used in template
+- [ ] Use `readonly` properties over `get` accessors for performance
+- [ ] Access Input properties directly in templates when possible
 
-### 7. Unit Testing for Helper Functions
+### 8. Unit Testing for Helper Functions
 
 **IMPORTANT**: All helper functions in `src/app/shared/utils/` MUST have corresponding unit tests.
 

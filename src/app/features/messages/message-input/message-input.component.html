@@ -13,7 +13,7 @@
     mat-icon-button
     color="primary"
     (click)="sendMessage()"
-    [disabled]="!canSend"
+    [disabled]="!messageText.trim() || isSending"
     aria-label="Lähetä"
     class="send-button"
   >

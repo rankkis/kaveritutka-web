@@ -23,18 +23,6 @@ export class ConversationHeaderComponent {
 
   @Output() backClicked = new EventEmitter<void>();
 
-  get icon(): string {
-    return this.conversation.displayInfo.icon;
-  }
-
-  get title(): string {
-    return this.conversation.displayInfo.title;
-  }
-
-  get subtitle(): string | undefined {
-    return this.conversation.displayInfo.subtitle;
-  }
-
   onBack(): void {
     this.backClicked.emit();
   }
