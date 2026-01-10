@@ -1,7 +1,8 @@
 .messages-page {
   display: flex;
   flex-direction: row;
-  height: calc(100vh - 4rem); // Account for header
+  height: calc(100vh - 5.5rem); // Account for header (~88px)
+  height: calc(100dvh - 5.5rem); // Use dynamic viewport height for mobile
   background-color: #fafafa;
   max-width: 1200px;
   margin: 0 auto;
