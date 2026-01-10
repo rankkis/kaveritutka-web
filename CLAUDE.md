@@ -345,7 +345,7 @@ export class PlaytimeDialogComponent {
 Extract complex logic into **pure helper functions** in separate files instead of private methods. These helpers should:
 - Be **pure functions** (same input → same output, no side effects)
 - Live in `src/app/shared/utils/` or feature-specific `helpers/` folders
-- Have **unit tests**
+- Have **unit tests** (see Unit Testing section below)
 
 ```typescript
 // ✅ Good: Pure helper function (testable)
@@ -393,6 +393,56 @@ export class MapComponent {
 - [ ] Follow component structure: Properties → vm$ → Public → Lifecycle → Private
 - [ ] Use alphabetical ordering within each section
 - [ ] Extract logic to pure helper functions with unit tests
+
+### 7. Unit Testing for Helper Functions
+
+**IMPORTANT**: All helper functions in `src/app/shared/utils/` MUST have corresponding unit tests.
+
+**Naming convention:**
+- Helper file: `my-helper.ts` or `my.helper.ts`
+- Test file: `my-helper.spec.ts` or `my.helper.spec.ts` (same name with `.spec.ts` suffix)
+
+**Test file structure:**
+```typescript
+// src/app/shared/utils/my-helper.spec.ts
+import { myFunction, anotherFunction } from './my-helper';
+
+describe('My Helper', () => {
+  describe('myFunction', () => {
+    it('should handle normal input', () => {
+      expect(myFunction('input')).toBe('expected');
+    });
+
+    it('should handle edge cases', () => {
+      expect(myFunction('')).toBe('');
+      expect(myFunction(null as any)).toBeNull();
+    });
+  });
+
+  describe('anotherFunction', () => {
+    // Tests for another function...
+  });
+});
+```
+
+**What to test:**
+- ✅ Normal/happy path scenarios
+- ✅ Edge cases (empty strings, null, undefined, empty arrays)
+- ✅ Boundary conditions (min/max values)
+- ✅ Error conditions (invalid input)
+- ✅ All exported functions
+
+**Running tests:**
+```bash
+npm test                    # Run all tests
+npm test -- --watch         # Watch mode
+npm test -- --include=**/utils/**  # Run only utils tests
+```
+
+**Examples of existing tests:**
+- [string-array.helper.spec.ts](src/app/shared/utils/string-array.helper.spec.ts) - Array comparison helpers
+- [conversation.helpers.spec.ts](src/app/shared/utils/conversation.helpers.spec.ts) - Conversation sorting and display
+- [message-format.helper.spec.ts](src/app/shared/utils/message-format.helper.spec.ts) - Message formatting
 
 ## Development
 
