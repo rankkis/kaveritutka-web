@@ -1,6 +1,5 @@
 import { Component, Input, OnChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 
 import { ConversationWithDisplay } from '../messages-page/messages-page.component';
@@ -10,7 +9,7 @@ import { truncateMessage } from '../../../shared/utils/message-format.helper';
 @Component({
   selector: 'app-conversation-card',
   standalone: true,
-  imports: [CommonModule, MatCardModule, MatIconModule],
+  imports: [CommonModule, MatIconModule],
   templateUrl: './conversation-card.component.html',
   styleUrl: './conversation-card.component.scss',
 })
