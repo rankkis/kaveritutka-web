@@ -1,5 +1,6 @@
 import { Component, Input, OnChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 
 import { ConversationWithDisplay } from '../messages-page/messages-page.component';
@@ -9,7 +10,7 @@ import { truncateMessage } from '../../../shared/utils/message-format.helper';
 @Component({
   selector: 'app-conversation-card',
   standalone: true,
-  imports: [CommonModule, MatIconModule],
+  imports: [CommonModule, MatCardModule, MatIconModule],
   templateUrl: './conversation-card.component.html',
   styleUrl: './conversation-card.component.scss',
 })
@@ -23,8 +24,8 @@ export class ConversationCardComponent implements OnChanges {
 
   ngOnChanges(): void {
     this.lastMessagePreview = this.conversation.lastMessage
-      ? truncateMessage(this.conversation.lastMessage.content, 50)
-      : 'Aloita keskustelu';
+      ? truncateMessage(this.conversation.lastMessage.content, 80)
+      : '';
 
     this.timestamp = formatConversationTimestamp(
       this.conversation.lastMessage?.createdAt ?? this.conversation.createdAt

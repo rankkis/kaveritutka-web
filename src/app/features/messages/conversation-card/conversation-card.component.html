@@ -1,27 +1,33 @@
-<div
-  class="conversation-card"
-  [class.unread]="conversation.hasUnread"
-  [class.selected]="isSelected"
-  role="button"
-  tabindex="0"
->
-  <div class="card-icon">
-    <mat-icon>{{ conversation.displayInfo.icon }}</mat-icon>
-  </div>
+<mat-card class="conversation-card" [class.unread]="conversation.hasUnread">
+  <mat-card-header>
+    <div class="card-header-content">
+      <div class="conversation-info">
+        <h3 class="title">{{ conversation.displayInfo.title }}</h3>
+        <span class="subtitle" *ngIf="conversation.displayInfo.subtitle">{{ conversation.displayInfo.subtitle }}</span>
+      </div>
+      <div class="status-wrapper">
+        <div class="meta-row">
+          <mat-icon class="meta-icon">schedule</mat-icon>
+          <span class="meta-text">{{ timestamp }}</span>
+        </div>
+        <div class="unread-badge" *ngIf="conversation.hasUnread">
+          {{ conversation.unreadCount > 99 ? '99+' : conversation.unreadCount }} uutta
+        </div>
+      </div>
+    </div>
+  </mat-card-header>
 
-  <div class="card-content">
-    <div class="card-header">
-      <span class="title">{{ conversation.displayInfo.title }}</span>
-      <span class="timestamp">{{ timestamp }}</span>
+  <mat-card-content>
+    <div class="context-section" *ngIf="conversation.displayInfo.subtitle">
+      <mat-icon class="context-icon">{{ conversation.displayInfo.icon }}</mat-icon>
+      <span class="context-text">{{ conversation.displayInfo.subtitle }}</span>
     </div>
 
-    <div class="card-preview">
-      <span class="subtitle" *ngIf="conversation.displayInfo.subtitle">{{ conversation.displayInfo.subtitle }}: </span>
-      <span class="last-message">{{ lastMessagePreview }}</span>
-    </div>
-  </div>
-
-  <div class="unread-badge" *ngIf="conversation.hasUnread">
-    {{ conversation.unreadCount > 99 ? '99+' : conversation.unreadCount }}
-  </div>
-</div>
+    <p class="last-message" *ngIf="lastMessagePreview">
+      {{ lastMessagePreview }}
+    </p>
+    <p class="no-messages" *ngIf="!lastMessagePreview">
+      Aloita keskustelu
+    </p>
+  </mat-card-content>
+</mat-card>
