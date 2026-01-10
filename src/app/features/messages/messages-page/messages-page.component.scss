@@ -1,0 +1,87 @@
+.messages-page {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 4rem); // Account for header
+  background-color: #fafafa;
+
+  &.split-view {
+    flex-direction: row;
+  }
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: 1rem;
+  color: #666;
+}
+
+.conversation-list-panel {
+  height: 100%;
+  overflow-y: auto;
+  background-color: #fff;
+  border-right: 1px solid #e0e0e0;
+
+  .split-view & {
+    width: 20rem;
+    min-width: 18rem;
+    max-width: 25rem;
+    flex-shrink: 0;
+  }
+}
+
+.chat-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: #fff;
+
+  &.empty-state {
+    justify-content: center;
+    align-items: center;
+  }
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  text-align: center;
+
+  &.full-page {
+    height: 100%;
+  }
+
+  .empty-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    color: #666;
+
+    .material-icons {
+      font-size: 4rem;
+      color: #ccc;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 1.25rem;
+      font-weight: 500;
+      color: #333;
+    }
+
+    p {
+      margin: 0;
+      font-size: 0.875rem;
+      color: #888;
+      max-width: 20rem;
+    }
+  }
+}

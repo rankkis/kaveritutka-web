@@ -1,0 +1,16 @@
+<div class="message-thread" #scrollContainer>
+  <!-- Empty state -->
+  <div class="empty-state" *ngIf="messages.length === 0">
+    <span class="material-icons">chat_bubble_outline</span>
+    <p>Aloita keskustelu!</p>
+  </div>
+
+  <!-- Messages -->
+  <div class="messages-container" *ngIf="messages.length > 0">
+    <app-message-bubble
+      *ngFor="let message of messages; trackBy: trackByMessageId"
+      [message]="message"
+      [isOwn]="isOwnMessage(message)"
+    ></app-message-bubble>
+  </div>
+</div>

@@ -1,0 +1,64 @@
+<ng-container *ngIf="vm$ | async as vm">
+  <div class="messages-page" [class.split-view]="vm.showSplitView">
+    <!-- Loading state -->
+    <div class="loading-container" *ngIf="vm.loading">
+      <mat-spinner diameter="40"></mat-spinner>
+      <span>Ladataan keskusteluja...</span>
+    </div>
+
+    <ng-container *ngIf="!vm.loading">
+      <!-- Conversation list -->
+      <div class="conversation-list-panel" *ngIf="!vm.showSplitView || !vm.selectedConversation">
+        <app-conversation-list
+          [conversations]="vm.conversations"
+          [selectedConversationId]="vm.selectedConversation?.id"
+          (conversationSelected)="onConversationSelected($event, vm.showSplitView)"
+        ></app-conversation-list>
+      </div>
+
+      <!-- Split view: show both panels -->
+      <ng-container *ngIf="vm.showSplitView">
+        <div class="conversation-list-panel">
+          <app-conversation-list
+            [conversations]="vm.conversations"
+            [selectedConversationId]="vm.selectedConversation?.id"
+            (conversationSelected)="onConversationSelected($event, vm.showSplitView)"
+          ></app-conversation-list>
+        </div>
+
+        <div class="chat-panel" *ngIf="vm.selectedConversation">
+          <app-conversation-header
+            [conversation]="vm.selectedConversation"
+            [showBackButton]="false"
+          ></app-conversation-header>
+
+          <app-message-thread
+            [messages]="vm.messages"
+            [currentUserId]="vm.currentUserId"
+          ></app-message-thread>
+
+          <app-message-input
+            (messageSent)="onMessageSent(vm.selectedConversation.id, $event)"
+          ></app-message-input>
+        </div>
+
+        <!-- Empty state when no conversation selected -->
+        <div class="chat-panel empty-state" *ngIf="!vm.selectedConversation && vm.conversations.length > 0">
+          <div class="empty-content">
+            <span class="material-icons">chat</span>
+            <p>Valitse keskustelu vasemmalta</p>
+          </div>
+        </div>
+      </ng-container>
+
+      <!-- Empty state when no conversations -->
+      <div class="empty-state full-page" *ngIf="vm.conversations.length === 0">
+        <div class="empty-content">
+          <span class="material-icons">forum</span>
+          <h2>Ei vielä keskusteluja</h2>
+          <p>Kun aloitat keskustelun toisen vanhemman kanssa, se näkyy täällä.</p>
+        </div>
+      </div>
+    </ng-container>
+  </div>
+</ng-container>

@@ -1,0 +1,27 @@
+<div
+  class="conversation-card"
+  [class.unread]="hasUnread"
+  [class.selected]="isSelected"
+  role="button"
+  tabindex="0"
+>
+  <div class="card-icon">
+    <mat-icon>{{ icon }}</mat-icon>
+  </div>
+
+  <div class="card-content">
+    <div class="card-header">
+      <span class="title">{{ title }}</span>
+      <span class="timestamp">{{ timestamp }}</span>
+    </div>
+
+    <div class="card-preview">
+      <span class="subtitle" *ngIf="subtitle">{{ subtitle }}: </span>
+      <span class="last-message">{{ lastMessagePreview }}</span>
+    </div>
+  </div>
+
+  <div class="unread-badge" *ngIf="hasUnread">
+    {{ unreadCount > 99 ? '99+' : unreadCount }}
+  </div>
+</div>

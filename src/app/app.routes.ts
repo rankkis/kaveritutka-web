@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { authGuard } from './core/guards/auth.guard';
 import { profileCompletionGuard } from './core/guards/profile-completion.guard';
 
 export const routes: Routes = [
@@ -35,5 +36,15 @@ export const routes: Routes = [
   {
     path: 'profile',
     loadComponent: () => import('./core/user/user-profile/user-profile.component').then(m => m.UserProfileComponent)
+  },
+  {
+    path: 'messages',
+    loadComponent: () => import('./features/messages/messages-page/messages-page.component').then(m => m.MessagesPageComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'messages/:conversationId',
+    loadComponent: () => import('./features/messages/conversation-detail-page/conversation-detail-page.component').then(m => m.ConversationDetailPageComponent),
+    canActivate: [authGuard]
   }
 ];
