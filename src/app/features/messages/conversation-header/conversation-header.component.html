@@ -10,11 +10,11 @@
   </button>
 
   <div class="header-icon">
-    <mat-icon>{{ icon }}</mat-icon>
+    <mat-icon>{{ conversation.displayInfo.icon }}</mat-icon>
   </div>
 
   <div class="header-content">
-    <span class="title">{{ title }}</span>
-    <span class="subtitle" *ngIf="subtitle">{{ subtitle }}</span>
+    <span class="title">{{ conversation.displayInfo.title }}</span>
+    <span class="subtitle" *ngIf="conversation.displayInfo.subtitle">{{ conversation.displayInfo.subtitle }}</span>
   </div>
 </div>
