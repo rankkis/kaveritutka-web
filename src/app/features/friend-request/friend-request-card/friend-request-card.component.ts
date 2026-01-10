@@ -3,8 +3,6 @@ import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatBadgeModule } from '@angular/material/badge';
 import { FriendRequest } from '../../../shared';
 
 @Component({
@@ -14,9 +12,7 @@ import { FriendRequest } from '../../../shared';
     CommonModule,
     MatCardModule,
     MatButtonModule,
-    MatIconModule,
-    MatChipsModule,
-    MatBadgeModule
+    MatIconModule
   ],
   templateUrl: './friend-request-card.component.html',
   styleUrls: ['./friend-request-card.component.scss']

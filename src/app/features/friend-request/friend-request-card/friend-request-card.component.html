@@ -5,12 +5,16 @@
         <h3 class="child-name">{{ request.childName }}, {{ request.childAge }} v</h3>
         <span class="parent-name">Vanhempi: {{ request.parentName }}</span>
       </div>
-      <mat-chip *ngIf="request.status === 'closed'" class="status-chip closed">
-        Ratkaistu
-      </mat-chip>
-      <mat-chip *ngIf="request.status === 'active'" class="status-chip active">
-        Aktiivinen
-      </mat-chip>
+      <div class="status-wrapper">
+        <div class="meta-row">
+          <mat-icon class="meta-icon">schedule</mat-icon>
+          <span class="meta-text">{{ getRelativeTime() }}</span>
+        </div>
+        <div class="meta-row">
+          <mat-icon class="meta-icon">location_on</mat-icon>
+          <span class="meta-text">{{ request.city }}</span>
+        </div>
+      </div>
     </div>
   </mat-card-header>
 
@@ -32,17 +36,6 @@
       </a>
     </p>
 
-    <!-- Location -->
-    <div class="location">
-      <mat-icon>location_on</mat-icon>
-      <span>{{ request.city }}</span>
-    </div>
-
-    <!-- Created date -->
-    <div class="created-date">
-      <mat-icon>schedule</mat-icon>
-      <span>{{ getRelativeTime() }}</span>
-    </div>
   </mat-card-content>
 
   <mat-card-actions>

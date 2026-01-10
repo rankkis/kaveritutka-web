@@ -226,7 +226,17 @@ export class MapComponent {
 }
 ```
 
-### 3. ViewModel Pattern (vm$)
+### 3. Styles
+All the widths and heights should be to relative to main html font-size by using rem.
+```scss
+// ✅ Good
+gap: 1rem;
+
+// ❌ Bad
+gap: 16px
+```
+
+### 4. ViewModel Pattern (vm$)
 Use the ViewModel pattern for complex state management. All data for the template comes from a single `vm$` observable.
 
 **Reference**: [VM Pattern in Angular](https://www.angularspace.com/vm-pattern-in-angular/)
@@ -277,7 +287,7 @@ export class MapComponent {
 - Public methods don't mutate `vm$` directly—they update source observables/subjects
 - All reactive state flows through `vm$`
 
-### 4. Component Structure & Organization
+### 5. Component Structure & Organization
 Components must follow a consistent structure with alphabetical ordering within each section.
 
 **Order of sections:**
@@ -331,7 +341,7 @@ export class PlaytimeDialogComponent {
 }
 ```
 
-### 5. Pure Helper Functions over Private Methods
+### 6. Pure Helper Functions over Private Methods
 Extract complex logic into **pure helper functions** in separate files instead of private methods. These helpers should:
 - Be **pure functions** (same input → same output, no side effects)
 - Live in `src/app/shared/utils/` or feature-specific `helpers/` folders
