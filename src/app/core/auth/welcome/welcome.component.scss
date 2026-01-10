@@ -1,15 +1,16 @@
 .welcome-container {
   display: flex;
-  justify-content: center;
-  align-items: center;
+  flex-direction: column;
   min-height: calc(100vh - 80px);
   padding: 20px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  overflow-y: auto;
 }
 
 .welcome-card {
   max-width: 600px;
   width: 100%;
+  margin: auto;
   border-radius: 16px;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
 
