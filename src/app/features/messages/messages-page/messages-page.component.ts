@@ -144,6 +144,9 @@ export class MessagesPageComponent implements OnInit, OnDestroy {
   }
 
   onMessageSent(conversationId: string, content: string): void {
-    this.messageService.sendMessage(conversationId, { content }).subscribe();
+    this.messageService.sendMessage(conversationId, { content }).subscribe(() => {
+      // Re-emit to trigger messages refresh
+      this.selectedConversationId$.next(conversationId);
+    });
   }
 }
