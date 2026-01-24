@@ -17,6 +17,15 @@ export class MessageInputComponent {
   isSending = false;
   messageText = '';
 
+  onKeydown(event: KeyboardEvent): void {
+    // Enter without Shift sends the message
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault();
+      this.sendMessage();
+    }
+    // Shift+Enter allows default behavior (line break)
+  }
+
   sendMessage(): void {
     const content = this.messageText.trim();
     if (!content || this.isSending) return;
